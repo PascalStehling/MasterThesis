@@ -1,0 +1,196 @@
+\documentclass{fiwthesis}
+
+% ========
+%  Pakete
+% ========
+
+\usepackage{textgreek}           % griechische Buchstaben außerhalb des Math-Mode
+\usepackage{amsmath}             % zentrierte Formeln
+\usepackage{amssymb}             % erweiterter Formelsatz mathem. Symbole
+
+\usepackage{boldline}            % breitere Linien in Tabellen
+\usepackage{booktabs}            % typographisch richtige Tabellen setzen
+\usepackage{tabularx}            % Erweiterte Tabellendarstellung
+\usepackage{multirow}            % Spalte über mehrere Zeilen oder Spalten ausdehnen
+\usepackage{xltabular}           % Zeilenumbrüche in tabularx erlauben
+
+\usepackage{graphicx}            % ermöglicht das Einbinden von Grafiken
+\usepackage{subcaption}          % mehrere Bilder in einem Bild
+\usepackage{pgfplots}            % Grafiken erzeugen
+\usepackage{smartdiagram}        % schnelle und einfache Grafiken
+\usetikzlibrary{positioning}     % bessere Ortsbezeichnung
+\usetikzlibrary{shapes}          % typische Formen wie Rechtecke, Ellipsen usw. einfach zeichnen
+\usetikzlibrary{intersections}   % Schnittpunkt von Geraden adressieren
+\usetikzlibrary{angles, quotes}  % einfacheres Zeichnen von Winkeln
+\usetikzlibrary{                 % Symbole für Schaltpläne
+  circuits.logic.US,
+  circuits.logic.IEC,
+  circuits.logic.CDH,
+  circuits.ee.IEC
+}
+
+\usepackage{lipsum}
+
+% ===========
+%  Metadaten
+% ===========
+
+\thesis{Bachelor-Thesis}
+\title{Die Grundlagen der Arithmetik: Eine logisch-mathematische Untersuchung über den Begriff der Zahl}
+\author{Gottlob Frege}
+\matrnr{123456}
+\bdate{08.11.1848}
+\bcity{Wismar}
+\supervisor{Prof.~Dr.~Erika Mustermann}
+\secsupervisor{John Doe}
+\keywords{Logik, Mathematik}
+
+% Metadaten in die PDF-Datei schreiben
+\makepdfmetadata
+
+% ===============
+%  Präambel
+% ===============
+
+% PGF Kompatibilitätseinstellung
+\pgfplotsset{width=0.95\textwidth,compat=newest}
+
+% % Bibliographie einbinden
+\bibliography{quellen}
+
+% Glossar einbinden
+\input{verzeichnisse/glossar}
+
+% Abkürzungen einbinden
+\input{verzeichnisse/abkuerzungen}
+
+% Symbole einbinden
+\input{verzeichnisse/symbole}
+
+% Glossar- und Abkürzungsverzeichniserstellung
+\makeglossaries{}
+
+% Index erzeugen
+\makeindex[
+  intoc=true,
+  title=Index,
+  columns=2]{}
+\indexsetup{headers={\indexname}{\indexname}}
+
+% ===============
+%  Eigene Makros
+% ===============
+
+\newcommand*{\code}[1]{\texttt{#1}}
+
+% ===============
+%  Beginn Thesis
+% ===============
+
+\begin{document}
+
+% ============
+%  "Vorspann"
+% ============
+
+% Titelseite
+\maketitle
+
+% Aufgabenstellung
+\maketask{\input{kapitel/aufgabenstellung}}
+
+% Abstract
+\makeabstract{
+  Maximal eine halbe Seite.
+}{
+  English Version.
+}
+
+% Inhaltsverzeichnis (Schalter `compact' sorgt für einfachen Zeilenabstand)
+\maketoc[compact]
+
+% ==========
+%  Textteil
+% ==========
+
+% Einleitung
+\input{kapitel/einleitung}
+
+% weitere Kapitel hier jeweils einzeln einbinden
+\input{kapitel/beispiel}
+
+% Schluss
+\input{kapitel/schluss}
+
+% =========
+%  Anlagen
+% =========
+
+\begin{appendices}
+
+  \input{anlagen/beispiel}
+
+\end{appendices}
+
+% ===============
+%  Verzeichnisse
+% ===============
+
+% Verzeichnisse mit einzeiligem Zeilenabstand
+\singlespacing
+
+% Literaturverzeichnis
+\listofreferences
+
+% Abbildungsverzeichnis einfügen
+\listoffigures
+
+% Tabellenverzeichnis einfügen
+\listoftables
+
+% Algorithmenverzeichnis einfügen
+\listofalgorithms
+
+% % Quelltextverzeichnis einfügen
+\listoflistings
+
+% Abkürzungsverzeichnis
+\listofacronyms
+
+% Symbolverzeichnis
+\listofsymbols
+
+% falls ein anderer Glossar-Stil genutzt wird und die zweite Spalte zu schmal ist:
+% \setlength{\glsdescwidth}{0.8\linewidth}
+
+% Glossar einfügen
+\printglossary
+
+% Index einfügen
+\printindex
+
+% wieder auf 1½-fachen Zeilenabstand umschalten
+\normalspacing
+
+% =========================================
+%  Selbstständigkeitserklärung, CD, Thesen
+% =========================================
+
+% Selbstständigkeitserklärung
+\makedeclarationofindependence
+
+% Inhalt der CD; nur für gedruckte Version wichtig
+\makecd{\input{anlagen/cd}}
+
+% Thesen (allerletzte Seite); Thesen bitte immer durch Semikolons trennen
+\maketheses{%
+  These 1;
+  These 2;
+  \ldots
+}
+
+\end{document}
+
+% =============
+%  Ende Thesis
+% =============

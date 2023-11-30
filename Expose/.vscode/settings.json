@@ -1,0 +1,133 @@
+{
+  "editor.insertSpaces": true,
+  "[latex]": {
+    "editor.wordWrap": "on"
+  },
+  "files.exclude": {
+    "*.acn": true,
+    "*.acr": true,
+    "*.alg": true,
+    "*.bbl": true,
+    "*.ggl": true,
+    "*.glo": true,
+    "*.gls": true,
+    "*.ist": true,
+    "*.lol": true,
+    "*.run.xml": true,
+    "*.slg": true,
+    "*.syg": true,
+    "*.syi": true,
+    "*.aux": true,
+    "*.idx": true,
+    "*.ilg": true,
+    "*.ind": true,
+    "*.loa": true,
+    "*.iof": true,
+    "*.lof": true,
+    "*.lot": true,
+    "*.log": true,
+    "*.out": true,
+    "*.blg": true,
+    "*.glg": true,
+    "*.toc": true,
+    "*.bcf": true,
+    "*.pyg": true,
+    "*-blx.bib": true,
+    "_minted-*": true
+  },
+  // uncomment the following line if you want to compile on save - this is not recommended for large projects!
+  //"latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.clean.method": "glob",
+  "latex-workshop.latex.clean.subfolder.enabled": true,
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.acn",
+    "*.acr",
+    "*.alg",
+    "*.bbl",
+    "*.glg",
+    "*.glo",
+    "*.gls",
+    "*.ist",
+    "*.aux",
+    "*.blg",
+    "*.idx",
+    "*.ilg",
+    "*.ind",
+    "*.loa",
+    "*.lof",
+    "*.lot",
+    "*.out",
+    "*.lol",
+    "*.run.xml",
+    "*.slg",
+    "*.syg",
+    "*.syi",
+    "*.synctex.gz",
+    "*.nlo",
+    "*.bcf",
+    "*.log",
+    "*.toc",
+    "_minted-*/**", 
+    "_minted-*/"
+  ],
+  "latex-workshop.latex.texDirs": [
+    "%DIR%/kapitel/**/*.tex",
+  ],
+  "latex-workshop.latexindent.args": [
+    "-c",
+    "%DIR%/",
+    "%TMPFILE%",
+    "-y=defaultIndent: '  '"
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "lualatex",
+      "command": "lualatex",
+      "args": [
+        "--shell-escape",
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-output-directory=%OUTDIR%",
+        "%DOCFILE%"
+      ],
+      "env": {}
+    },
+    {
+      "name": "makeglossaries",
+      "command": "makeglossaries",
+      "args": [
+        "%DOCFILE%"
+      ],
+      "env": {}
+    },
+    {
+      "name": "biber",
+      "command": "biber",
+      "args": [
+        "%DOCFILE%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "Quick Build",
+      "tools": [
+        "lualatex"
+      ]
+    },
+    {
+      "name": "Full Build",
+      "tools": [
+        "lualatex",
+        "biber",
+        "makeglossaries",
+        "lualatex",
+        "lualatex",
+        "lualatex"
+      ]
+    }
+  ],
+  "cSpell.language": "en,de",
+}

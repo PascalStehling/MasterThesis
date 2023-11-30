@@ -1,0 +1,22 @@
+\small
+
+\begin{minipage}[t]{0.97\linewidth}
+  \dirtree{%
+    .1 /\DTcomment{Wurzelverzeichnis}.
+    .2 OrdnerA\DTcomment{Ein Ordner auf dem Datenträger}.
+    .3 OrdnerB\DTcomment{Ein Unterordner auf dem Datenträger}.
+    .3 datei.xyz\DTcomment{Eine Datei}.
+    .2 thesis.pdf\DTcomment{PDF-Datei dieser Bachelor-Thesis}.
+  }
+\end{minipage}
+
+\vspace{2em}
+
+Im Unterverzeichnis \code{tools} des Projekts findet sich das Perl-Skript \code{dirtree.pl}, mit welchem Inhalte für das dirtree-Environment (siehe oberhalb) semiautomatisch erstellt werden können.
+
+Die Nutzung aus der Kommandozeile ist wie folgt:\\
+\code{perl dirtree.pl /path/to/top/of/dirtree}
+
+Quelle des Skripts:\\
+\url{https://texblog.org/2012/08/07/semi-automatic-directory-tree-in-latex/}
+\normalsize
