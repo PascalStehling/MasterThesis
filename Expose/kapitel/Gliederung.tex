@@ -1,3 +1,61 @@
 \chapter{Gliederung}
-\label{Gliederung}
-Gliederung
+\label{Grob-Gliederung}
+
+\begin{enumerate}
+  \item Einleitung, Motivation und Zielstellung
+  \item Mathematische Grundlagen
+        \begin{enumerate}
+          \item Gitterbasierte Kryptographie/Gitter Problem
+          \item Polynomring
+        \end{enumerate}
+  \item Verknüpfung von quantenresistenten Ansätzen mit dem Homomorphismus
+        \begin{enumerate}
+          \item Quantenresisitente Ansätze der Kryptpgraphie
+                \begin{itemize}
+                  \item LWE
+                  \item RLWE
+                  \item MLWE
+                \end{itemize}
+          \item Eigenschaften Homomorpher Kryptosysteme
+          \item Anwendung der Eigenschaften auf LWE, RLWE, MLWE auf basis existierender FHE-Schemas
+        \end{enumerate}
+  \item Praktischer Vergleich unterschiedlicher Homomorpher Kryptosysteme
+        \begin{enumerate}
+          \item Vergleichskriterien und Testaufbau
+          \item Durchführung der Tests
+          \item Ergebnisse und Auswertung
+        \end{enumerate}
+  \item Fazit und Ausblick
+\end{enumerate}
+
+% 1. Einleitung, Motivation und Zielstellung
+% 2. Mathematische Grundlagen
+%     1. Gitterbasierte Kryptographie/Gitter Problem
+%     2. Polynomring
+% 3. Verknüpfung von quanten resistenten ansätzen mit dem homomorphismus
+%     1. Einführung
+%     2. Quantenresisitente Ansätze:der Kryptpgraphie
+%         - LWE
+%         - RLWE
+%         - MLWE
+%     3. Eigenschaften Homomorpher Kryptosysteme
+%         - Teilweise und Voll Homomorphe Kryptosysteme
+%         - Bootstrapping
+%     4. Anwendung der Eigenschaften auf LWE, RLWE, MLWE
+% 4. Proof of Concept
+%     1. Vergleichskriterien:
+%         - Vergleich Schlüsselgröße bei gleicher Sicherheit
+%         - Vergleich der Laufzeit für: Schlüsselgenerierung, Verschlüsselung, Entschlüsselung, Addition, Multiplikation
+%         - Vergleich der Fehlerate bei: Addition, Multiplikation
+%     2. Aufbau des Tests
+%         - einheitliche implementierung der Algorithmen (LWE, RLWE, MLWE), um gliches/ähnliches Laufzeitverhaltenzu zu erhalten
+%             - Der Geschwindigkeitsunterschied durch verschiedenen optimierte Implementierungen muss minimiert werden, ansonsten schelchte vergleichbarkeit
+%         - einheitlicher Testrahmen für die verschiedenen Algorithmen
+%             - WICHTIG: gleichen Zahlen in der selben Reihenfolge für die verschiedenen operationen, um vergleichbarkeit zu verbessern
+%         - Testen der oben gennaten Funktionen nach ihren Eigenschaften
+%     3. Ergebnisse und Auswertung
+%         - Vergleich der Ergebnnisse untereinander
+%         - Vergleich der Schlüsselgröße mit bereits existierenden Algorithmen
+%         - Vergleich der Laufzeit von Schlüsselgenerierung, Verschlüsselung, Entschlüsselung mit existierenden Algorithmen
+%         - Überprüfung der Laufzeit mit Blick auf Fehlerrate von Addition, Multiplikation auf praktische Anwendbarkeit
+% 5. Diskussion Praktischer Probleme
