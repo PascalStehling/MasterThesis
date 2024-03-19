@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
         "einberechneten",
-        "mathbb"
+        "mathbb",
+        "padd",
+        "pmul",
+        "polyadd",
+        "polymod",
+        "polymul"
     ]
 }

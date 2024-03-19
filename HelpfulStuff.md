@@ -16,4 +16,4 @@ In diesem Dokument ist eine Sammlung von Mathematischen Begriffen, Formeln, ... 
 - [A KEM based on Module-LWE](https://youtu.be/rexIVrp8J6A?si=v7ePmXpz-Z_eYnac)
 
 
-
+- [Matrices and Polynomials](https://www.le.ac.uk/users/dsgp1/COURSES/THIRDMET/MYLECTURES/9XMATRIPOL.pdf)
