@@ -1,11 +1,18 @@
 {
     "cSpell.words": [
+        "circulant",
         "einberechneten",
+        "hstack",
+        "Kryptosystem",
+        "Kryptosysteme",
         "mathbb",
+        "ndim",
         "padd",
         "pmul",
         "polyadd",
         "polymod",
-        "polymul"
+        "polymul",
+        "quantensichere",
+        "RLWE"
     ]
 }

@@ -25,7 +25,8 @@
 				"ms-toolsai.vscode-jupyter-slideshow",
 				"ms-toolsai.vscode-jupyter-cell-tags",
 				"mhutchie.git-graph",
-				"ms-toolsai.jupyter-keymap"
+				"ms-toolsai.jupyter-keymap",
+				"eeyore.yapf"
 			],
 			"settings": {
 				"editor.insertSpaces": true,
