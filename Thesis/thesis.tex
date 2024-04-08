@@ -1,0 +1,114 @@
+\documentclass{fiwthesis}
+
+% ========
+%  Pakete
+% ========
+
+\usepackage{textgreek}           % griechische Buchstaben außerhalb des Math-Mode
+\usepackage{amsmath}             % zentrierte Formeln
+\usepackage{amssymb}             % erweiterter Formelsatz mathem. Symbole
+
+\usepackage{boldline}            % breitere Linien in Tabellen
+\usepackage{booktabs}            % typographisch richtige Tabellen setzen
+\usepackage{tabularx}            % Erweiterte Tabellendarstellung
+\usepackage{multirow}            % Spalte über mehrere Zeilen oder Spalten ausdehnen
+\usepackage{xltabular}           % Zeilenumbrüche in tabularx erlauben
+
+\usepackage{graphicx}            % ermöglicht das Einbinden von Grafiken
+\usepackage{subcaption}          % mehrere Bilder in einem Bild
+\usepackage{pgfplots}            % Grafiken erzeugen
+\usepackage{smartdiagram}        % schnelle und einfache Grafiken
+
+% ===========
+%  Metadaten
+% ===========
+
+\thesis{Master-Thesis}
+\title{Homomorphic Post-Quantum Cryptography - Evaluation of Module Learning with Error in Homomorphic Cryptography}
+\author{Pascal Stehling}
+\matrnr{455051}
+\bdate{18.12.1997}
+\bcity{Wismar}
+\supervisor{Prof.~Dr.-Ing.~habil.~Andreas Ahrens}
+% \secsupervisor{ZWEITBETREUER}
+\keywords{Logik, Mathematik}
+
+% Metadaten in die PDF-Datei schreiben
+\makepdfmetadata
+
+% ===============
+%  Präambel
+% ===============
+
+% PGF Kompatibilitätseinstellung
+\pgfplotsset{width=0.95\textwidth,compat=newest}
+
+% % Bibliographie einbinden
+\bibliography{quellen}
+
+% Glossar einbinden
+\input{verzeichnisse/glossar}
+
+% Abkürzungen einbinden
+\input{verzeichnisse/abkuerzungen}
+
+% Symbole einbinden
+\input{verzeichnisse/symbole}
+
+% % Glossar- und Abkürzungsverzeichniserstellung
+\makeglossaries{}
+
+% Index erzeugen
+\makeindex[
+  intoc=true,
+  title=Index,
+  columns=2]{}
+\indexsetup{headers={\indexname}{\indexname}}
+
+% ===============
+%  Eigene Makros
+% ===============
+
+\newcommand*{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+% Titelseite
+\maketitle
+
+\maketask{\input{chapter/TaskDefinition.tex}}
+
+\makeabstract{
+  Abstract.
+}
+
+\maketoc[compact]
+
+% ==========
+%  Textteil
+% ==========
+
+
+% ===============
+%  Verzeichnisse
+% ===============
+
+% Verzeichnisse mit einzeiligem Zeilenabstand
+\singlespacing
+
+% Literaturverzeichnis
+\listofreferences
+
+% falls ein anderer Glossar-Stil genutzt wird und die zweite Spalte zu schmal ist:
+% \setlength{\glsdescwidth}{0.8\linewidth}
+
+% Glossar einfügen
+\printglossary
+
+% Index einfügen
+\printindex
+
+% wieder auf 1½-fachen Zeilenabstand umschalten
+\normalspacing
+
+\end{document}

@@ -1,0 +1,25 @@
+---
+kind: pipeline
+type: docker
+name: make
+
+steps:
+- name: make project
+  image: leplusorg/latex
+  commands:
+    - make nuke
+    - make all
+
+- name: pdf push master
+  image: leplusorg/latex
+  commands:
+    - git add thesis.pdf
+    - git commit -m "Update PDF automatically [CI SKIP]"
+    - git push --set-upstream origin master  
+  when:
+    branch:
+      - master
+    status:
+      - success
+  depends_on:
+    - make project
