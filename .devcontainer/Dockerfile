@@ -25,6 +25,8 @@ RUN curl -L http://cpanmin.us | perl - App::cpanminus \
     && cpanm File::HomeDir \
     && cpanm Unicode::GCString
 
+
+RUN sudo apt install build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg dvisvgm
 # Clean up
 RUN apt-get autoremove -y \
     && apt-get clean -y \
