@@ -95,7 +95,7 @@ $$\mathbb{Z}_n = \mathbb{Z}/n = \mathbb{Z} \mod n = \{[a]_n | a = 0, 1, \dot, n-
 
 For example, $Z_3 = \{[0]_3, [1]_3, [2]_3\}$. With addition and multiplication it is possible to create a commutative ring from $\mathbb{Z}_n$.
 \begin{center}
-    $[a]_n + [b]_n = [a+b]_n$ (addition) and $[a]_n \cdot [b]_n = [a\cdot b]_n$ (multiplication)
+  $[a]_n + [b]_n = [a+b]_n$ (addition) and $[a]_n \cdot [b]_n = [a\cdot b]_n$ (multiplication)
 \end{center}
 
 This allows to create finite rings $\mathbb{Z}_n$ for every natural number $n$ with $n$ elements in each ring and to perform calculations inside these ring. For example, an ring with $n=60$ can be created, which represents the minutes in every hour. If the minute hand shows now $48$ and we want to know where it is after $3$ times $13$ minutes, we can calculate it like:
@@ -113,16 +113,16 @@ They can be added and multiplied like any other polynomial. Such a polynomial ri
 Such a polynomial ring can also be defined over a finite ring, so that each coefficient is part of that finite ring. This is written as $R_n = \mathbb{Z}_n[x]$. The coefficients follow the same rules for addition and multiplication as described above. The following example takes place in the ring $R_5 = \mathbb{Z}_5[x]$ and $f, g \in R_5$ with $f=3x^2+2x+1$ and $g=2x+4$:
 
 \begin{align*}
-  f\cdot 4 &= (3x^2+2x+1) * 4 \\
-      &= [12]_5x^2+[8]_5x+[4]_5 \\
-      &= 2x^2+3x+4 \\
-  f+g &= (3x^2+2x+1)+(2x+4) \\
-      &= [3]_5x^2+[4]_5x+[5]_5\\
-      &= 3x^2+4x \\
-  f\cdot g &= (3x^2+2x+1)+(2x+4) \\ 
-      &= [6]_5x^3+[4]_5x^2+[2]_5x+[12]_5x^2+[8]_5x+[4]_5 \\
-      &= [6]_5x^3+[16]_5x^2+[10]_5x+[4]_5 \\
-      &= 1x^3+1x^2+0x+4 \\
+  f\cdot 4 & = (3x^2+2x+1) * 4                                 \\
+           & = [12]_5x^2+[8]_5x+[4]_5                          \\
+           & = 2x^2+3x+4                                       \\
+  f+g      & = (3x^2+2x+1)+(2x+4)                              \\
+           & = [3]_5x^2+[4]_5x+[5]_5                           \\
+           & = 3x^2+4x                                         \\
+  f\cdot g & = (3x^2+2x+1)+(2x+4)                              \\ 
+           & = [6]_5x^3+[4]_5x^2+[2]_5x+[12]_5x^2+[8]_5x+[4]_5 \\
+           & = [6]_5x^3+[16]_5x^2+[10]_5x+[4]_5                \\
+           & = 1x^3+1x^2+0x+4                                  \\
 \end{align*}
 
 As with any polynomial multiplication, the degree can increase as you multiply two polynomials, leading to increasingly larger polynomials with each multiplication. Since the modulo operation creates a finite ring, we can also create a modulo operation that creates a finite ring over a polynomial where the degree stays the same or is less than some upper bound. For this we have a ring $R$ and $f, g, q, r \in R[x], g\neq 0$, where $f$ is a polynomial, $g$ is the modulus, and $r$ is the remainder:
@@ -136,10 +136,151 @@ $$R_n = \mathbb{Z}_n[x]/f(x)$$
 For most cases in cryptography, $f(x)$ will be the function $x^d+1$, as this simplifies the calculation of the remainder. Instead of doing lengthy polynomial divisions, one can simply subtract $d$ from the exponent and invert the coefficient if the exponent is greater than or equal to $d$. This must be repeated until the largest exponent is less than $d$. For example, $f \in \mathbb{Z}_5[x]/(x^3+1)$
 
 \begin{align*}
-  f &= 3x^6+x^5+2x^3+4x^2+3 &\mod (x^3+1) \\
-    &= -3x^3-x^2-2+4x^2+3 &\mod (x^3+1) \\
-    &= 3-x^2-2+4x^2+3 \\
-    &= 3x^2+4
+  f & = 3x^6+x^5+2x^3+4x^2+3 & \mod (x^3+1) \\
+    & = -3x^3-x^2-2+4x^2+3   & \mod (x^3+1) \\
+    & = 3-x^2-2+4x^2+3                      \\
+    & = 3x^2+4
 \end{align*}
 
-\subsection*{Polynomial Ring multiplication using a Matrix}
+\subsection*{Polynomial Ring arithmetic using Vectors \& Matrices}
+
+When calculating with polynomials, this can also be broken down into vector and matrix calculations. This is done by separating a polynomial into two vectors, the coefficient vector and the variable vector.
+$$
+  f(x) = a_nx^n + a_{n-1}x^{n-1}+\cdots+a_1x+a_0 = \begin{bmatrix}a_n\\a_{n-1}\\ \vdots \\a_1\\ a_0 \end{bmatrix} \cdot \begin{bmatrix}x^n & x^{n-1} & \cdots & x &  1 \end{bmatrix}
+$$
+
+When doing addition with such vectors, we just need to make sure that the vectors have the same length, which means that the polynomials must have the same degree. If this is not the case, we can fill the shorter vector with 0 so that they have the same degree. As our polynomials are always defined in a commutative  ring, the associative, commutative and distributive properties apply. So addition would look like this:
+
+\begin{align*}
+  f(x) + g(x) & = {
+  (a_nx^n + a_{n-1}x^{n-1}+\cdots+a_1x+a_0)+
+  (b_nx^n + b_{n-1}x^{n-1}+\cdots+b_1x+b_0)
+  }                 \\
+              & = {
+  \begin{bmatrix}
+    a_0     \\
+    a_1     \\
+    \vdots  \\
+    a_{n-1} \\
+    a_n
+  \end{bmatrix} \cdot
+  \begin{bmatrix}
+    1       & 
+    x       & 
+    \cdots  & 
+    x^{n-1} & 
+    x^n
+  \end{bmatrix} + 
+  \begin{bmatrix}
+    b_0     \\
+    b_1     \\
+    \vdots  \\
+    b_{n-1} \\
+    b_n     \\
+  \end{bmatrix} \cdot 
+  \begin{bmatrix}
+    1       & 
+    x       & 
+    \cdots  & 
+    x^{n-1} & 
+    x^n     & 
+  \end{bmatrix}
+  }                 \\
+              & = {
+  \left (
+  \begin{bmatrix}
+      a_0     \\
+      a_1     \\
+      \vdots  \\
+      a_{n-1} \\
+      a_n
+    \end{bmatrix} + 
+  \begin{bmatrix}
+      b_0     \\
+      b_1     \\
+      \vdots  \\
+      b_{n-1} \\
+      b_n     \\
+    \end{bmatrix}
+  \right ) \cdot 
+  \begin{bmatrix}
+    1       & 
+    x       & 
+    \cdots  & 
+    x^{n-1} & 
+    x^n 
+  \end{bmatrix}
+  }                 \\
+\end{align*}
+
+The variable vector will always have the same shape as the coefficient vector. Because of the ring properties, the variable vector can always be placed outside the parentheses, since all polynomials have the same one in common. For this reason, only the coefficient vector will be written out in this paper.
+
+Doing the multiplication is a bit trickier, as normally the degree increases when multiplying two polynomials. But as seen previously, this is not the case if we are doing our calculations inside an polynomial ring. So by using the polynomial ring $R_n = \mathbb{Z}_n/(x^d+1)$ the degree of the polynomial will never be greater then $d$. So even when doing multiplications, the degree will always be smaller then $d$.
+
+\unsure[inline]{Cannot find any proof that verefies the following, or a name for it, but its working.}
+
+This makes it possible to turn the polynomial multiplication and subsequent modulo operation into a single matrix-vector multiplication, where the resulting vector is the wanted coefficient vector. This is only possible if we use the modulo polynomial $x^d+1$. For this we need the coefficient vectors of both polynomials of the same degree, both from the same ring $f, g \in \mathbb{Z}_n/(x^d+1)$. One of the vectors has to be transformed into a circulant matrix, where the diagonal and the lower triangle are positive and the upper triangle (without diagonal) is negative. This matrix is then multiplied by the other coefficient vector, resulting in the new coefficient vector.
+$$
+  \begin{bmatrix}
+    a_0     & -a_{n-1} & -a_{n-2} & \cdots & -a_2   & -a_1     \\
+    a_1     & a_0      & -a_{n-1} & \cdots & -a_3   & -a_2     \\
+    a_2     & a_1      & a_0      & \cdots & -a_4   & -a_3     \\
+    \vdots  & \vdots   & \vdots   & \ddots & \vdots & \vdots   \\
+    a_{n-2} & a_{n-3}  & a_{n-4}  & \cdots & a_0    & -a_{n-1} \\
+    a_{n-1} & a_{n-2}  & a_{n-3}  & \cdots & a_1    & a_0      \\
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    b_0     \\
+    b_1     \\
+    b_2     \\
+    \vdots  \\
+    b_{n-2} \\
+    b_{n-1}
+  \end{bmatrix}
+$$
+
+The following examples will show this for two polynomials $f, g \in \mathbb{Z}_n/(x^3+1)$ with $f(x) = 3x^2+4x+1$ and $g(x) = x^2+6x+3$, using a normal polynomial multiplication and subsequent modulo, and the same with the matrix-vector multiplication.
+
+\begin{align*}
+  f(x)\cdot g(x) & = (3x^2+4x+1) \cdot (x^2+6x+3)                 & \mod x^3+1 \\
+                 & = 3x^4+18x^3+ 9x^2  + 4x^3+24x^2+12x+ x^2+6x+3 & \mod x^3+1 \\
+                 & = 3x^4+22x^3+34x^2+18x+3                       & \mod x^3+1 \\
+                 & = -3x-22+34x^2+18x+3                           &            \\
+                 & = 34x^2+15x-19                                 &            \\
+  f(x)\cdot g(x) & = {
+  \begin{bmatrix}
+    1 & -3 & -4 \\
+    4 & 1  & -3 \\
+    3 & 4  & 1  \\
+  \end{bmatrix}
+  \cdot 
+  \begin{bmatrix}
+    3 \\
+    6 \\
+    1 \\
+  \end{bmatrix} }                                                              \\
+                 & = {
+  3 \cdot \begin{bmatrix}
+            1 \\
+            4 \\
+            3 \\
+          \end{bmatrix}
+  + 6 \cdot   \begin{bmatrix}
+                -3 \\
+                1  \\
+                4  \\
+              \end{bmatrix}
+  + 1 \cdot   \begin{bmatrix}
+                -4 \\
+                -3 \\
+                1  \\
+              \end{bmatrix}
+  }                                                                            \\
+                 & = \begin{bmatrix}
+                       -19 \\
+                       15  \\
+                       34  \\
+                     \end{bmatrix}                                            \\
+                 & = 34x^2+15x-19                                              \\                     
+\end{align*}
