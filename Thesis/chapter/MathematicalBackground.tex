@@ -225,12 +225,12 @@ Doing the multiplication is a bit trickier, as normally the degree increases whe
 This makes it possible to turn the polynomial multiplication and subsequent modulo operation into a single matrix-vector multiplication, where the resulting vector is the wanted coefficient vector. This is only possible if we use the modulo polynomial $x^d+1$. For this we need the coefficient vectors of both polynomials of the same degree, both from the same ring $f, g \in \mathbb{Z}_n/(x^d+1)$. One of the vectors has to be transformed into a circulant matrix, where the diagonal and the lower triangle are positive and the upper triangle (without diagonal) is negative. This matrix is then multiplied by the other coefficient vector, resulting in the new coefficient vector.
 $$
   \begin{bmatrix}
-    a_0     & -a_{n-1} & -a_{n-2} & \cdots & -a_2   & -a_1     \\
-    a_1     & a_0      & -a_{n-1} & \cdots & -a_3   & -a_2     \\
-    a_2     & a_1      & a_0      & \cdots & -a_4   & -a_3     \\
-    \vdots  & \vdots   & \vdots   & \ddots & \vdots & \vdots   \\
-    a_{n-2} & a_{n-3}  & a_{n-4}  & \cdots & a_0    & -a_{n-1} \\
-    a_{n-1} & a_{n-2}  & a_{n-3}  & \cdots & a_1    & a_0      \\
+    a_0     & -a_{n}  & -a_{n-1} & \cdots & -a_2   & -a_1   \\
+    a_1     & a_0     & -a_{n}   & \cdots & -a_3   & -a_2   \\
+    a_2     & a_1     & a_0      & \cdots & -a_4   & -a_3   \\
+    \vdots  & \vdots  & \vdots   & \ddots & \vdots & \vdots \\
+    a_{n-1} & a_{n-2} & a_{n-3}  & \cdots & a_0    & -a_{n} \\
+    a_{n}   & a_{n-1} & a_{n-2}  & \cdots & a_1    & a_0    \\
   \end{bmatrix}
   \cdot
   \begin{bmatrix}
@@ -243,7 +243,7 @@ $$
   \end{bmatrix}
 $$
 
-The following examples will show this for two polynomials $f, g \in \mathbb{Z}_n/(x^3+1)$ with $f(x) = 3x^2+4x+1$ and $g(x) = x^2+6x+3$, using a normal polynomial multiplication and subsequent modulo, and the same with the matrix-vector multiplication.
+The following examples will show this for two polynomials $f, g \in \mathbb{Z}_n/(x^3+1)$ with $f(x) = 3x^2+4x+1$ and $g(x) = x^2+6x+3$, using a normal polynomial multiplication and subsequent modulo, and the same with an single matrix-vector multiplication.
 
 \begin{align*}
   f(x)\cdot g(x) & = (1+4x+3x^2) \cdot (3+6x+x^2)                & \mod x^3+1 \\
@@ -285,9 +285,132 @@ The following examples will show this for two polynomials $f, g \in \mathbb{Z}_n
                        15  \\
                        34  \\
                      \end{bmatrix}                                           \\
-                 & = -19+15x+34x^2                                             \\                     
+                 & = -19+15x+34x^2                                            \\                     
 \end{align*}
 
+After these calculations the modulo operation could be applied on the coefficients either in the polynomial or in the vector, to generate the finite coefficient ring.
 
-\subsection*{Multidimensional polynomial rings}
+\subsection*{Multidimensional Rings}
 
+Rings can be not only in one dimension, but also in higher dimensions. This is written, as usual, with the dimensions as exponents in the ring. So a $m \times n$ finite ring matrix with modulus $q$ would be written as $\mathbb{Z}^{m\times n}_q$.
+
+The same can be done with finite polynomial rings. To make it easier, we will first define the ring $R = \mathbb{Z}_q[x]/(x^d+1)$ and based on this ring we will define the form of a variable like $A \in R^{m\times n}$, which would result in a $m \times n$ matrix where all values are elements of the finite polynomial ring $R$.
+
+All calculations in higher dimensions follow the usual rules. To multiply higher dimensional finite polynomial rings, the method described above is used. This means that each polynomial is transformed into a vector, or a matrix if it is a multiplication. Therefore, the size of the current dimension is increased by the degree $d$. As an example, let us consider the ring $R = \mathbb{Z}_5[x]/(x^3+1)$ and $f \in R^{2\times 2} | f=\begin{bmatrix}
+    1+2x+3x^2 & 2+3x+4x^2 \\
+    3+4x+x^2  & 1+3x+4x^2 \\
+  \end{bmatrix}$, $g \in R^2 | g = \begin{bmatrix}
+    1+x+x^2   \\
+    2+2x+2x^2 \\
+  \end{bmatrix}$
+
+\begin{align*}
+  f \cdot g & = {
+  \begin{bmatrix}
+    1+2x+3x^2 & 2+3x+4x^2 \\
+    3+4x+x^2  & 1+3x+4x^2 \\
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    1+x+x^2   \\
+    2+2x+2x^2 \\
+  \end{bmatrix}
+  }               \\
+            & = {
+  \begin{bmatrix}
+    \begin{bmatrix}
+      1 & -3 & -2 \\
+      2 & 1  & -3 \\
+      3 & 2  & 1  \\
+    \end{bmatrix} & 
+    \begin{bmatrix}
+      2 & -4 & -3 \\
+      3 & 2  & -4 \\
+      4 & 3  & 2  \\
+    \end{bmatrix}   \\
+    \begin{bmatrix}
+      3 & -1 & -4 \\
+      4 & 3  & -1 \\
+      1 & 4  & 3  \\
+    \end{bmatrix} & 
+    \begin{bmatrix}
+      1 & -4 & -3 \\
+      3 & 1  & -4 \\
+      4 & 3  & 1  \\
+    \end{bmatrix}   \\
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    \begin{bmatrix}
+      1 \\
+      1 \\
+      1 \\
+    \end{bmatrix} \\
+    \begin{bmatrix}
+      2 \\
+      2 \\
+      2 \\
+    \end{bmatrix} \\
+  \end{bmatrix}
+  }               \\
+            & = {
+  \begin{bmatrix}
+    1 & -3 & -2 & 2 & -4 & -3 \\
+    2 & 1  & -3 & 3 & 2  & -4 \\
+    3 & 2  & 1  & 4 & 3  & 2  \\
+    3 & -1 & -4 & 1 & -4 & -3 \\
+    4 & 3  & -1 & 3 & 1  & -4 \\
+    1 & 4  & 3  & 4 & 3  & 1 
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    1 \\
+    1 \\
+    1 \\
+    2 \\
+    2 \\
+    2 
+  \end{bmatrix}
+  }               \\
+            & = {
+  \begin{bmatrix}
+    -14 \\
+    2   \\
+    24  \\
+    -14 \\
+    6   \\
+    24
+  \end{bmatrix}
+  \mod 5
+  }
+  = {
+  \begin{bmatrix}
+    1 \\
+    2 \\
+    4 \\
+    1 \\
+    1 \\
+    4
+  \end{bmatrix}
+  }
+            = {
+  \begin{bmatrix}
+    \begin{bmatrix}
+      1 \\
+      2 \\
+      4
+    \end{bmatrix} \\
+    \begin{bmatrix}
+      1 \\
+      1 \\
+      4
+    \end{bmatrix} \\
+  \end{bmatrix}
+  } \\
+            & = {
+  \begin{bmatrix}
+      1+2x+4x^2 \\
+      1+1x+4x^2
+  \end{bmatrix}
+  }
+\end{align*}
