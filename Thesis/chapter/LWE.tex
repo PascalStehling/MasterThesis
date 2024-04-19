@@ -1,10 +1,64 @@
 \chapter{Learning with Errors}
 \label{LWE}
 
+In this section, we will take a closer look at the Learning with Errors (LWE) algorithm (also called Plain LWE) and its different versions, namely Ring LWE (R-LWE) and Module LWE (M-LWE).
+
 \section{The Learning with Errors Problem}
 
-\section{Plain LWE Encryption}
+In 2005, Regev first described the LWE problem \cite{Regev2005OnLL}. He also proved its hardness, but we won't go into those details here. The basic idea is to add an error vector to a linear system of equations. This makes the normally trivially solvable system surprisingly hard to solve.
 
-\section{Ring-LWE Encryption}
+In more mathematical terms $\mathbb{Z}_q = \mathbb{Z}/n$, $A \in \mathbb{Z}_q^{n \times m}$, $s \in \mathbb{Z}_q^m$, $b \in \mathbb{Z}_q^n$, with which we can form the linear equation system, where $A$ and $b$ are given and the vector $s$ represents the unknowns, which we want to retrieve
 
-\section{Module-LWE Encryption}
+$$A\cdot s = b$$
+
+This can be easily solved with the Gaussian algorithm. But by adding just a small error vector $e \in \mathbb{Z}_q^n$, this gets surprisingly hard, as not just $s$ is unknown, but also $e$.
+
+$$
+A \cdot s + e = b
+$$
+
+This equation is the main equation on which all LWE problems are based on. Most of the differences will come from the Ring or the dimensions that are used.
+
+\section{LWE based encryption scheme}
+
+In this section, we will describe a simple LWE-based encryption scheme and how it can be converted to R-LWE and M-LWE. The following algorithm is loosely based on the Kyber \cite{CyrstalsKyber} scheme, with some simplifications.
+
+All calculations are done in the ring $R = \mathbb{Z}_q$. If values from $R$ are chosen uniformly, this is denoted by $x \leftarrow R$. Otherwise, if small values are chosen from $R$, this is written as $x \leftarrow \chi_R$. This can be done by choosing uniformly from a set of small numbers all in $R$ (e.g., ${-4,\ldots, 4}$ if $q>50$), or by choosing from an error distribution, such as the discrete Gaussian, as described in \cite{Regev2005OnLL}.
+
+The following three algorithms describe the example scheme. The first, the Key Generation (KeyGen for short), describes how to generate the private key $pk$ and the secret key ($sk$). The second algorithm, the Encryption, describes how to encrypt a message $m$. And the third algorithm, the Decryption, describes how to decrypt an encrypted message.
+
+\begin{algorithm}[htb]
+    \begin{algorithmic}[1]
+        \STATE $s \leftarrow \chi_R^n$
+        \STATE $A \leftarrow R^{n \times n}$
+        \STATE $e \leftarrow \chi_R^n$
+        \STATE $b = A\cdot s+e$
+        \RETURN $(pk:=(A, b), sk:=s )$
+    \end{algorithmic}
+    \caption{Sample LWE: KeyGen}
+    \label{alg: SampleLweKeyGen}
+\end{algorithm}
+
+\begin{algorithm}[htb]
+    \begin{algorithmic}[1]
+        \REQUIRE $m \in \mathbb{Z}_2 = \{0, 1\}$, $pk = (A, b)$
+        \STATE $r \leftarrow \chi_R^n$
+        \STATE $e_1 \leftarrow \chi_R^n$
+        \STATE $u = A^T \cdot r + e_1$
+        \STATE $e_2 \leftarrow \chi_R$
+        \STATE $v = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)$
+        \RETURN $m_{enc} := (u, v)$
+    \end{algorithmic}
+    \caption{Sample LWE: Encryption}
+    \label{alg: SampleLweEncryption}
+\end{algorithm}
+
+\begin{algorithm}[htb]
+    \begin{algorithmic}[1]
+        \REQUIRE $m_{enc} = (u, v)$, $sk = s$
+        \STATE $m = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2 $
+        \RETURN $m$
+    \end{algorithmic}
+    \caption{Sample LWE: Decryption}
+    \label{alg: SampleLweDecryption}
+\end{algorithm}

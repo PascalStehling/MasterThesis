@@ -166,12 +166,8 @@
 
 \RequirePackage{xparse}
 
-\if@en
-  \RequirePackage[english]{selnolig}
-\else
-  \RequirePackage[english,german]{selnolig}
+\RequirePackage[english]{selnolig}
 
-\fi
 
 % ========
 %  Colors
@@ -302,14 +298,10 @@
 \setcounter{biburlucpenalty}{9000}
 
 % handle english mode
-\if@en
-  \gdef\doi{Declaration of Independence}
-  \gdef\titlepagetitle{Title Page}
-\else
-  \gdef\doi{Selbstständigkeitserklärung}
-  \gdef\titlepagetitle{Titelseite}
 
-\fi
+\gdef\doi{Declaration of Independence}
+\gdef\titlepagetitle{Title Page}
+
 
 \if@bild
   \renewcaptionname{ngerman}{\figurename}{Bild}
@@ -697,35 +689,35 @@
 
 % algorithms
 % TODO translate this
-\renewcommand{\ALG@name}{Algorithmus}
+\renewcommand{\ALG@name}{Algorithm}
 
-\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
+\renewcommand{\listalgorithmname}{List of Algorithms}
 
 \algsetup{
   linenosize=\small,
   linenodelimiter=.
 }
 
-\renewcommand{\algorithmicrequire}{\textbf{Benötigt:}}
-\renewcommand{\algorithmicensure}{\textbf{Ergebnis:}}
-\renewcommand{\algorithmicend}{\textbf{Ende}}
-\renewcommand{\algorithmicif}{\textbf{Wenn}}
-\renewcommand{\algorithmicthen}{\textbf{Dann}}
-\renewcommand{\algorithmicelse}{\textbf{Sonst}}
-\renewcommand{\algorithmicelsif}{\algorithmicelse\ \algorithmicif}
-\renewcommand{\algorithmicendif}{\algorithmicend\ \algorithmicif}
-\renewcommand{\algorithmicfor}{\textbf{Für}}
-\renewcommand{\algorithmicforall}{\textbf{Für alle}}
-\renewcommand{\algorithmicdo}{\textbf{Tue}}
-\renewcommand{\algorithmicendfor}{\algorithmicend\ \algorithmicfor}
-\renewcommand{\algorithmicwhile}{\textbf{Solange}}
-\renewcommand{\algorithmicendwhile}{\algorithmicend\ \algorithmicwhile}
-\renewcommand{\algorithmicloop}{\textbf{Schleife}}
-\renewcommand{\algorithmicendloop}{\algorithmicend\ \algorithmicloop}
-\renewcommand{\algorithmicto}{\textbf{bis}}
-\renewcommand{\algorithmicrepeat}{\textbf{Wiederhole}}
-\renewcommand{\algorithmicuntil}{\textbf{Bis}}
-\renewcommand{\algorithmicprint}{\textbf{Drucke}}
-\renewcommand{\algorithmicreturn}{\textbf{Rückgabe}}
-\renewcommand{\algorithmictrue}{\textbf{Wahr}}
-\renewcommand{\algorithmicfalse}{\textbf{Falsch}}
+% \renewcommand{\algorithmicrequire}{\textbf{Benötigt:}}
+% \renewcommand{\algorithmicensure}{\textbf{Ergebnis:}}
+% \renewcommand{\algorithmicend}{\textbf{Ende}}
+% \renewcommand{\algorithmicif}{\textbf{Wenn}}
+% \renewcommand{\algorithmicthen}{\textbf{Dann}}
+% \renewcommand{\algorithmicelse}{\textbf{Sonst}}
+% \renewcommand{\algorithmicelsif}{\algorithmicelse\ \algorithmicif}
+% \renewcommand{\algorithmicendif}{\algorithmicend\ \algorithmicif}
+% \renewcommand{\algorithmicfor}{\textbf{Für}}
+% \renewcommand{\algorithmicforall}{\textbf{Für alle}}
+% \renewcommand{\algorithmicdo}{\textbf{Tue}}
+% \renewcommand{\algorithmicendfor}{\algorithmicend\ \algorithmicfor}
+% \renewcommand{\algorithmicwhile}{\textbf{Solange}}
+% \renewcommand{\algorithmicendwhile}{\algorithmicend\ \algorithmicwhile}
+% \renewcommand{\algorithmicloop}{\textbf{Schleife}}
+% \renewcommand{\algorithmicendloop}{\algorithmicend\ \algorithmicloop}
+% \renewcommand{\algorithmicto}{\textbf{bis}}
+% \renewcommand{\algorithmicrepeat}{\textbf{Wiederhole}}
+% \renewcommand{\algorithmicuntil}{\textbf{Bis}}
+% \renewcommand{\algorithmicprint}{\textbf{Drucke}}
+% \renewcommand{\algorithmicreturn}{\textbf{Rückgabe}}
+% \renewcommand{\algorithmictrue}{\textbf{Wahr}}
+% \renewcommand{\algorithmicfalse}{\textbf{Falsch}}
