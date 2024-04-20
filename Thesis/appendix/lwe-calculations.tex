@@ -1,0 +1,184 @@
+\chapter{Example LWE-Calculations}
+\label{app:Lwe-Calc}
+The following calculations are based on the algorithms explained in Section \ref{sec:Lwe-Encryption}.
+
+\section{Plain LWE}
+\label{app:PlainLweCalc}
+The following calculations should show the working of the Plain LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}_{100}$ and $n=2$ for the dimensions. Starting first with the key generation:
+
+
+\begin{align*}
+  s  & = \begin{bmatrix}1 \\ 2 \end{bmatrix}
+  A  = \begin{bmatrix}56 & 77 \\ 29 & 59 \end{bmatrix}
+  e  = \begin{bmatrix}99 \\ 1 \end{bmatrix}  \\
+  b  & = As+e                                \\
+     & = \begin{bmatrix}
+           56 & 77 \\
+           29 & 59
+         \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    1 \\
+    2
+  \end{bmatrix}
+  +
+  \begin{bmatrix}
+    99 \\ 
+    1 
+  \end{bmatrix}
+  \\
+     & = 1
+  \cdot
+  \begin{bmatrix}
+    56 \\
+    29
+  \end{bmatrix}
+  + 2 
+  \cdot
+  \begin{bmatrix}
+    77 \\ 
+    59 
+  \end{bmatrix}
+  + 
+  \begin{bmatrix}
+    99 \\ 
+    1 
+  \end{bmatrix}                             \\
+     & = \begin{bmatrix}
+           309 \\
+           148\end{bmatrix}_{100}              \\
+     & = \begin{bmatrix}
+           9 \\ 
+           48 
+         \end{bmatrix}                      \\
+  sk & = s                                   \\
+  pk & = (A, b) = \left (
+  \begin{bmatrix}
+      56 & 77  \\
+      29 & 59 
+    \end{bmatrix},
+  \begin{bmatrix}
+      9 \\
+      48 
+    \end{bmatrix} \right )                     \\
+\end{align*}
+
+With the secret and public key generated, the next step is to encrypt the message $m=1$ with the public key $pk$
+
+\begin{align*}
+  r       & = \begin{bmatrix}0 \\ 1 \end{bmatrix}
+  e_1 = \begin{bmatrix}2 \\ 0 \end{bmatrix}
+  e_2 = 99                                                          \\
+  \\
+  u       & = A^T \cdot r + e_1                                     \\
+          & = \begin{bmatrix}
+                56 & 77 \\
+                29 & 59
+              \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}
+    0 \\
+    1
+  \end{bmatrix}
+  +
+  \begin{bmatrix}
+    2 \\
+    0
+  \end{bmatrix}                                                    \\
+          & = \begin{bmatrix}
+                56 & 29 
+                \\ 77 & 59 
+              \end{bmatrix}
+  \cdot 
+  \begin{bmatrix}
+    0 \\
+    1 
+  \end{bmatrix}
+  +
+  \begin{bmatrix}
+    2 \\
+    0
+  \end{bmatrix}                                                    \\
+          & = 0\cdot
+  \begin{bmatrix}
+    56 \\
+    77
+  \end{bmatrix}
+  + 1 \cdot 
+  \begin{bmatrix}
+    29 \\
+    59
+  \end{bmatrix}
+  +
+  \begin{bmatrix}
+    2 \\
+    0
+  \end{bmatrix}                                                    \\
+          & = \begin{bmatrix}
+                31 \\ 
+                61 
+              \end{bmatrix}_{100}
+  = 
+  \begin{bmatrix}
+    31 \\
+    61
+  \end{bmatrix}                                                    \\
+  \\
+  v       & = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor) \\
+          & =\begin{bmatrix}
+               9 \\
+               48
+             \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}
+    0 \\
+    1
+  \end{bmatrix}
+  + 99 + 1 \cdot \left\lfloor 100/2\right\rfloor                    \\
+          & =\begin{bmatrix}
+               9 & 48
+             \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    0 \\ 
+    1 
+  \end{bmatrix}
+  + 99 + 50                                                         \\
+          & = 9 \cdot 0 +48 \cdot 1 + 99 + 50                       \\
+          & = 197_{100}                                             \\
+          & = 97                                                    \\
+  m_{enc} & = (u, v) = \left (
+  \begin{bmatrix}
+      31 \\
+      61
+    \end{bmatrix}, 97   \right )                                      \\
+\end{align*}
+
+Now the encrypted message $M_{enc}$ can be decrypted again, using the secret key $sk$:
+\begin{align*}
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} *(v-s^T \cdot u)\right\rceil _2 \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} * \left (97-
+  \begin{bmatrix}
+      1 \\
+      2
+    \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}
+      31 \\
+      61
+    \end{bmatrix} \right )\right\rceil _2                                                      \\
+    & = \left\lfloor \frac{1}{50} * \left (97-
+  \begin{bmatrix}
+      1 & 2 
+    \end{bmatrix}
+  \cdot 
+  \begin{bmatrix}
+      31 \\ 
+      61
+    \end{bmatrix}\right )\right\rceil _2                                                       \\
+    & = \left\lfloor \frac{1}{50} * (97-(31 \cdot 1 + 61 \cdot 2))\right\rceil _2            \\
+    & = \left\lfloor \frac{1}{50} * (-56)_{100}\right\rceil _2                               \\
+    & = \left\lfloor \frac{1}{50} * 44\right\rceil _2                                        \\
+    & = \left\lfloor \frac{44}{50}\right\rceil _2  = \left\lfloor 0.88\right\rceil _2        \\
+    & = 1                                                                                    \\
+\end{align*}
