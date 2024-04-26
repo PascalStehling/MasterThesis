@@ -37,7 +37,7 @@ This is the main equation that all LWE problems are based on. Most of the differ
 
 In this section, we will describe a simple LWE-based encryption scheme and how it can be converted to R-LWE and M-LWE. The following algorithm is loosely based on the Kyber \cite{CyrstalsKyber} scheme, with some simplifications.
 
-All calculations are done in the ring $R = \mathbb{Z}_q$, where $q$ is the modulus. If values from $R$ are chosen uniformly, this is denoted by $x \leftarrow R$. Otherwise, if small values are chosen from $R$, this is written as $x \leftarrow \chi_R$. This can be done by choosing uniformly from a set of small numbers all in $R$ (e.g., ${-4,\ldots, 4}$ if $q>50$), or by choosing from an error distribution, such as the discrete Gaussian, as described in \cite{Regev2005OnLL}.
+All calculations are done in the ring $R = \mathbb{Z}_q$, where $q$ is the modulus. If values from $R$ are chosen uniformly, this is denoted by $x \leftarrow R$. Otherwise, if small values are chosen from $R$, this is written as $x \leftarrow \chi_R$. This can be done by choosing uniformly from a set of small numbers all in $R$ (e.g., ${-4,\ldots, 4}$ if $q$ is big enougth), or by choosing from an error distribution, such as the discrete Gaussian, as described in \cite{Regev2005OnLL}.
 
 The following three algorithms describe the example schema. Algorithm \ref{alg: SampleLweKeyGen}, the key generation, describes how to generate the private key $pk$ and the secret key $sk$. It uses the LWE problem as described above. The secret key, which the owner should never share, is the vector $s$. The public key $pk$, which can be shared, consists of the transformation matrix $A$ and the transformed secret key plus the error $b$. The error $e$ is discarded after the computation of $b$. The values of $e$ and $s$ should be rather small, and $A$ is uniformly sampled from $R$.
 
@@ -102,3 +102,9 @@ As demonstrated by the calculation, by multiplying the cancellation term $u$ wit
 \info[inline]{Maybe add an image which shows the rounding with an clock}
 
 To observe the functioning of this algorithm in practice, please refer to the example calculation in the appendix, which can be found in Appendix \ref{app:PlainLweCalc}.
+
+\subsection*{Transforming to R-LWE and M-LWE}
+
+To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic.
+
+An illustrative example of the three-step process for RLWE can be found in \ref{app:RlweExampleCalc}.

@@ -5,14 +5,14 @@
 
 Consider the ring $R = \mathbb{Z}_5[x]/(x^3+1)$ and 
 $$
-f =\begin{bmatrix}
+  f =\begin{bmatrix}
     1+2x+3x^2 & 2+3x+4x^2 \\
     3+4x+x^2  & 1+3x+4x^2 \\
   \end{bmatrix} \in R^{2\times 2}
 $$
 
 $$
-g = \begin{bmatrix}
+  g = \begin{bmatrix}
     1+x+x^2   \\
     2+2x+2x^2 \\
   \end{bmatrix} \in R^2
@@ -138,8 +138,8 @@ The following calculations should show the working of the Plain LWE encryption f
 \begin{align*}
   s  & = \begin{bmatrix}1 \\ 2 \end{bmatrix}
   A  = \begin{bmatrix}56 & 77 \\ 29 & 59 \end{bmatrix}
-  e  = \begin{bmatrix}99 \\ 1 \end{bmatrix}  \\
-  b  & = As+e                                \\
+  e  = \begin{bmatrix}99 \\ 1 \end{bmatrix}       \\
+  b  & = As+e                                     \\
      & = \begin{bmatrix}
            56 & 77 \\
            29 & 59
@@ -171,15 +171,15 @@ The following calculations should show the working of the Plain LWE encryption f
   \begin{bmatrix}
     99 \\ 
     1 
-  \end{bmatrix}                             \\
+  \end{bmatrix}                                  \\
      & = \begin{bmatrix}
            309 \\
-           148\end{bmatrix}_{100}              \\
+           148\end{bmatrix}_{100}                   \\
      & = \begin{bmatrix}
            9 \\ 
            48 
-         \end{bmatrix}                      \\
-  sk & = s                                   \\
+         \end{bmatrix}                           \\
+  sk & = s =  \begin{bmatrix}1 \\ 2 \end{bmatrix} \\
   pk & = (A, b) = \left (
   \begin{bmatrix}
       56 & 77  \\
@@ -188,7 +188,7 @@ The following calculations should show the working of the Plain LWE encryption f
   \begin{bmatrix}
       9 \\
       48 
-    \end{bmatrix} \right )                     \\
+    \end{bmatrix} \right )                          \\
 \end{align*}
 
 With the secret and public key generated, the next step is to encrypt the message $m=1$ with the public key $pk$
@@ -309,4 +309,60 @@ Now the encrypted message $M_{enc}$ can be decrypted again, using the secret key
     & = \left\lfloor \frac{1}{50} * 44\right\rceil _2                                        \\
     & = \left\lfloor \frac{44}{50}\right\rceil _2  = \left\lfloor 0.88\right\rceil _2        \\
     & = 1                                                                                    \\
+\end{align*}
+
+\section{R-LWE}
+\label{app:RlweExampleCalc}
+The following calculations show the working of the Ring LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}[x]_{100}/(x^3+1)$. Starting first with the key generation:
+
+\begin{align*}
+  s  & = 1 + 0x + 1x^2                                                   \\
+  A  & = 28 + 56x + 1x^2                                                 \\
+  e  & = 1 + -1x + 2x^2= 1 + 99x + 2x^2                                  \\
+  b  & = As + e                                                          \\
+     & = (28 + 56x + 1x^2)*(1 + 0x + 1x^2) + (1 + 99x + 2x^2)            \\
+     & = (28 + 28x^2) + (56x + 56x^3) + (1x^2 + 1x^4) + (1 + 99x + 2x^2) \\
+     & = 29 + 155x + 31x^2 + 56x^3 + 1x^4 \mod x^3+1                     \\
+     & = 29 + 155x + 31x^2 - 56 - 1x                                     \\
+     & = -27 + 154x + 31x^2  \mod 100                                    \\
+     & = 73 + 54x + 31x^2                                                \\
+  sk & = s =1 + 0x + 1x^2                                                \\
+  pk & = (A, b) = (28 + 56x + 1x^2, 73 + 54x + 31x^2)                    \\
+\end{align*}
+
+Encryption of message $m=(1,1,0)$:
+\begin{align*}
+  r       & =0 + 1 + 1x^2                                                                    \\
+  e_1     & =98 + 0x + 98x^2                                                                 \\
+  e_2     & =1 + 0x + 0x^2                                                                   \\
+  m       & = (1, 1, 0) = 1+ 1x+ 0x^2                                                        \\
+  u       & = A \cdot r + e_1                                                                \\
+          & = (28 + 56x + 1x^2)*(0 + 1 + 1x^2) + (98 + 0x + 98x^2)                           \\
+          & = (28x+84x^2+57x^3+x^4) + (98 + 0x + 98x^2)                                      \\
+          & = 98+28x+182x^2+57x^3+x^4 \mod (x^3+1)                                           \\
+          & = 98+28x+182x^2-57-x                                                             \\
+          & = 41+27x+182x^2  \mod 100                                                        \\
+          & = 41+27x+82x^2                                                                   \\
+  v       & = b \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)                            \\
+          & = (73 + 54x + 31x^2) * (0 + 1 + 1x^2) + (1 + 0x + 0x^2) +  (1+ 1x+ 0x^2)*(100/2) \\
+          & = (73x + 127x^2 + 85x^3 + 31x^4) + (1 + 0x + 0x^2) +  (50+ 50x+ 0x^2)            \\
+          & = 51 + 123x + 127x^2 + 85x^3 + 31x^4 \mod (x^3+1)                                \\
+          & = 51 + 123x + 127^2 - 85 - 31x                                                   \\
+          & = -34 + 92x + 127x^2 \mod 100                                                    \\
+          & = 66 + 92x + 27x^2                                                               \\
+  m_{enc} & = (u,v) = (41+27x+82x^2, 66 + 92x + 27x^2)                                       \\
+\end{align*}
+
+Decryption:
+\begin{align*}
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2                                               \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor}*((66 + 92x + 27x^2 )- (1 + 0x + 1x^2) \cdot (41+27x+82x^2))\right\rceil _2 \\
+    & = \left\lfloor \frac{1}{50}*((66 + 92x + 27x^2 )- (41 + 27x + 123x^2 + 27x^3 + 82x^4))\right\rceil _2                               \\
+    & = \left\lfloor \frac{1}{50}*(25 + 65x - 96x^2 - 27x^3 - 82x^4)\right\rceil _2 \mod (x^3+1)                                          \\
+    & = \left\lfloor \frac{1}{50}*(25 + 65x - 96x^2 + 27 + 82x)\right\rceil _2                                                            \\
+    & = \left\lfloor \frac{1}{50}*(52+147x-96x^2)\right\rceil _2 \mod 100                                                                 \\
+    & = \left\lfloor \frac{1}{50}*(52+47x+4x^2)\right\rceil _2                                                                            \\
+    & = \left\lfloor 1.04 + 0.64x + 0.08x^2\right\rceil _2                                                                                \\
+    & = 1 + 1x + 0x^2                                                                                                                     \\
+    &= (1, 1, 0)
 \end{align*}
