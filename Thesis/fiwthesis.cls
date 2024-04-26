@@ -73,7 +73,7 @@
 \RequirePackage{graphicx}
 
 % colors (must to be loaded before `pgfplots')
-\RequirePackage[table]{xcolor}
+\RequirePackage[table, dvipsnames]{xcolor}
 
 % graphics / drawings
 \RequirePackage{tikz}
