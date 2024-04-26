@@ -13,13 +13,13 @@ $$A\cdot s = b$$
 
 Or written as system of equations it would look like:
 $$
-\setlength\arraycolsep{0pt}
-\begin{array}{ c  >{{}}c<{{}} c  >{{}}c<{{}}  c >{{}}c<{{}}  c @{{}={}} c }
-  A_{11}s_1&+&A_{12}s_2&+&\cdots&+&A_{1m}s_m & b_1 \\
-  A_{21}s_1&+&A_{22}s_2&+&\cdots&+&A_{2m}s_m & b_1 \\
-  \vdots && \vdots && \vdots && \vdots & \vdots    \\
-  A_{n1}s_1&+&A_{n2}s_2&+&\cdots&+&A_{nm}s_m & b_n \\
-\end{array}
+  \setlength\arraycolsep{0pt}
+  \begin{array}{ c  >{{}}c<{{}} c  >{{}}c<{{}}  c >{{}}c<{{}}  c @{{}={}} c }
+    A_{11}s_1 & + & A_{12}s_2 & + & \cdots & + & A_{1m}s_m & b_1    \\
+    A_{21}s_1 & + & A_{22}s_2 & + & \cdots & + & A_{2m}s_m & b_1    \\
+    \vdots    &   & \vdots    &   & \vdots &   & \vdots    & \vdots \\
+    A_{n1}s_1 & + & A_{n2}s_2 & + & \cdots & + & A_{nm}s_m & b_n    \\
+  \end{array}
 $$
 
 This can easily be solved with the Gaussian algorithm. But if we just add an error vector $e \in \mathbb{Z}_q^n$ with small values, it becomes surprisingly hard. The hardness is based on variants of the Shortest Vector Problem (SVP), which describes the hardness of finding the shortest vector in the lattice. This is easily solvable in smaller dimensions, but gets harder as the dimensions are increased. The equation after adding the small error term is the following:
@@ -73,27 +73,32 @@ The new values and the public key are used to calculate two values: $u$ and $v$.
 
 Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decrypt an encrypted message $m_{enc}$ using the secret key $sk$.
 
-As demonstrated by the calculation, by multiplying the cancellation term $u$ with the secret $s$, the transformation $(As)^T \cdot r$ in $v$ can be canceled out. This results in the message and some error values being added to it. The erroneous message will then be rounded, which will result in the original message. This process will only be successful if all error terms together are smaller than $\frac{q}{4}$. This is due to the fact that the possible values in the message are separated by a distance of $\frac{q}{2}$ from each other. Consequently, all values between $-\frac{q}{4}\mod q=\frac{3q}{4}$ and $\frac{q}{4}$ are rounded back to $0$, while all values between $\frac{q}{4}$ and $\frac{3q}{4}$ are rounded to $1$. Consequently, provided that the message (either $0$ or $\frac{q}{2}$) is not shifted by more than $\frac{q}{4}$, it will remain within the rounding area of the original message.
-
-\info[inline]{Maybe add an image which shows the rounding with an clock}
 
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
     \REQUIRE $m_{enc} = (u, v)$, $sk = s$
-    \RETURN \begin{align*}
-      & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2                                                                                   \\
-        & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T \cdot (A^T \cdot r + e_1))\right\rceil _2             \\
-        & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As+e)^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T A^T \cdot r - s^T e_1)\right\rceil _2            \\
-        & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As)^T \cdot r + e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)-(As)^T \cdot r - s^T e_1)\right\rceil _2         \\
-        & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)- s^T e_1)\right\rceil _2                                          \\
-        & = \left\lfloor \frac{e^Tr}{\left\lfloor q/2\right\rfloor}+ \frac{e_2 }{\left\lfloor q/2\right\rfloor}+ m - \frac{s^T e_1}{\left\lfloor q/2\right\rfloor}\right\rceil _2 \\
-        & = \left\lfloor m' \right\rceil _2                                                                                                                                       \\
-        & = m \in \{0,1\}
-    \end{align*}
+    \RETURN $\left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2$
   \end{algorithmic}
   \caption{Sample LWE: Decryption}
   \label{alg: SampleLweDecryption}
 \end{algorithm}
 
-To observe the functioning of this algorithm in practice, please refer to the example calculation in the appendix, which can be accessed in Appendix \ref{app:PlainLweCalc}.
+
+To get a better understanding, consider the following simplification of the term in algorithm \ref{alg: SampleLweDecryption}.
+
+\begin{align*}
+   & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2                                                                                     \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T \cdot (A^T \cdot r + e_1))\right\rceil _2             \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As+e)^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T A^T \cdot r - s^T e_1)\right\rceil _2            \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As)^T \cdot r + e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)-(As)^T \cdot r - s^T e_1)\right\rceil _2         \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)- s^T e_1)\right\rceil _2                                          \\
+   & = \left\lfloor \frac{e^Tr}{\left\lfloor q/2\right\rfloor}+ \frac{e_2 }{\left\lfloor q/2\right\rfloor}+ m - \frac{s^T e_1}{\left\lfloor q/2\right\rfloor}\right\rceil _2 \\
+   & = \left\lfloor m' \right\rceil _2                                                                                                                                       \\
+   & = m \in \{0,1\}
+\end{align*}
+As demonstrated by the calculation, by multiplying the cancellation term $u$ with the secret $s$, the transformation $(As)^T \cdot r$ in $v$ can be canceled out. This results in the message with some error values being added to it. The erroneous message will then be rounded, which will result in the original message. This process will only be successful if all error terms together are smaller than $\frac{q}{4}$. This is due to the fact that the possible values in the message are separated by a distance of $\frac{q}{2}$ from each other. Consequently, all values between $-\frac{q}{4}\mod q=\frac{3q}{4}$ and $\frac{q}{4}$ are rounded back to $0$, while all values between $\frac{q}{4}$ and $\frac{3q}{4}$ are rounded to $1$. Consequently, provided that the message (either $0$ or $\frac{q}{2}$) is not shifted by more than $\frac{q}{4}$, it will remain within the rounding area of the original message.
+
+\info[inline]{Maybe add an image which shows the rounding with an clock}
+
+To observe the functioning of this algorithm in practice, please refer to the example calculation in the appendix, which can be found in Appendix \ref{app:PlainLweCalc}.
