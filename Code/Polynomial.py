@@ -36,10 +36,10 @@ class PolynomialTensor(object):
         evenly retrieved from min_val (default 0) to max_val (default modulus)
         """
         if max_value is None:
-            max_value = modulus
+            max_value = modulus-1
         assert all([s > 0 for s in matrix_shape]) and poly_len > 0
         return PolynomialTensor(
-            randint(min_val, max_value, (*matrix_shape, poly_len)) % modulus,
+            randint(min_val, max_value+1, (*matrix_shape, poly_len)) % modulus,
             modulus)
 
     def __repr__(self) -> str:
@@ -98,9 +98,12 @@ class Polynomial(PolynomialTensor):
                           modulus: int,
                           min_val: int = 0,
                           max_value: int = None) -> "Polynomial":
-        pt = super(Polynomial, Polynomial).random_polynomial_matrix(
-            poly_len, modulus, (1, ), min_val, max_value)
-        return Polynomial(pt.poly_mat, pt.modulus)
+        while True:
+            pt = super(Polynomial, Polynomial).random_polynomial_matrix(
+                poly_len, modulus, (1, ), min_val, max_value)
+            if (pt.poly_mat == 0).all():
+                continue
+            return Polynomial(pt.poly_mat, pt.modulus)
 
     @staticmethod
     def _create(poly_mat: np.ndarray, modulus: int) -> "Polynomial":
