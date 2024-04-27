@@ -133,7 +133,7 @@ As with any polynomial multiplication, the degree can increase as you multiply t
 After this calculation, $r$ will be the remainder of $f$ with a degree smaller than that of $g$, which will be used for further calculations. With this, we can now define polynomial rings that have a module to generate finite coefficients and a polynomial function to generate finite degree. This is written as 
 $$R_n = \mathbb{Z}_n[x]/f(x)$$
 
-For most cases in cryptography, $f(x)$ will be the function $x^d+1$, as this simplifies the calculation of the remainder. Instead of doing lengthy polynomial divisions, one can simply subtract $d$ from the exponent and invert the coefficient if the exponent is greater than or equal to $d$. This must be repeated until the largest exponent is less than $d$. For example, $f \in \mathbb{Z}_5[x]/(x^3+1)$
+For most cases in cryptography, $f(x)$ will be the function $x^d+1$\improvement{These are cyclotomic polynomial, maybe explain}, as this simplifies the calculation of the remainder. Instead of doing lengthy polynomial divisions, one can simply subtract $d$ from the exponent and invert the coefficient if the exponent is greater than or equal to $d$. This must be repeated until the largest exponent is less than $d$. For example, $f \in \mathbb{Z}_5[x]/(x^3+1)$
 
 \begin{align*}
   f & = 3+4x^2+2x^3+x^5+3x^6 & \mod (x^3+1) \\

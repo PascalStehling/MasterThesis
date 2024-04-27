@@ -105,6 +105,31 @@ To observe the functioning of this algorithm in practice, please refer to the ex
 
 \subsection*{Transforming to R-LWE and M-LWE}
 
-To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic.
+To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic. All equations stay the same and the structure of the Algorithms does not change.
 
 An illustrative example of the three-step process for RLWE can be found in \ref{app:RlweExampleCalc}.
+
+
+As next step, Ring-LWE can be transformed into Module-LWE. Todo this we only need to increase the dimensions, so that $n>1$. So instead of working with polynomials as in R-LWE, matrices and vectors of these polynomials will be used.
+
+An example can found in Appendix \ref{app:MlweExampleCalc}
+
+So in total, the only real differences between the Plain LWE, R-LWE and M-LWE are the dimensions and the ring. The computation itself stays the same. An summarized overview of the differences can be found in table \ref{table:LweDiffs}
+
+\begin{table}[htbp]
+  \caption[LWE variables shape comparison]{Comparison between the shapes of the variables for the different LWE Types}
+  \label{table:LweDiffs}
+  \centering
+  \begin{tabular}{|c|l|l|l|}
+    \hline
+                & Plain LWE        & R-LWE                     & M-LWE                         \\
+    \hline
+    Ring $R$    & $\mathbb{Z}_q$   & $\mathbb{Z}[x]_q/(x^d+1)$ & $\mathbb{Z}[x]_q/(x^d+1)$     \\
+    $A$         & $R^{n\times n}$  & $R$                       & $R^{n\times n}$               \\
+    $s,b,e,e_1$ & $R^{n}$          & $R$                       & $R^{n}$                       \\
+    $e_2$       & $R$              & $R$                       & $R$                           \\
+    $r$         & $\mathbb{Z}_2^n$ & $\mathbb{Z}[x]_2/(x^d+1)$ & $(\mathbb{Z}[x]_2/(x^d+1))^n$ \\
+    $m$         & $\mathbb{Z}_2$   & $\mathbb{Z}[x]_2/(x^d+1)$ & $\mathbb{Z}[x]_2/(x^d+1)$   \\
+    \hline
+  \end{tabular}
+\end{table}

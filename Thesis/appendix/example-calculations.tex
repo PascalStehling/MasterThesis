@@ -364,5 +364,110 @@ Decryption:
     & = \left\lfloor \frac{1}{50}*(52+47x+4x^2)\right\rceil _2                                                                            \\
     & = \left\lfloor 1.04 + 0.64x + 0.08x^2\right\rceil _2                                                                                \\
     & = 1 + 1x + 0x^2                                                                                                                     \\
-    &= (1, 1, 0)
+    & = (1, 1, 0)
+\end{align*}
+
+\section{M-LWE}
+\label{app:MlweExampleCalc}
+The following calculations show the working of the Module LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}[x]_{100}/(x^3+1)$ and the dimension $n=2$.
+
+Starting first with the key generation:
+\begin{align*}
+  s  & = \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                                 \\
+  A  & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix} \\
+  e  & = \begin{bmatrix}1+1x+2x^2 \\ -3+3x+3x^2=97+3x+3x^2 \end{bmatrix}                        \\
+  b  & = As+e                                                                                   \\
+     & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}
+  \cdot
+  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}
+  +
+  \begin{bmatrix}1+1x+2x^2 \\ 97+3x+3x^2 \end{bmatrix}
+  \\
+     & = 
+  \begin{bmatrix}
+    56+56x+233x^2 \\
+    263+210x+519x^2
+  \end{bmatrix}
+  + 
+  \begin{bmatrix}1+1x+2x^2 \\ 97+3x+3x^2 \end{bmatrix}                                          \\
+     & =   \begin{bmatrix}
+             57+57x+235x^2 \\
+             360+213x+522x^2
+           \end{bmatrix}_{100}                                                                  \\
+     & = \begin{bmatrix}
+           57+57x+35x^2 \\
+           60+13x+22x^2
+         \end{bmatrix}                                                                         \\
+  sk & = s =  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                            \\
+  pk & = (A, b) = \left (
+  \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix},
+  \begin{bmatrix}
+      57+57x+35x^2 \\
+      60+13x+22x^2
+    \end{bmatrix} \right )                                                                        \\
+\end{align*}
+
+Encryption of message $m=(1,1,0)$:
+\begin{align*}
+  r       & = \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}                                       \\
+  e_1     & = \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                     \\
+  e_2     & = 2+97x+97x^2                                                                               \\
+  m       & =(1,1,0) = 1x+1x+0x^2                                                                       \\
+  \\
+  % Calculating u
+  u       & = A^T \cdot r + e_1                                                                         \\
+  % Step 2
+          & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
+  +
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  % Step 3
+          & = \begin{bmatrix}27+2x+43x^2 & 91+34x+50x^2 \\ 30+10x+35x^2  & 82+21x+94x^2 \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
+  +
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  %  Step 4
+          & = \begin{bmatrix}73+20x+122x^2 \\ 67+26x+169x^2 \end{bmatrix}
+  +
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  % Step 5
+          & = \begin{bmatrix}75+118x+125x^2 \\ 164+23x+172x^2 \end{bmatrix}_{100}
+  = 
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}                                             \\
+  \\
+  % Calculating V
+  v       & = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)                                     \\
+  % Step 2
+          & =\begin{bmatrix}
+               57+57x+35x^2 \\
+               60+13x+22x^2
+             \end{bmatrix} ^T
+  \cdot
+  \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
+  + (2+97x+97x^2) + (1x+1x+0x^2) \cdot \left\lfloor 100/2\right\rfloor                                  \\
+  % Step 4
+          & = (25+92x+171x^2) + (2+97x+97x^2) + (50x+50x+0x^2)                                          \\
+  % Step 5
+          & = (77+239x+268x^2)_{100}                                                                    \\
+  % Step 6
+          & = 77+39x+68x^2                                                                              \\
+  m_{enc} & = (u, v) = \left (
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}, 77+39x+68x^2   \right )                    \\
+\end{align*}
+
+Decryption:
+\begin{align*}
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} *(v-s^T \cdot u)\right\rceil _2                                         \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} * \left (77+39x+68x^2-
+  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}^T
+  \cdot
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix} \right )\right\rceil _2                                                  \\
+    & = \left\lfloor \frac{1}{50} * (77+39x+68x^2-(216+190x+377x^2))\right\rceil _2                                                  \\
+    & = \left\lfloor \frac{1}{50} * (-139-151x-309x^2)_{100}\right\rceil _2                                                          \\
+    & = \left\lfloor \frac{1}{50} * 61+49x+91x^2\right\rceil _2                                                                      \\
+    & = \left\lfloor \frac{61}{50} +\frac{49}{50}x+\frac{91}{50}x^2\right\rceil _2  = \left\lfloor 1.22+0.98x+1.82x^2\right\rceil _2 \\
+    & = \left\lfloor1+1x+2x^2\right\rceil _2 =           1+1x+0x^2                                                                   \\
+    &= (1,1,0)
 \end{align*}
