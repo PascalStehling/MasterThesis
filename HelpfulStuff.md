@@ -17,3 +17,7 @@ In diesem Dokument ist eine Sammlung von Mathematischen Begriffen, Formeln, ... 
 
 
 - [Matrices and Polynomials](https://www.le.ac.uk/users/dsgp1/COURSES/THIRDMET/MYLECTURES/9XMATRIPOL.pdf)
+
+- [Testkonzept](https://www.informatik-aktuell.de/entwicklung/methoden/das-perfekte-testkonzept-in-6-schritten.html)
+
+- [LWE Survey Regev](https://cims.nyu.edu/~regev/papers/lwesurvey.pdf)

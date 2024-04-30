@@ -103,7 +103,7 @@ As demonstrated by the calculation, by multiplying the cancellation term $u$ wit
 
 To observe the functioning of this algorithm in practice, please refer to the example calculation in the appendix, which can be found in Appendix \ref{app:PlainLweCalc}.
 
-\subsection*{Transforming to R-LWE and M-LWE}
+\section{Transforming LWE to R-LWE and M-LWE}
 
 To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic. All equations stay the same and the structure of the Algorithms does not change.
 

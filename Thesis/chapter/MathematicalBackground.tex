@@ -21,7 +21,7 @@ As in this definition, the integer $n$ is the \textbf{dimension} of the lattice 
 
 An example of a lattice based on a basis $B$ and all the points that can be created with it, also called the \textbf{span}, can be seen in the figure \ref{fig:latticeGrid}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[scale=0.2]{images/LatticeGrid.png}
   \caption[Span of an Lattice]{The span of an two-dimensional lattice with basis  $B = \{b_1, b_2\}$.}
@@ -142,7 +142,7 @@ For most cases in cryptography, $f(x)$ will be the function $x^d+1$\improvement{
     & = 4+3x^2
 \end{align*}
 
-\subsection*{Polynomial Ring arithmetic using Vectors \& Matrices}
+\subsection*{Polynomial Ring arithmetic using Vectors \& Matrices}\unsure{This chapter is needed for implementation, but not for explanation. It could also be in the appendix.}
 
 When calculating with polynomials, this can also be broken down into vector and matrix calculations. This is done by separating a polynomial into two vectors, the coefficient vector and the variable vector.
 $$
@@ -220,8 +220,7 @@ The variable vector will always have the same shape as the coefficient vector. B
 
 Doing the multiplication is a bit trickier, as normally the degree increases when multiplying two polynomials. But as seen previously, this is not the case if we are doing our calculations inside an polynomial ring. So by using the polynomial ring $R_n = \mathbb{Z}_n/(x^d+1)$ the degree of the polynomial will never be greater then $d$. So even when doing multiplications, the degree will always be smaller then $d$.
 
-\unsure[inline]{Cannot find any proof that verefies the following, or a name for it, but its working.}
-
+\unsure[inline]{Cannot find any proof that verefies the following, or a name for it, but its working. Its based on circulant matrix, which have special properties. Maybe I need to dig deeper there}
 This makes it possible to turn the polynomial multiplication and subsequent modulo operation into a single matrix-vector multiplication, where the resulting vector is the wanted coefficient vector. This is only possible if we use the modulo polynomial $x^d+1$. For this we need the coefficient vectors of both polynomials of the same degree, both from the same ring $f, g \in \mathbb{Z}_n/(x^d+1)$. One of the vectors has to be transformed into a circulant matrix, where the diagonal and the lower triangle are positive and the upper triangle (without diagonal) is negative. This matrix is then multiplied by the other coefficient vector, resulting in the new coefficient vector.
 $$
   \begin{bmatrix}
