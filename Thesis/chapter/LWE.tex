@@ -9,7 +9,7 @@ In 2005, Regev first described the LWE problem \cite{Regev2005OnLL}. He also pro
 
 In more mathematical terms, $\mathbb{Z}_q = \mathbb{Z}/n$, $A \in \mathbb{Z}_q^{n \times m}$, $s \in \mathbb{Z}_q^m$, $b \in \mathbb{Z}_q^n$, with which we can form the linear system of equations, where $A$ and $b$ are given and the vector $s$ represents the unknowns we want to retrieve
 
-$$A\cdot s = b$$
+$$\textbf{A}\cdot \textbf{s} = \textbf{b}$$
 
 Or written as system of equations it would look like:
 $$
@@ -24,9 +24,7 @@ $$
 
 This can easily be solved with the Gaussian algorithm. But if we just add an error vector $e \in \mathbb{Z}_q^n$ with small values, it becomes surprisingly hard. The hardness is based on variants of the Shortest Vector Problem (SVP), which describes the hardness of finding the shortest vector in the lattice. This is easily solvable in smaller dimensions, but gets harder as the dimensions are increased. The equation after adding the small error term is the following:
 
-$$
-  A \cdot s + e = b
-$$
+$$\textbf{A}\cdot \textbf{s} + \textbf{e}= \textbf{b}$$
 
 This is the main equation that all LWE problems are based on. Most of the differences will come from the ring or the dimensions used.
 
@@ -101,6 +99,8 @@ As demonstrated by the calculation, by multiplying the cancellation term $u$ wit
 
 \info[inline]{Maybe add an image which shows the rounding with an clock}
 
+The current definition of this algorithm allows only $1$ bit to be encoded at the time. This could be improved with some tricks, but for simplicity reasons we wont do that here. 
+
 To observe the functioning of this algorithm in practice, please refer to the example calculation in the appendix, which can be found in Appendix \ref{app:PlainLweCalc}.
 
 \section{Transforming LWE to R-LWE and M-LWE}
@@ -108,7 +108,6 @@ To observe the functioning of this algorithm in practice, please refer to the ex
 To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic. All equations stay the same and the structure of the Algorithms does not change.
 
 An illustrative example of the three-step process for RLWE can be found in \ref{app:RlweExampleCalc}.
-
 
 As next step, Ring-LWE can be transformed into Module-LWE. Todo this we only need to increase the dimensions, so that $n>1$. So instead of working with polynomials as in R-LWE, matrices and vectors of these polynomials will be used.
 
@@ -129,7 +128,30 @@ So in total, the only real differences between the Plain LWE, R-LWE and M-LWE ar
     $s,b,e,e_1$ & $R^{n}$          & $R$                       & $R^{n}$                       \\
     $e_2$       & $R$              & $R$                       & $R$                           \\
     $r$         & $\mathbb{Z}_2^n$ & $\mathbb{Z}[x]_2/(x^d+1)$ & $(\mathbb{Z}[x]_2/(x^d+1))^n$ \\
-    $m$         & $\mathbb{Z}_2$   & $\mathbb{Z}[x]_2/(x^d+1)$ & $\mathbb{Z}[x]_2/(x^d+1)$   \\
+    $m$         & $\mathbb{Z}_2$   & $\mathbb{Z}[x]_2/(x^d+1)$ & $\mathbb{Z}[x]_2/(x^d+1)$     \\
     \hline
   \end{tabular}
 \end{table}
+
+As the variables of the different LWE types have different dimensions, also the keys that need to be stored and shared and the messages have different dimensions. A comparison can be found in Table \ref{table:LweKeys}. As can be seen there, Plain LWE and R-LWE each depend only on one variable ($n$ or $d$ respectively), while M-LWE depends on both. This results in the secret key and private key for M-LWE being quite large, as they are always matrices or even 3D-tensors. In contrast, the secret key for Plain LWE and R-LWE is the same, but the dimensions are larger for the Plain LWE public key, which consists of a matrix and a vector, in contrast to two vectors in R-LWE.
+
+One significant deficiency of Plain LWE is that only a single bit can be encoded at a time. Consequently, the resulting encrypted messages are of the form $\ell \times (\mathbb{Z}_q^{n}\times\mathbb{Z}_q)$, where $\ell$ is the number of bits that needs to be encoded. In contrast, R-LWE and M-LWE permit the encryption of $\ell$ bits in chunks of size $d$. If the number of bits, denoted by $\ell$, is a multiple of the dimension $d$, then the transformation of each message bit into two ciphertext integers is applicable to R-LWE. In contrast, for Plain LWE and M-LWE, each message bit is transformed into $n+1$ ciphertext integers.  
+The security of Plain LWE is entirely reliant on the size of $n$, whereas in M-LWE, it is a combination of $n$ and $d$. In this context, it is possible to conclude that $n$ can be smaller in M-LWE than in Plain LWE. Consequently, it can be stated that R-LWE has the smallest cipher text dimension per bit, after which comes M-LWE, and the largest one has the Plain-LWE algorithm.
+
+\begin{table}[htbp]
+  \caption[LWE dimensions]{Comparison between the dimensions for keys and messages for the different LWE Types}
+  \label{table:LweKeys}
+  \centering
+  \begin{tabular}{|c|l|l|l|}
+    \hline
+              & Plain LWE                                        & R-LWE                                                                              & M-LWE                                                                                     \\
+    \hline
+    $sk$      & $\mathbb{Z}_q^{n}$                               & $\mathbb{Z}_q^{d}$                                                                 & $\mathbb{Z}_q^{n\times d}$                                                                \\
+    $pk$      & $\mathbb{Z}_q^{n\times n}\times\mathbb{Z}_q^{n}$ & $\mathbb{Z}_q^{d}\times \mathbb{Z}_q^{d}$                                          & $\mathbb{Z}_q^{n\times n \times d}\times\mathbb{Z}_q^{n \times d}$                        \\
+    $m$       & $\ell \times \mathbb{Z}_2$                       & $\left\lceil \ell / d\right\rceil \times \mathbb{Z}_2^{d}$                         & $\left\lceil \ell / d\right\rceil \times\mathbb{Z}_2^{d}$                                 \\
+    $m_{enc}$ & $\ell\times(\mathbb{Z}_q^{n}\times\mathbb{Z}_q)$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{d}\times \mathbb{Z}_q^{d})$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{n\times d}\times\mathbb{Z}_q^{d})$ \\
+    \hline
+  \end{tabular}
+\end{table}
+
+So in total it can be stated, that R-LWE has the smallest overall dimensions for the keys and for the ciphertext. Plain-LWE in contrast to M-LWE has a smaller key space, but the ciphertext space per bit is bigger.
