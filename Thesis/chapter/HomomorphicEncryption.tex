@@ -1,8 +1,25 @@
 \chapter{Homomorphic Encryption}
+
+Homomorphic encryption (HE) is a specialized cryptographic system that enables the execution of operations on encrypted data in a similar fashion to that of unencrypted data. This capability allows for the outsourcing of data storage and computation to external services while maintaining the confidentiality of the data. This creates a zero-trust environment, where there is no need to trust external providers as they are unable to decrypt the data. Furthermore, the occurrence of data breaches would be effectively eliminated, as the data is always encrypted.
+
+
+As described in \cite{FheImplementations}, HE algorithms can be grouped into 3 classes:
+\begin{description}
+    \item [Partially Homomorphic Encryption (PHE)]\hfill \\one type of operation can be performed an unlimited amount of times
+    \item [Somewhat Homomorphic Encryption (SWHE)]\hfill \\some types of operations for an limited number of times
+    \item [Fully Homomorphic Encryption (FHE)]\hfill \\an unlimited type of operations for an unlimited amount of times
+\end{description}
+
+As the algorithm will be used on binary data, the operations are often reduced to addition and multiplication, as with these two, all other calculations can be done in binary space.
+
+This Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They also proposed an PHE scheme, based on RSA., for multiplication only. More PHE schemes were developed over time and in 2009 C. Gentry proposed the first FHE scheme \cite{Gentry2009AFH} based on a bootstrapping technique, which refreshes the ciphertext, so that the internal errors are reduced and further calculations can be done. This essentially allows all SWHE schemes to be transformed into FHE schemes.
+
+
+
 Tasks:
 \begin{itemize}
-    \item Explain what it is in general
-    \item Show 1 or two homomorphic schemes, maybe one LWE and one R-LWE?
-    \item Translate them into M-LWE. Should be not to hard, based on what is explained before
-    \item Define criteria to compare them
+  \item Explain what it is in general
+  \item Show 1 or two homomorphic schemes, maybe one LWE and one R-LWE?: Useing BFV and BGV (see \cite{FheImplementations} Page 11)
+  \item Translate them into M-LWE. Should be not to hard, based on what is explained before
+  \item Define criteria to compare them
 \end{itemize}
