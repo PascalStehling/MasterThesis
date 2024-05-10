@@ -1,3 +1,4 @@
+from typing import Union
 import numpy as np
 from numpy.random import randint
 from scipy.linalg import circulant
@@ -36,30 +37,37 @@ class PolynomialTensor(object):
         evenly retrieved from min_val (default 0) to max_val (default modulus)
         """
         if max_value is None:
-            max_value = modulus-1
+            max_value = modulus - 1
         assert all([s > 0 for s in matrix_shape]) and poly_len > 0
         return PolynomialTensor(
-            randint(min_val, max_value+1, (*matrix_shape, poly_len)) % modulus,
-            modulus)
+            randint(min_val, max_value + 1,
+                    (*matrix_shape, poly_len)) % modulus, modulus)
 
     def __repr__(self) -> str:
         return repr(self.poly_mat)
 
     def __add__(self, other: "PolynomialTensor") -> "PolynomialTensor":
         assert self.shape == other.shape and self.modulus == other.modulus
-        return self._create((self.poly_mat + other.poly_mat) % self.modulus,
-                            self.modulus)
+        return self._create((self.poly_mat + other.poly_mat), self.modulus)
 
     def __sub__(self, other: "PolynomialTensor") -> "PolynomialTensor":
         assert self.shape == other.shape and self.modulus == other.modulus
-        return self._create((self.poly_mat - other.poly_mat) % self.modulus,
-                            self.modulus)
+        return self._create((self.poly_mat - other.poly_mat), self.modulus)
 
-    def __mul__(self, other: float) -> "PolynomialTensor":
-        assert isinstance(other, float)
-        return self._create(self.poly_mat * other, self.modulus)
+    def __mul__(
+            self, other: Union[float, int,
+                               "PolynomialTensor"]) -> "PolynomialTensor":
+        assert isinstance(
+            other, (float, int, PolynomialTensor)
+        ), f"Wrong type, {type(other)} instead of int or float or PolynomialTensor"
 
-    def __rmul__(self, other: float) -> "PolynomialTensor":
+        if isinstance(other, PolynomialTensor):
+            assert self.shape == other.shape and self.modulus == other.modulus
+            return self._create((self.poly_mat * other.poly_mat), self.modulus)
+
+        return self._create((self.poly_mat * other), self.modulus)
+
+    def __rmul__(self, other: float | int) -> "PolynomialTensor":
         return self.__mul__(other)
 
     @staticmethod
@@ -87,8 +95,15 @@ class PolynomialTensor(object):
         end_shape = (1, self.shape[1]) if self.poly_mat.ndim == 2 else (
             self.poly_mat.shape[0], self.shape[1])
         return self._create(
-            (self.mul_matrix @ other.poly_mat.flatten()).reshape(end_shape) %
-            self.modulus, self.modulus)
+            (self.mul_matrix @ other.poly_mat.flatten()).reshape(end_shape),
+            self.modulus)
+
+    def __mod__(self, other: int) -> "PolynomialTensor":
+        assert isinstance(other, int)
+        return self._create(self.poly_mat % other, self.modulus)
+
+    def change_modulus(self, mod: int) -> "PolynomialTensor":
+        return self._create(self.poly_mat % mod, mod)
 
 
 class Polynomial(PolynomialTensor):
@@ -111,3 +126,7 @@ class Polynomial(PolynomialTensor):
 
     def __repr__(self) -> str:
         return str(np.polynomial.Polynomial(self.poly_mat[0]))
+
+
+def poly_round(poly: PolynomialTensor) -> Polynomial:
+    return Polynomial(np.round(poly.poly_mat), poly.modulus)
