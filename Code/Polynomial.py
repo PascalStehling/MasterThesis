@@ -7,7 +7,10 @@ from scipy.linalg import circulant
 class PolynomialTensor(object):
 
     def __init__(self, poly_mat: np.ndarray, modulus: int):
-        self.poly_mat = poly_mat
+        if isinstance(poly_mat, list):
+            self.poly_mat = np.asarray(poly_mat)
+        else:
+            self.poly_mat = poly_mat
         self.modulus = modulus
 
     @staticmethod
@@ -71,7 +74,7 @@ class PolynomialTensor(object):
         return self.__mul__(other)
 
     @staticmethod
-    def _generate_multiplication_matrix(polys: np.ndarray) -> np.ndarray:
+    def _generate_multiplication_matrix(polys: np.ndarray, axis=0) -> np.ndarray:
         assert polys.ndim > 1, "Not Implemented Error"
         if polys.ndim == 2:
             rows = 1
@@ -82,12 +85,14 @@ class PolynomialTensor(object):
             circulant(vec) * ((np.tri(polys.shape[-1]) * 2) - 1)
             for vec in polys.reshape(-1, (polys.shape[-1]))
         ]
-        return np.vstack(
-            [np.hstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)])
+        if axis == 0:
+            return np.vstack(
+                [np.hstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)]) 
+        return np.hstack(
+            [np.vstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)])
 
-    @property
-    def mul_matrix(self) -> np.ndarray:
-        return self._generate_multiplication_matrix(self.poly_mat)
+    def mul_matrix(self, axis=0) -> np.ndarray:
+        return self._generate_multiplication_matrix(self.poly_mat, axis)
 
     def __matmul__(self, other: "PolynomialTensor") -> "PolynomialTensor":
         assert self.shape[1] == other.shape[1] and self.modulus == other.modulus
@@ -95,7 +100,7 @@ class PolynomialTensor(object):
         end_shape = (1, self.shape[1]) if self.poly_mat.ndim == 2 else (
             self.poly_mat.shape[0], self.shape[1])
         return self._create(
-            (self.mul_matrix @ other.poly_mat.flatten()).reshape(end_shape),
+            (self.mul_matrix() @ other.poly_mat.flatten()).reshape(end_shape),
             self.modulus)
 
     def __mod__(self, other: int) -> "PolynomialTensor":
