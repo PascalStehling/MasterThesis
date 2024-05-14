@@ -74,22 +74,18 @@ class PolynomialTensor(object):
         return self.__mul__(other)
 
     @staticmethod
-    def _generate_multiplication_matrix(polys: np.ndarray, axis=0) -> np.ndarray:
+    def _generate_multiplication_matrix(polys: np.ndarray,
+                                        axis=0) -> np.ndarray:
         assert polys.ndim > 1, "Not Implemented Error"
-        if polys.ndim == 2:
-            rows = 1
-            cols = polys.shape[0]
-        else:
-            rows, cols = polys.shape[0:2]
+        poly_len = polys.shape[-1]
+        tri = ((np.tri(poly_len) * 2) - 1)
         blocks = [
-            circulant(vec) * ((np.tri(polys.shape[-1]) * 2) - 1)
-            for vec in polys.reshape(-1, (polys.shape[-1]))
+            circulant(vec) * tri
+            for vec in polys.reshape(-1, (poly_len))
         ]
         if axis == 0:
-            return np.vstack(
-                [np.hstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)]) 
-        return np.hstack(
-            [np.vstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)])
+            return np.hstack(blocks)
+        return np.vstack(blocks)
 
     def mul_matrix(self, axis=0) -> np.ndarray:
         return self._generate_multiplication_matrix(self.poly_mat, axis)
