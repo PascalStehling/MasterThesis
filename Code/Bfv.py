@@ -158,6 +158,8 @@ if __name__ == "__main__":
     print(f"Message: {m1.poly_mat[0]}")
     print(f"+: {(m1+m1).poly_mat[0] % 2} == {BFV.decrypt(sk, m_e1+m_e1)}")
     print(f"*: {(m1 @ m1).poly_mat[0] % 2} == {BFV.decrypt(sk, m_e1*m_e1)}")
+    assert ((m1 + m1).poly_mat[0] % 2 == BFV.decrypt(sk, m_e1+m_e1)).all()
+    assert ((m1 @ m1).poly_mat[0] % 2 == BFV.decrypt(sk, m_e1*m_e1)).all()
 
 
 

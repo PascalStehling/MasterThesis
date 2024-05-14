@@ -77,15 +77,21 @@ class PolynomialTensor(object):
     def _generate_multiplication_matrix(polys: np.ndarray,
                                         axis=0) -> np.ndarray:
         assert polys.ndim > 1, "Not Implemented Error"
-        poly_len = polys.shape[-1]
-        tri = ((np.tri(poly_len) * 2) - 1)
+        if polys.ndim == 2:
+            rows = 1
+            cols = polys.shape[0]
+        else:
+            rows, cols = polys.shape[0:2]
         blocks = [
-            circulant(vec) * tri
-            for vec in polys.reshape(-1, (poly_len))
+            circulant(vec) * ((np.tri(polys.shape[-1]) * 2) - 1)
+            for vec in polys.reshape(-1, (polys.shape[-1]))
         ]
         if axis == 0:
-            return np.hstack(blocks)
-        return np.vstack(blocks)
+            return np.vstack([
+                np.hstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)
+            ])
+        return np.hstack(
+            [np.vstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)])
 
     def mul_matrix(self, axis=0) -> np.ndarray:
         return self._generate_multiplication_matrix(self.poly_mat, axis)
@@ -131,3 +137,15 @@ class Polynomial(PolynomialTensor):
 
 def poly_round(poly: PolynomialTensor) -> Polynomial:
     return Polynomial(np.round(poly.poly_mat), poly.modulus)
+
+
+if __name__ == "__main__":
+    # Some tests
+    modulus = 100
+
+    s = PolynomialTensor(np.asarray([[3, 3, 3], [98, 3, 0]]), modulus)
+    A = PolynomialTensor(
+        np.asarray([[[53, 83, 66], [27, 29, 34]], [[16, 25, 87],
+                                                   [48, 96, 0]]]), modulus)
+    e = PolynomialTensor(np.asarray([[97, 99, 99], [98, 98, 1]]), modulus)
+    assert (np.array([[2353., 3232., 4124.], [4514., 9512., 673.]]) == (A @ s + e).poly_mat).all()
