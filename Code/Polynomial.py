@@ -141,11 +141,53 @@ def poly_round(poly: PolynomialTensor) -> Polynomial:
 
 if __name__ == "__main__":
     # Some tests
-    modulus = 100
-
-    s = PolynomialTensor(np.asarray([[3, 3, 3], [98, 3, 0]]), modulus)
+    s = PolynomialTensor(np.asarray([[3, 3, 3], [98, 3, 0]]), 100)
     A = PolynomialTensor(
-        np.asarray([[[53, 83, 66], [27, 29, 34]], [[16, 25, 87],
-                                                   [48, 96, 0]]]), modulus)
-    e = PolynomialTensor(np.asarray([[97, 99, 99], [98, 98, 1]]), modulus)
-    assert (np.array([[2353., 3232., 4124.], [4514., 9512., 673.]]) == (A @ s + e).poly_mat).all()
+        np.asarray([[[53, 83, 66], [27, 29, 34]], [[16, 25, 87], [48, 96,
+                                                                  0]]]), 100)
+    e = PolynomialTensor(np.asarray([[97, 99, 99], [98, 98, 1]]), 100)
+
+    b = (A @ s + e) % 100
+    assert (np.array([[53., 32., 24.], [14., 12.,
+                                        73.]]) == b.poly_mat).all(), b
+
+    m = np.asarray([np.random.randint(0, 2, 3)])
+    m_p = PolynomialTensor(m * (100 // 2), 100)
+
+    r = PolynomialTensor.random_polynomial_matrix(3,
+                                                  100, (2, ),
+                                                  min_val=0,
+                                                  max_value=1)
+    e1 = PolynomialTensor.random_polynomial_matrix(3,
+                                                   100, (2, ),
+                                                   min_val=-3,
+                                                   max_value=3)
+    e2 = PolynomialTensor.random_polynomial_matrix(3,
+                                                   100, (1, ),
+                                                   min_val=-3,
+                                                   max_value=3)
+
+    u = (A.T @ r) + e1
+    v = b.T @ r + e2 + m_p
+    m_d = np.rint((v - (s.T @ u)).poly_mat * (1 / (100 // 2))) % 2
+
+    s = Polynomial(np.asarray([[1, 0, 1]]), 100)
+    A = Polynomial(np.asarray([[28, 56, 1]]), 100)
+    e = Polynomial(np.asarray([[1, 99, 2]]), 100)
+
+    b = (A @ s + e) % 100
+
+    assert (b.poly_mat == np.asarray([[73, 54, 31]])).all(), b
+
+    message = Polynomial(np.asarray([[1, 1, 0]]), 100)
+    r = Polynomial(np.asarray([[0, 1, 1]]), 100)
+    e1 = Polynomial(np.asarray([[98, 0, 98]]), 100)
+    e2 = Polynomial(np.asarray([[1, 0, 0]]), 100)
+    q_half = np.floor(100 / 2)
+
+    u = A @ r + e1
+    v = b @ r + e2 + message * q_half
+
+    decrypt = np.round((1 / q_half * (v - s @ u)).poly_mat) % 2
+
+    assert all((message.poly_mat == decrypt)[0])
