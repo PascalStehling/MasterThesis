@@ -11,6 +11,9 @@ class PolynomialTensor(object):
             self.poly_mat = np.asarray(poly_mat)
         else:
             self.poly_mat = poly_mat
+
+        if self.poly_mat.ndim == 1:
+            self.poly_mat = np.expand_dims(self.poly_mat, 0)
         self.modulus = modulus
 
     @staticmethod
@@ -50,11 +53,15 @@ class PolynomialTensor(object):
         return repr(self.poly_mat)
 
     def __add__(self, other: "PolynomialTensor") -> "PolynomialTensor":
-        assert self.shape == other.shape and self.modulus == other.modulus
+        assert self.modulus == other.modulus and (self.shape == other.shape
+                                                  or self.shape[0][0] == 1
+                                                  or other.shape[0][0] == 1)
         return self._create((self.poly_mat + other.poly_mat), self.modulus)
 
     def __sub__(self, other: "PolynomialTensor") -> "PolynomialTensor":
-        assert self.shape == other.shape and self.modulus == other.modulus
+        assert self.modulus == other.modulus and (self.shape == other.shape
+                                                  or self.shape[0][0] == 1
+                                                  or other.shape[0][0] == 1)
         return self._create((self.poly_mat - other.poly_mat), self.modulus)
 
     def __mul__(
@@ -104,11 +111,16 @@ class PolynomialTensor(object):
         assert self.modulus == other.modulus
         end_shape = (1, self.shape[1]) if self.poly_mat.ndim == 2 else (
             self.poly_mat.shape[0], self.shape[1])
-        
+
         # If its bigger then tow, the flatten function is the wrong one to use
         if other.poly_mat.ndim > 2:
             raise NotImplementedError()
 
+        if other.poly_mat.shape[0] == 1:
+            return self._create(
+                (self.mul_matrix() @ other.poly_mat.flatten().repeat(
+                    self.poly_mat.shape[0], 0)).reshape(end_shape),
+                self.modulus)
         return self._create(
             (self.mul_matrix() @ other.poly_mat.flatten()).reshape(end_shape),
             self.modulus)
@@ -224,17 +236,20 @@ if __name__ == "__main__":
     o1 = np.array([[1, -3, -2],
                    [2, 1, -3],
                    [3, 2, 1]]) # yapf: disable
-    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i1), o1)
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i1),
+                          o1)
     i2 = np.array([[1, 2, 3]])
     o2 = np.array([[1, -3, -2],
                    [2,  1, -3],
                    [3,  2,  1]]) # yapf: disable
-    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i2), o2)
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i2),
+                          o2)
     i3 = np.array([[1, 2, 3], [4, 5, 6]])
     o3 = np.array([[ 1, -3, -2,  4, -6, -5],
                    [ 2,  1, -3,  5,  4, -6],
                    [ 3,  2,  1,  6,  5,  4]]) # yapf: disable
-    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i3), o3)
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i3),
+                          o3)
     i4 = np.array([[[1, 2, 3], [4, 5, 6]],
                 [[7, 8, 9], [0, 1, 2]]]) # yapf: disable
     o4 = np.array([[ 1., -3., -2., 4., -6., -5.],
@@ -243,4 +258,9 @@ if __name__ == "__main__":
                    [ 7., -9., -8., 0., -2., -1.],
                    [ 8.,  7., -9., 1.,  0., -2.],
                    [ 9.,  8.,  7., 2.,  1.,  0.]],) # yapf: disable
-    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i4), o4)
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i4),
+                          o4)
+
+    a = PolynomialTensor(np.asarray([[3, 3, 3], [98, 3, 0]]), 100)
+    b = PolynomialTensor(np.asarray([[1, 1, 1]]), 100)
+    assert ((a @ b).poly_mat == np.array([[92., 104., 110.]])).all()
