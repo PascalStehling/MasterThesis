@@ -76,22 +76,25 @@ class PolynomialTensor(object):
     @staticmethod
     def _generate_multiplication_matrix(polys: np.ndarray,
                                         axis=0) -> np.ndarray:
-        assert polys.ndim > 1, "Not Implemented Error"
-        if polys.ndim == 2:
-            rows = 1
-            cols = polys.shape[0]
+        if polys.ndim == 1:
+            rows, cols = (1, 1)
+        elif polys.ndim == 2:
+            rows, cols = (polys.shape[0], 1)
+        elif polys.ndim == 3:
+            rows, cols = polys.shape[:2]
         else:
-            rows, cols = polys.shape[0:2]
+            raise NotImplementedError()
+
         blocks = [
             circulant(vec) * ((np.tri(polys.shape[-1]) * 2) - 1)
             for vec in polys.reshape(-1, (polys.shape[-1]))
         ]
-        if axis == 0:
+        if axis == 1:
             return np.vstack([
                 np.hstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)
             ])
-        return np.hstack(
-            [np.vstack(blocks[i * cols:(i + 1) * cols]) for i in range(rows)])
+        return np.vstack(
+            [np.hstack(blocks[i * rows:(i + 1) * rows]) for i in range(cols)])
 
     def mul_matrix(self, axis=0) -> np.ndarray:
         return self._generate_multiplication_matrix(self.poly_mat, axis)
@@ -101,6 +104,11 @@ class PolynomialTensor(object):
         assert self.modulus == other.modulus
         end_shape = (1, self.shape[1]) if self.poly_mat.ndim == 2 else (
             self.poly_mat.shape[0], self.shape[1])
+        
+        # If its bigger then tow, the flatten function is the wrong one to use
+        if other.poly_mat.ndim > 2:
+            raise NotImplementedError()
+
         return self._create(
             (self.mul_matrix() @ other.poly_mat.flatten()).reshape(end_shape),
             self.modulus)
@@ -111,6 +119,23 @@ class PolynomialTensor(object):
 
     def change_modulus(self, mod: int) -> "PolynomialTensor":
         return self._create(self.poly_mat % mod, mod)
+
+    def __pow__(self, other: int) -> "PolynomialTensor":
+        original_shape = self.poly_mat.shape
+        polynomials = [
+            PolynomialTensor([poly], self.modulus)
+            for poly in self.poly_mat.reshape((-1, original_shape[-1]))
+        ]
+
+        def _multi(poly: PolynomialTensor, amount: int) -> PolynomialTensor:
+            if amount == 1:
+                return poly
+            return poly @ _multi(poly, amount - 1)
+
+        return self._create(
+            np.asarray([(_multi(poly, other)).poly_mat[0]
+                        for poly in polynomials]).reshape(original_shape) %
+            self.modulus, self.modulus)
 
 
 class Polynomial(PolynomialTensor):
@@ -191,3 +216,31 @@ if __name__ == "__main__":
     decrypt = np.round((1 / q_half * (v - s @ u)).poly_mat) % 2
 
     assert all((message.poly_mat == decrypt)[0])
+
+    s = PolynomialTensor(np.asarray([[3, 3, 3], [98, 3, 0]]), 100)
+    assert (np.array([[91., 9., 27.], [4., 88., 9.]]) == (s**2).poly_mat).all()
+
+    i1 = np.array([1, 2, 3])
+    o1 = np.array([[1, -3, -2],
+                   [2, 1, -3],
+                   [3, 2, 1]]) # yapf: disable
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i1), o1)
+    i2 = np.array([[1, 2, 3]])
+    o2 = np.array([[1, -3, -2],
+                   [2,  1, -3],
+                   [3,  2,  1]]) # yapf: disable
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i2), o2)
+    i3 = np.array([[1, 2, 3], [4, 5, 6]])
+    o3 = np.array([[ 1, -3, -2,  4, -6, -5],
+                   [ 2,  1, -3,  5,  4, -6],
+                   [ 3,  2,  1,  6,  5,  4]]) # yapf: disable
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i3), o3)
+    i4 = np.array([[[1, 2, 3], [4, 5, 6]],
+                [[7, 8, 9], [0, 1, 2]]]) # yapf: disable
+    o4 = np.array([[ 1., -3., -2., 4., -6., -5.],
+                   [ 2.,  1., -3., 5.,  4., -6.],
+                   [ 3.,  2.,  1., 6.,  5.,  4.],
+                   [ 7., -9., -8., 0., -2., -1.],
+                   [ 8.,  7., -9., 1.,  0., -2.],
+                   [ 9.,  8.,  7., 2.,  1.,  0.]],) # yapf: disable
+    assert np.array_equal(PolynomialTensor._generate_multiplication_matrix(i4), o4)
