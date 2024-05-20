@@ -2,9 +2,9 @@
 # https://eprint.iacr.org/2012/144.pdf
 from dataclasses import dataclass
 
-import numpy as np
+# import numpy as np
 
-from Polynomial import Polynomial, PolynomialTensor
+from Polynomial import Polynomial, PolynomialMatrix, RingPoly
 
 
 @dataclass
@@ -27,8 +27,8 @@ class BfvPublicKey:
 
 @dataclass
 class BfvRlk:
-    ra: PolynomialTensor
-    rb: PolynomialTensor
+    ra: PolynomialMatrix
+    rb: PolynomialMatrix
 
 
 # def decompose_len(modulus: int, base: int) -> int:
@@ -176,8 +176,7 @@ class BfvEncrypted:
         assert self.config == other.config
 
         def round_with_poly(poly: Polynomial) -> Polynomial:
-            return Polynomial((np.round(poly.poly_mat)) % self.config.modulus,
-                              self.config.modulus)
+            return round(poly) % self.config.modulus
 
         v = round_with_poly((2 / self.config.modulus) * (self.v @ other.v))
 
@@ -187,8 +186,8 @@ class BfvEncrypted:
         uv = round_with_poly(
             (2 / self.config.modulus) * (self.u @ other.u)).change_modulus(
                 self.config.p * self.config.modulus)
-        uvu = round_with_poly((uv @ self.rlk.ra) * (1 / self.config.p))
-        uvv = round_with_poly((uv @ self.rlk.rb) * (1 / self.config.p))
+        uvu = round_with_poly((uv @ self.rlk.ra) * (1 / self.config.p)).change_modulus(self.config.modulus)
+        uvv = round_with_poly((uv @ self.rlk.rb) * (1 / self.config.p)).change_modulus(self.config.modulus)
 
         return BfvEncrypted(self.config,
                           self.rlk,
@@ -204,68 +203,85 @@ class BFV:
         e = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
         A = Polynomial.random_polynomial(conf.poly_len, conf.modulus)
 
+        # s = Polynomial([[1, 0, 0, 1]], conf.modulus)
+        # e = Polynomial([[0, 1, 1, 1]], conf.modulus)
+        # A = Polynomial([[723, 177, 914, 847]], conf.modulus)
+
+        b = (-1 * (A @ s + e)) % conf.modulus
+
         rs = Polynomial(s.poly_mat, conf.p * conf.modulus)
         re = Polynomial.random_polynomial(conf.poly_len, conf.p * conf.modulus,
                                           0, 1)
         rA = Polynomial.random_polynomial(conf.poly_len, conf.p * conf.modulus)
+        # re = Polynomial([[1, 0, 0, 1]], conf.p * conf.modulus)
+        # rA = Polynomial([[837051908812184, 471019529082268, 242724841222094, 606619688219965]], conf.p * conf.modulus)
 
-        return (BfvSecretKey(s), BfvPublicKey(A, (-1 * (A @ s + e)) % conf.modulus),
-                BfvRlk(rA, (-1 * (rA @ rs + re) + conf.p * (rs @ rs)) %
-                 (conf.p * conf.modulus)))
+        rb = (-1 * (rA @ rs + re) + conf.p * (rs @ rs)) % (conf.p * conf.modulus)
+
+        return (BfvSecretKey(s), BfvPublicKey(A=A, b=b),
+                BfvRlk(rA, rb))
 
 
     @staticmethod
     def encrypt(conf: BfvConfig, pk: BfvPublicKey, rlk: BfvRlk,
                 message: list) -> BfvEncrypted:
-        assert isinstance(message, list)
+        if isinstance(message, list):
+            message = RingPoly(message)
+        elif not isinstance(message, RingPoly):
+            raise TypeError("Message needs to be list or RingPoly")
         e1 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
         e2 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
         r = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 2)
+        # e1 = Polynomial([[0, 1, 0, 0]], conf.modulus)
+        # e2 = Polynomial([[1, 1, 0, 1]], conf.modulus)
+        # r = Polynomial([[0, 2, 0, 1]], conf.modulus)
 
-        v = (pk.b @ r + e1 + Polynomial(
-            np.asarray([message]) *
-            (conf.modulus // 2), conf.modulus)) % conf.modulus
+
+        v = (pk.b @ r + e1 + Polynomial(message, conf.modulus) * (conf.modulus // 2)) % conf.modulus
         u = (pk.A @ r + e2) % conf.modulus
 
         return BfvEncrypted(conf, rlk, u=u, v=v)
 
     @staticmethod
     def decrypt(sk: BfvSecretKey, m_enc: BfvEncrypted) -> list:
-        return (np.round(
-            ((2 / m_enc.config.modulus) *
-             ((m_enc.v + m_enc.u @ sk.sk) % m_enc.config.modulus)).poly_mat) %
-                2).tolist()[0]
+        return (
+            round(
+                ((2 / m_enc.config.modulus) * ((m_enc.v + m_enc.u @ sk.sk) % m_enc.config.modulus))
+            ) % 2
+        ).poly_mat[0][0] # yapf: disable
 
 
 
 if __name__ == "__main__":
-    conf = BfvConfig(3, 1000, 1000**4)
+    conf = BfvConfig(4, 1000, 1000**4)
     sk, pk, rlk = BFV.keygen(conf)
 
-    m1 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
-    m_e1 = BFV.encrypt(conf, pk, rlk, m1.poly_mat[0].tolist())
-    print(f"Message: {m1.poly_mat[0]}")
-    print(f"+: {(m1+m1).poly_mat[0] % 2} == {BFV.decrypt(sk, m_e1+m_e1)}")
-    print(f"*: {(m1 @ m1).poly_mat[0] % 2} == {BFV.decrypt(sk, m_e1*m_e1)}")
-    assert ((m1 + m1).poly_mat[0] % 2 == BFV.decrypt(sk, m_e1+m_e1)).all()
-    assert ((m1 @ m1).poly_mat[0] % 2 == BFV.decrypt(sk, m_e1*m_e1)).all()
+    # m1 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
+    m1 = RingPoly([1,1,0,0])
+    m_e1 = BFV.encrypt(conf, pk, rlk, m1.poly)
 
-    conf = BfvConfig(3, 1000, 1000**4)
+    # print(f"Message: {m1.poly_mat[0]}")
+    print(f"+: {(m1+m1) % 2} == {BFV.decrypt(sk, m_e1+m_e1)}")
+    print(f"*: {(m1 * m1) % 2} == {BFV.decrypt(sk, m_e1*m_e1)}")
+    assert (m1 + m1) % 2 == BFV.decrypt(sk, m_e1+m_e1)
+    assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1*m_e1)
+
+    conf = BfvConfig(4, 2**30, 2**64)
 
     op_count = []
-    for j in range(50):
+    for j in range(200):
 
         # Single Test Start
         sk, pk, rlks = BFV.keygen(conf)
-        m1 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
-        m_e1 = BFV.encrypt(conf, pk, rlks, m1.poly_mat[0].tolist())
+        m1 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
+        m_e1 = BFV.encrypt(conf, pk, rlks, m1)
         for i in range(10000):
-            m2 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
-            m_e2 = BFV.encrypt(conf, pk, rlks, m2.poly_mat[0].tolist())
+            m2 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
+            m_e2 = BFV.encrypt(conf, pk, rlks, m2)
             m_e1 = m_e1*m_e2
-            m1 = (m1 @ m2)%2
+            m1 = (m1 * m2)%2
             # assert BFV.decrypt(sk, m_e1) == m1.poly_mat[0].tolist(), f"{i}: {m1} -- {BFV.decrypt(sk, m_e1)}"
-            if BFV.decrypt(sk, m_e1) != m1.poly_mat[0].tolist():
+            if BFV.decrypt(sk, m_e1) != m1:
                 op_count.append(i)
                 break
 
