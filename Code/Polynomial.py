@@ -45,7 +45,7 @@ class RingPoly:
         if isinstance(other, (int, float)):
             return RingPoly([operator(v, other) for v in self.poly])
 
-        raise NotImplementedError(f"Not implemented for type: {type(other)}")
+        raise NotImplementedError(f"{operator} Not implemented for type: {type(other)}")
 
     def __mul__(self, other) -> "RingPoly":
         if isinstance(other, RingPoly):
@@ -57,6 +57,9 @@ class RingPoly:
             return RingPoly([v * other for v in self.poly])
         else:
             raise NotImplementedError()
+        
+    def __rmul__(self, other):
+        return self * other
 
     def __add__(self, other) -> "RingPoly":
         return self._calc(other, add)
@@ -155,6 +158,8 @@ class PolynomialMatrix(object):
                      operation: Callable) -> "PolynomialMatrix":
         if not isinstance(other, PolynomialMatrix):
             raise NotImplementedError()
+        # print(self.shape == other.shape)
+        # print(self.shape, other.shape)
         assert self.modulus == other.modulus and (self.shape == other.shape
                                                   or self.shape[0] == (1, 1)
                                                   or other.shape[0] == (1, 1))
@@ -204,7 +209,7 @@ class PolynomialMatrix(object):
 
     def __truediv__(self, other) -> "PolynomialMatrix":
         if isinstance(other, (int, float)):
-            return self._calc_scalar(self, other, truediv)
+            return self._calc_scalar(other, truediv)
         raise NotImplementedError()
 
     def __matmul__(self, other: "PolynomialMatrix") -> "PolynomialMatrix":
@@ -253,6 +258,9 @@ class PolynomialMatrix(object):
             raise NotImplementedError()
 
         return self.poly_mat == other.poly_mat
+    
+    def __iter__(self):
+        yield from chain(*self.poly_mat)
 
 
 class Polynomial(PolynomialMatrix):

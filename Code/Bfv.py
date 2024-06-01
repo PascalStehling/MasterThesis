@@ -2,6 +2,8 @@
 # https://eprint.iacr.org/2012/144.pdf
 from dataclasses import dataclass
 
+from tqdm import tqdm
+
 # import numpy as np
 
 from Polynomial import Polynomial, PolynomialMatrix, RingPoly
@@ -253,7 +255,7 @@ class BFV:
 
 
 if __name__ == "__main__":
-    conf = BfvConfig(4, 1000, 1000**4)
+    conf = BfvConfig(1, 1000, 1000**4)
     sk, pk, rlk = BFV.keygen(conf)
 
     # m1 = Polynomial.random_polynomial(conf.poly_len, conf.modulus, 0, 1)
@@ -266,10 +268,10 @@ if __name__ == "__main__":
     assert (m1 + m1) % 2 == BFV.decrypt(sk, m_e1+m_e1)
     assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1*m_e1)
 
-    conf = BfvConfig(4, 2**30, 2**64)
+    conf = BfvConfig(16, 2**10, 2**30)
 
     op_count = []
-    for j in range(200):
+    for j in tqdm(range(200)):
 
         # Single Test Start
         sk, pk, rlks = BFV.keygen(conf)
@@ -278,8 +280,8 @@ if __name__ == "__main__":
         for i in range(10000):
             m2 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
             m_e2 = BFV.encrypt(conf, pk, rlks, m2)
-            m_e1 = m_e1*m_e2
-            m1 = (m1 * m2)%2
+            m_e1 = m_e1+m_e2
+            m1 = (m1 + m2)%2
             # assert BFV.decrypt(sk, m_e1) == m1.poly_mat[0].tolist(), f"{i}: {m1} -- {BFV.decrypt(sk, m_e1)}"
             if BFV.decrypt(sk, m_e1) != m1:
                 op_count.append(i)
