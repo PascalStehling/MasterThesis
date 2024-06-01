@@ -38,6 +38,10 @@ class BfvRlk:
     rb: PolynomialMatrix
 
 
+def inverse_poly(poly: PolynomialMatrix):
+    return PolynomialMatrix(list(reversed(poly.poly_mat)), poly.modulus)
+
+
 class BfvEncrypted:
 
     def __init__(self, config: BfvConfig, rlks: list[BfvRlk], u: Polynomial,
@@ -57,76 +61,36 @@ class BfvEncrypted:
     def __mul__(self, other: "BfvEncrypted") -> "BfvEncrypted":
         assert self.config == other.config
 
-        def round_with_poly(poly: PolynomialMatrix) -> PolynomialMatrix:
-            return round(poly) % self.config.modulus
+        c0 = (self.v * other.v)
+        c1 = (self.v*other.u+other.v*self.u).T # yapf: disable
+        c2 = self.u @ other.u.T  # yapf: disable
 
-        def tp(arr: list) -> PolynomialMatrix:
-            return PolynomialMatrix(arr, self.config.modulus)
+        tq = 2 / self.config.modulus
+        c0 = round(c0 * tq) % self.config.modulus
+        c1 = round(c1 * tq) % self.config.modulus
+        c2 = round(c2 * tq) % self.config.modulus
 
-        d0 = round_with_poly((2 / self.config.modulus) * (self.v @ other.v))
-        # print("d0:", d0.shape)
+        c20 = round((self.u * other.u) * tq) % self.config.modulus  # s^2
+        c21 = round((self.u * inverse_poly(other.u)) *
+                    tq) % self.config.modulus  # s1s2 - vector
 
-        d1 = round_with_poly(
-            (2 / self.config.modulus) *
-            (tp([(tp(self.u.poly_mat[i]) @ tp(other.v.poly_mat)).poly_mat[0]
-                 for i in range(self.config.mat_size)]) +
-             tp([(tp(other.u.poly_mat[i]) @ tp(self.v.poly_mat)).poly_mat[0]
-                 for i in range(self.config.mat_size)])))
-        # print("d1:", d1.shape)
+        big_mod = self.config.p * self.config.modulus
+        c20 = c20.change_modulus(big_mod)
+        c21 = c21.change_modulus(big_mod)
 
-        d2 = round_with_poly(
-            (2 / self.config.modulus) *
-            (tp([(tp(self.u.poly_mat[i]) @ tp(other.u.poly_mat[i])).poly_mat[0]
-                 for i in range(self.config.mat_size)])))
-        # print("d2:", d2.shape)
+        c20_relin = self.rlks[0]
+        c21_relin = self.rlks[1]
+        v = (c0
+            + round((c20_relin.rb.T @ c20) / self.config.p).change_modulus(self.config.modulus)
+            + round((c21_relin.rb.T @ c21) / self.config.p).change_modulus(self.config.modulus)
+        ) % self.config.modulus # yapf: disable
+        u = (c1.T
+            + round((c20_relin.ra @ c20) / self.config.p).change_modulus(self.config.modulus)
+            + round((c21_relin.ra @ c21) / self.config.p).change_modulus(self.config.modulus)
+        ) % self.config.modulus # yapf: disable
 
-        d3 = ([
-            round_with_poly(
-                (2 / self.config.modulus) *
-                ((tp(self.u.poly_mat[i]) @ tp(other.u.poly_mat[j])) +
-                 (tp(self.u.poly_mat[j]) @ tp(other.u.poly_mat[i]))))
-            for i, j in self.config.index_distribution
-        ])
-        # print(self.config.index_distribution)
-        # print("d3:", len(d3))
-        assert len(d3) == len(self.rlks) - 1
 
-        big_mod = self.config.modulus * self.config.p
-
-        # print("rA:", self.rlks[0].ra.shape)
-
-        # d2 Relinerization: This seems to work as r=1 works
-        v_relin_d2 = round_with_poly(
-            (d2.change_modulus(big_mod).T @ self.rlks[0].rb) /
-            self.config.p).change_modulus(self.config.modulus)
-
-        u_relin_d2: PolynomialMatrix = round_with_poly(
-            ((self.rlks[0].ra @ d2.change_modulus(big_mod)) /
-             self.config.p)).change_modulus(self.config.modulus)
-
-        # This is either not working or something is wrong with the multiplication
-        v_relin_d3: PolynomialMatrix = reduce(
-            add, [
-                round_with_poly(
-                    (rlk.rb @ d3i.change_modulus(big_mod)) / self.config.p)
-                for d3i, rlk in zip(d3, self.rlks[1:])
-            ], PolynomialMatrix(RingPoly([0] * self.config.poly_len),
-                                big_mod)).change_modulus(self.config.modulus)
-
-        # print(d3_relin_sum)
-        u_relin_d3 = reduce(
-            add, [
-                round_with_poly(
-                    (rlk.ra @ d3i.change_modulus(big_mod)) / self.config.p)
-                for d3i, rlk in zip(d3, self.rlks[1:])
-            ], PolynomialMatrix(RingPoly([0] * self.config.poly_len),
-                                big_mod)).change_modulus(self.config.modulus)
-
-        return BfvEncrypted(
-            self.config,
-            self.rlks,
-            u=(d1 + u_relin_d2 + v_relin_d3) % self.config.modulus,
-            v=(d0 + v_relin_d2 + u_relin_d3) % self.config.modulus)
+        return BfvEncrypted(self.config, self.rlks, u=u, v=v)
 
 
 class BFV:
@@ -161,33 +125,19 @@ class BFV:
         big_mod = conf.p * conf.modulus
         rs = PolynomialMatrix(s.poly_mat, big_mod)
 
-        def _calculate_relin(second_secret: PolynomialMatrix,
-                             is_matrix=True) -> BfvRlk:
-            if is_matrix:
-                re = PolynomialMatrix.random_polynomial_matrix(
-                    conf.poly_len, big_mod, (conf.mat_size, 1), 0, 1)
-                ra = PolynomialMatrix.random_polynomial_matrix(
-                    conf.poly_len, big_mod, (conf.mat_size, conf.mat_size))
-            else:
-                re = PolynomialMatrix.random_polynomial_matrix(
-                    conf.poly_len, big_mod, (1, 1), 0, 1)
-                ra = PolynomialMatrix.random_polynomial_matrix(
-                    conf.poly_len, big_mod, (conf.mat_size, 1))
+        def _calculate_relin(second_secret: PolynomialMatrix) -> BfvRlk:
+            re = PolynomialMatrix.random_polynomial_matrix(
+                conf.poly_len, big_mod, (conf.mat_size, 1), 0, 1)
+            ra = PolynomialMatrix.random_polynomial_matrix(
+                conf.poly_len, big_mod, (conf.mat_size, conf.mat_size))
 
-            # re = Polynomial([[1, 0, 0, 1]], big_mod)
-            # ra = Polynomial([[
-            #     837051908812184, 471019529082268, 242724841222094,
-            #     606619688219965
-            # ]], big_mod)
+            rb = (-1 * (ra.T @ rs + re) + conf.p * second_secret) % (big_mod)
 
-            rb = (-1 * (ra.T @ rs + re) + conf.p * (second_secret)) % (big_mod)
             return BfvRlk(ra=ra, rb=rb)
 
-        relins = [_calculate_relin(rs * rs, is_matrix=True)] + [
-            _calculate_relin(PolynomialMatrix(
-                (rs.poly_mat[i][0] * rs.poly_mat[j][0]) % big_mod, big_mod),
-                             is_matrix=False)
-            for i, j in conf.index_distribution
+        relins = [
+            _calculate_relin(rs * rs),
+            _calculate_relin(rs * inverse_poly(rs))
         ]
 
         return (BfvSecretKey(s), BfvPublicKey(A=A, b=b), relins)
@@ -232,134 +182,30 @@ if __name__ == "__main__":
     conf = BfvConfig(2, 4, 2**30, 2**60)
     sk, pk, rlk = BFV.keygen(conf)
 
-    m1 = RingPoly([1, 1, 1, 1])
+    m1 = RingPoly([1, 1, 0, 0])
     m_e1 = BFV.encrypt(conf, pk, rlk, m1.poly)
 
-    def decrypt_poly(poly: RingPoly) -> list:
-        return (
-            round(
-                (((poly % conf.modulus) * 2) / conf.modulus)
-            ) % 2
-        ) # yapf: disable
-
-    # FOR r=2, it works like this, YAAAAAAY
-    print("Plain")
-    print(
-        decrypt_poly(
-            (((((m_e1.v + m_e1.u.T @ sk.sk) % m_e1.config.modulus) *
-               ((m_e1.v + m_e1.u.T @ sk.sk) % m_e1.config.modulus) * 2) /
-              conf.modulus) % m_e1.config.modulus)).poly_mat[0][0])
-    print(decrypt_poly(
-        ((
-            (m_e1.v.poly_mat[0][0]*m_e1.v.poly_mat[0][0])
-            + (m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[0][0] + m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[0][0]) * sk.sk.poly_mat[0][0]
-            + (m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[1][0] + m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[1][0]) * sk.sk.poly_mat[1][0]
-            + (m_e1.u.poly_mat[0][0]*m_e1.u.poly_mat[0][0]) * (sk.sk.poly_mat[0][0] * sk.sk.poly_mat[0][0])
-            + (m_e1.u.poly_mat[1][0]*m_e1.u.poly_mat[1][0]) * (sk.sk.poly_mat[1][0] * sk.sk.poly_mat[1][0])
-            + (m_e1.u.poly_mat[0][0]*m_e1.u.poly_mat[1][0]) * (sk.sk.poly_mat[0][0] * sk.sk.poly_mat[1][0])
-            + (m_e1.u.poly_mat[1][0]*m_e1.u.poly_mat[0][0]) * (sk.sk.poly_mat[1][0] * sk.sk.poly_mat[0][0])
-        )* 2)/conf.modulus
-    )) # yapf: disable
-
-    print("Decomposed into Variables")
-    c0 = (m_e1.v * m_e1.v)
-    c1 = PolynomialMatrix([
-        (m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[0][0] + m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[0][0]),
-        (m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[1][0] + m_e1.v.poly_mat[0][0]*m_e1.u.poly_mat[1][0])
-    ], conf.modulus) # yapf: disable
-
-
-    # assert c1 == (m_e1.v*m_e1.u+m_e1.v*m_e1.u)% conf.modulus
-    c2 = PolynomialMatrix([
-        [(m_e1.u.poly_mat[0][0]*m_e1.u.poly_mat[0][0]), (m_e1.u.poly_mat[0][0]*m_e1.u.poly_mat[1][0])],
-        [(m_e1.u.poly_mat[1][0]*m_e1.u.poly_mat[0][0]), (m_e1.u.poly_mat[1][0]*m_e1.u.poly_mat[1][0])]
-    ], conf.modulus)  # yapf: disable
-
-    assert (m_e1.u @ m_e1.u.T) == c2
-
-    def sum_poly(poly: PolynomialMatrix) -> PolynomialMatrix:
-        return PolynomialMatrix(sum(poly, RingPoly([0] * conf.poly_len)),
-                                poly.modulus)
-
-    print(decrypt_poly(
-        ((c0 + c1 @ sk.sk + sum_poly(c2 * (sk.sk @ sk.sk.T))) * 2) / conf.modulus
-    )) # yapf: disable
-
-    print("Move t/q")
-    tq = 2 / conf.modulus
-    c0 = round(c0 * tq) % conf.modulus
-    c1 = round(c1 * tq) % conf.modulus
-    c2 = round(c2 * tq) % conf.modulus
-    print(decrypt_poly(
-        c0 + (c1 @ sk.sk) + sum_poly(c2 * (sk.sk @ sk.sk.T))
-    )) # yapf: disable
-
-    print("c2-Split up")
-
-    def inverse_poly(poly: PolynomialMatrix):
-        return PolynomialMatrix(list(reversed(poly.poly_mat)), poly.modulus)
-
-    c20 = round((m_e1.u * m_e1.u) * tq) % conf.modulus  # s^2
-    c21 = round((m_e1.u * inverse_poly(m_e1.u)) * tq) % conf.modulus  # s1s2 - vector
-
-    print(decrypt_poly(
-        c0 + (c1 @ sk.sk) + sum_poly(c20 * (sk.sk * sk.sk)) + sum_poly(c21 * (sk.sk * inverse_poly(sk.sk)))
-    )) # yapf: disable
-
-    print("With Relin")
-    big_mod = conf.p * conf.modulus
-    rs = PolynomialMatrix(sk.sk.poly_mat, big_mod)
-
-    def relin_key(secret: PolynomialMatrix):
-
-        re = PolynomialMatrix.random_polynomial_matrix(conf.poly_len, big_mod,
-                                                       (conf.mat_size, 1), 0,
-                                                       1)
-        ra = PolynomialMatrix.random_polynomial_matrix(
-            conf.poly_len, big_mod, (conf.mat_size, conf.mat_size))
-
-        rb = (-1 * (ra.T @ rs + re) + conf.p * secret) % (big_mod)
-
-        return BfvRlk(ra=ra, rb=rb)
-
-    c20 = c20.change_modulus(big_mod)
-    c21 = c21.change_modulus(big_mod)
-
-    c20_relin = relin_key(rs * rs)
-    c21_relin = relin_key(rs * inverse_poly(rs))
-
-    v = (c0 
-         + round((c20_relin.rb.T @ c20) / conf.p).change_modulus(conf.modulus)
-         + round((c21_relin.rb.T @ c21) / conf.p).change_modulus(conf.modulus)
-         ) % conf.modulus # yapf: disable
-    u = (c1.T 
-         + round((c20_relin.ra @ c20) / conf.p).change_modulus(conf.modulus)
-         + round((c21_relin.ra @ c21) / conf.p).change_modulus(conf.modulus)
-         ) % conf.modulus # yapf: disable
-
-    print(decrypt_poly(v + u.T @ sk.sk))
-
     # print(f"Message: {m1.poly_mat[0]}")
-    # print(f"+: {(m1+m1) % 2} == {BFV.decrypt(sk, m_e1+m_e1)}")
-    # print(f"*: {(m1 * m1) % 2} == {BFV.decrypt(sk, m_e1*m_e1)}")
-    # assert (m1 + m1) % 2 == BFV.decrypt(sk, m_e1 + m_e1)
-    # assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1 * m_e1)
+    print(f"+: {(m1+m1) % 2} == {BFV.decrypt(sk, m_e1+m_e1)}")
+    print(f"*: {(m1 * m1) % 2} == {BFV.decrypt(sk, m_e1*m_e1)}")
+    assert (m1 + m1) % 2 == BFV.decrypt(sk, m_e1 + m_e1)
+    assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1 * m_e1)
 
-    # op_count = []
-    # for j in tqdm(range(500)):
+    op_count = []
+    for j in tqdm(range(500)):
 
-    #     # Single Test Start
-    #     sk, pk, rlks = BFV.keygen(conf)
-    #     m1 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
-    #     m_e1 = BFV.encrypt(conf, pk, rlks, m1)
-    #     for i in range(10000):
-    #         m2 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
-    #         m_e2 = BFV.encrypt(conf, pk, rlks, m2)
-    #         m_e1 = m_e1 * m_e2
-    #         m1 = (m1 * m2) % 2
-    #         # assert BFV.decrypt(sk, m_e1) == m1.poly_mat[0].tolist(), f"{i}: {m1} -- {BFV.decrypt(sk, m_e1)}"
-    #         if BFV.decrypt(sk, m_e1) != m1:
-    #             op_count.append(i)
-    #             break
+        # Single Test Start
+        sk, pk, rlks = BFV.keygen(conf)
+        m1 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
+        m_e1 = BFV.encrypt(conf, pk, rlks, m1)
+        for i in range(10000):
+            m2 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
+            m_e2 = BFV.encrypt(conf, pk, rlks, m2)
+            m_e1 = m_e1 * m_e2
+            m1 = (m1 * m2) % 2
+            # assert BFV.decrypt(sk, m_e1) == m1.poly_mat[0].tolist(), f"{i}: {m1} -- {BFV.decrypt(sk, m_e1)}"
+            if BFV.decrypt(sk, m_e1) != m1:
+                op_count.append(i)
+                break
 
-    # print("Average Operations:", sum(op_count) / len(op_count))
+    print("Average Operations:", sum(op_count) / len(op_count))
