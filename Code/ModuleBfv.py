@@ -62,33 +62,31 @@ class BfvEncrypted:
         assert self.config == other.config
 
         c0 = (self.v * other.v)
-        c1 = (self.v*other.u+other.v*self.u).T # yapf: disable
-        c2 = self.u @ other.u.T  # yapf: disable
+        c1 = (self.v * other.u + other.v * self.u).T
+        c2 = self.u @ other.u.T
 
         tq = 2 / self.config.modulus
         c0 = round(c0 * tq) % self.config.modulus
         c1 = round(c1 * tq) % self.config.modulus
         c2 = round(c2 * tq) % self.config.modulus
 
-        c20 = round((self.u * other.u) * tq) % self.config.modulus  # s^2
-        c21 = round((self.u * inverse_poly(other.u)) *
-                    tq) % self.config.modulus  # s1s2 - vector
-
         big_mod = self.config.p * self.config.modulus
-        c20 = c20.change_modulus(big_mod)
-        c21 = c21.change_modulus(big_mod)
+        c2s = [(round((self.u * other.u.poly_mat[r][0]) * tq) %
+                self.config.modulus).change_modulus(big_mod)
+               for r in range(self.config.mat_size)]
 
-        c20_relin = self.rlks[0]
-        c21_relin = self.rlks[1]
-        v = (c0
-            + round((c20_relin.rb.T @ c20) / self.config.p).change_modulus(self.config.modulus)
-            + round((c21_relin.rb.T @ c21) / self.config.p).change_modulus(self.config.modulus)
-        ) % self.config.modulus # yapf: disable
-        u = (c1.T
-            + round((c20_relin.ra @ c20) / self.config.p).change_modulus(self.config.modulus)
-            + round((c21_relin.ra @ c21) / self.config.p).change_modulus(self.config.modulus)
-        ) % self.config.modulus # yapf: disable
+        assert len(self.rlks) == len(c2s)
+        v_relin = [
+            round((relin.rb.T @ c) / self.config.p).change_modulus(
+                self.config.modulus) for relin, c in zip(self.rlks, c2s)
+        ]
+        v = (c0 + reduce(add, v_relin)) % self.config.modulus
 
+        u_relin = [
+            round((relin.ra @ c) / self.config.p).change_modulus(
+                self.config.modulus) for relin, c in zip(self.rlks, c2s)
+        ]
+        u = (c1.T + reduce(add, u_relin)) % self.config.modulus
 
         return BfvEncrypted(self.config, self.rlks, u=u, v=v)
 
@@ -136,8 +134,8 @@ class BFV:
             return BfvRlk(ra=ra, rb=rb)
 
         relins = [
-            _calculate_relin(rs * rs),
-            _calculate_relin(rs * inverse_poly(rs))
+            _calculate_relin(rs * rs.poly_mat[r][0])
+            for r in range(conf.mat_size)
         ]
 
         return (BfvSecretKey(s), BfvPublicKey(A=A, b=b), relins)
@@ -179,7 +177,7 @@ class BFV:
 
 
 if __name__ == "__main__":
-    conf = BfvConfig(2, 4, 2**30, 2**60)
+    conf = BfvConfig(4, 4, 2**30, 2**60)
     sk, pk, rlk = BFV.keygen(conf)
 
     m1 = RingPoly([1, 1, 0, 0])
@@ -192,7 +190,7 @@ if __name__ == "__main__":
     assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1 * m_e1)
 
     op_count = []
-    for j in tqdm(range(500)):
+    for j in tqdm(range(200)):
 
         # Single Test Start
         sk, pk, rlks = BFV.keygen(conf)

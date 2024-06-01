@@ -198,7 +198,7 @@ class PolynomialMatrix(object):
         raise NotImplementedError()
 
     def __mul__(self, other) -> "PolynomialMatrix":
-        if isinstance(other, (int, float)):
+        if isinstance(other, (int, float, RingPoly)):
             return self._calc_scalar(other, mul)
         if isinstance(other, PolynomialMatrix):
             return self._calc_matrix(other, mul)
