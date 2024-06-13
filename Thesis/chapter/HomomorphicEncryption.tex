@@ -5,14 +5,61 @@ Homomorphic encryption (HE) is a specialized cryptographic system that enables t
 
 As described in \cite{FheImplementations}, HE algorithms can be grouped into 3 classes:
 \begin{description}
-    \item [Partially Homomorphic Encryption (PHE)]\hfill \\one type of operation can be performed an unlimited amount of times
-    \item [Somewhat Homomorphic Encryption (SWHE)]\hfill \\some types of operations for an limited number of times
-    \item [Fully Homomorphic Encryption (FHE)]\hfill \\an unlimited type of operations for an unlimited amount of times
+  \item [Partially Homomorphic Encryption (PHE)]\hfill \\one type of operation can be performed an unlimited amount of times
+  \item [Somewhat Homomorphic Encryption (SWHE)]\hfill \\some types of operations for an limited number of times
+  \item [Fully Homomorphic Encryption (FHE)]\hfill \\an unlimited type of operations for an unlimited amount of times
 \end{description}
 
-As the algorithm will be used on binary data, the operations are often reduced to addition and multiplication, as with these two, all other calculations can be done in binary space.
+As the algorithm will be used on binary data, the operations are often reduced to addition and multiplication, as with these two, all other basic operations can be done in binary space.
 
-This Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They also proposed an PHE scheme, based on RSA., for multiplication only. More PHE schemes were developed over time and in 2009 C. Gentry proposed the first FHE scheme \cite{Gentry2009AFH} based on a bootstrapping technique, which refreshes the ciphertext, so that the internal errors are reduced and further calculations can be done. This essentially allows all SWHE schemes to be transformed into FHE schemes.
+The Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They also proposed an PHE scheme, based on RSA., for multiplication only. More PHE schemes were developed over time and in 2009 C. Gentry proposed the first FHE scheme \cite{Gentry2009AFH} based on a bootstrapping technique, which refreshes the ciphertext, so that the internal errors are reduced and further calculations can be done. With that, all SWHE systems can be converted into FHE systems. However, the conversion results in a significant reduction in performance due to the computational intensity of the bootstrapping operation.
+
+\section{The R-LWE SWHE Scheme}
+
+In this section, the LWE scheme in its R-LWE version, as previously described, will be transformed into an SWHE scheme. To achieve this, the BFV scheme \cite{bfv} will be slightly modified to align with the equations previously used.
+
+As already mentioned, the two operations, addition and multiplication, need to be implemented in the ciphertext space in order to create create an FHE scheme, as with these two all other operations can be created.
+
+\subsection*{Addition}
+
+The objective is to develop a method for adding encrypted messages in such a way that the result is identical to that obtained by adding the plaintext messages. This can be achieved by adding the ciphertext together, with the error increasing linearly. Further details on this approach can be found in reference \cite{bfv}. 
+
+\begin{algorithm}[htb]
+  \begin{algorithmic}[1]
+    \REQUIRE $ct_1 = (u_1, v_2)$, $ct_2 = (u_2, v_2)$
+    \RETURN $ct_{add} = ([u_1 + u_2]_q, [v_1 + v_2]_q)$
+  \end{algorithmic}
+  \caption{R-LWE: Addition}
+  \label{alg:RlweAddition}
+\end{algorithm}
+
+The newly created $ct_{add}$ can then be used, like any other ciphertext, to be decrypted and used for other operations. However, it should be noted that the error in it has increased, which may result in the incorrect result being produced at some point.
+
+\subsection*{Multiplication}
+
+Doing the same with multiplication is a bit trickier. In order to simplify the following derivations and explanations, the following simplification is made, based on Algorithm \ref{alg: SampleLweDecryption}:
+
+\begin{equation}
+  ct(s)_q = v-s\cdot u
+  \label{eq:baseCt}
+\end{equation}
+
+Also let $ct_1$ and $ct_2$ be two ciphertext that we want to use, with $ct_1(s) = v_1-s\cdot u_1$ and $ct_2(s) = v_2-s\cdot u_2$
+When multiplying these two values together, the following equation is created:
+\begin{equation}
+  \begin{split}
+    ct_1(s)\cdot ct_2(s) & = (v_1-s\cdot u_1) \cdot (v_2-s\cdot u_2)                                          \\
+                         & = v_1\cdot v_2 - v_1\cdot u_2 \cdot s- v_2\cdot u_1\cdot s + u_1\cdot u_2\cdot s^2 \\
+                         & = \underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot u_2 + v_2\cdot u_1)}_{u_m}\cdot s + \underbrace{u_1\cdot u_2\cdot}_{x_m} s^2 \\
+                         & = v_m - u_m\cdot s + x_m \cdot s^2
+  \end{split}
+  \label{eq:ciphertextMultiplication}
+\end{equation}
+
+This creates three blocks, each depending on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, that we now have a similar equation, just with the additional $x_m\cdot s^2$ factor. Now a way needs to be found, to create generate this additional factor, without adding $s^2$ directly into the calculation, as this should be an unknown for the public. This process is called Relinearisation and the goal is to create an value, which can be added to $v_m$ and $u_m$ to create an approximation of $x_m\cdot s^2$. With that the degree 2 ciphertext should be reduced to degree 1 again.
+
+
+The $x_m$ part can be computed quite trivially by just multiplying $u_1$ and $u_2$ (as can be seen in equation \ref{eq:ciphertextMultiplication}).
 
 
 

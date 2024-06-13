@@ -63,20 +63,20 @@ The new values and the public key are used to calculate two values: $u$ and $v$.
     \STATE $u = A^T \cdot r + e_1$
     \STATE $e_2 \leftarrow \chi_R$
     \STATE $v = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)$
-    \RETURN $m_{enc} := (u, v)$
+    \RETURN $ct := (u, v)$
   \end{algorithmic}
   \caption{Sample LWE: Encryption}
   \label{alg: SampleLweEncryption}
 \end{algorithm}
 
-Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decrypt an encrypted message $m_{enc}$ using the secret key $sk$.
+Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decrypt an ciphertext $ct$ using the secret key $sk$.
 
 
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
-    \REQUIRE $m_{enc} = (u, v)$, $sk = s$
-    \RETURN $\left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2$
+    \REQUIRE $ct = (u, v)$, $sk = s$
+    \RETURN $\left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[v-s^T \cdot u\right]_q\right\rceil _2$
   \end{algorithmic}
   \caption{Sample LWE: Decryption}
   \label{alg: SampleLweDecryption}
@@ -86,11 +86,11 @@ Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decry
 To get a better understanding, consider the following simplification of the term in algorithm \ref{alg: SampleLweDecryption}.
 
 \begin{align*}
-   & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(v-s^T \cdot u)\right\rceil _2                                                                                     \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T \cdot (A^T \cdot r + e_1))\right\rceil _2             \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As+e)^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T A^T \cdot r - s^T e_1)\right\rceil _2            \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*((As)^T \cdot r + e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)-(As)^T \cdot r - s^T e_1)\right\rceil _2         \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*(e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)- s^T e_1)\right\rceil _2                                          \\
+   & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[v-s^T \cdot u\right]_q\right\rceil _2                                                                                     \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T \cdot (A^T \cdot r + e_1)\right]_q \right\rceil _2             \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[(As+e)^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T A^T \cdot r - s^T e_1\right]_q \right\rceil _2            \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[(As)^T \cdot r + e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)-(As)^T \cdot r - s^T e_1\right]_q\right\rceil _2         \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)- s^T e_1\right]_q\right\rceil _2                                          \\
    & = \left\lfloor \frac{e^Tr}{\left\lfloor q/2\right\rfloor}+ \frac{e_2 }{\left\lfloor q/2\right\rfloor}+ m - \frac{s^T e_1}{\left\lfloor q/2\right\rfloor}\right\rceil _2 \\
    & = \left\lfloor m' \right\rceil _2                                                                                                                                       \\
    & = m \in \{0,1\}
@@ -149,7 +149,7 @@ The security of Plain LWE is entirely reliant on the size of $n$, whereas in M-L
     $sk$      & $\mathbb{Z}_q^{n}$                               & $\mathbb{Z}_q^{d}$                                                                 & $\mathbb{Z}_q^{n\times d}$                                                                \\
     $pk$      & $\mathbb{Z}_q^{n\times n}\times\mathbb{Z}_q^{n}$ & $\mathbb{Z}_q^{d}\times \mathbb{Z}_q^{d}$                                          & $\mathbb{Z}_q^{n\times n \times d}\times\mathbb{Z}_q^{n \times d}$                        \\
     $m$       & $\ell \times \mathbb{Z}_2$                       & $\left\lceil \ell / d\right\rceil \times \mathbb{Z}_2^{d}$                         & $\left\lceil \ell / d\right\rceil \times\mathbb{Z}_2^{d}$                                 \\
-    $m_{enc}$ & $\ell\times(\mathbb{Z}_q^{n}\times\mathbb{Z}_q)$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{d}\times \mathbb{Z}_q^{d})$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{n\times d}\times\mathbb{Z}_q^{d})$ \\
+    $ct$ & $\ell\times(\mathbb{Z}_q^{n}\times\mathbb{Z}_q)$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{d}\times \mathbb{Z}_q^{d})$ & $\left\lceil \ell / d\right\rceil \times(\mathbb{Z}_q^{n\times d}\times\mathbb{Z}_q^{d})$ \\
     \hline
   \end{tabular}
 \end{table}
