@@ -16,9 +16,7 @@ The Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They al
 
 \section{The R-LWE SWHE Scheme}
 
-In this section, the LWE scheme in its R-LWE version, as previously described, will be transformed into an SWHE scheme. To achieve this, the BFV scheme \cite{bfv} will be slightly modified to align with the equations previously used.
-
-As already mentioned, the two operations, addition and multiplication, need to be implemented in the ciphertext space in order to create create an FHE scheme, as with these two all other operations can be created.
+As previously stated, the two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an FHE scheme. All other operations can be derived from these initial two operations. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed. Construction of addition and multiplication will be based on a modified version of the BFV (\cite{bfv}) scheme.
 
 \subsection*{Addition}
 
@@ -37,7 +35,7 @@ The newly created $ct_{add}$ can then be used, like any other ciphertext, to be 
 
 \subsection*{Multiplication}
 
-Doing the same with multiplication is a bit trickier. In order to simplify the following derivations and explanations, the following simplification is made, based on Algorithm \ref{alg: SampleLweDecryption}:
+The process of deriving the same result for multiplication is somewhat less straightforward. In order to simplify the following derivations and explanations, the following simplification is made, based on Algorithm \ref{alg: SampleLweDecryption}:
 
 \begin{equation}
   ct(s)_q = v-s\cdot u
@@ -45,7 +43,7 @@ Doing the same with multiplication is a bit trickier. In order to simplify the f
 \end{equation}
 
 Also let $ct_1$ and $ct_2$ be two ciphertext that we want to use, with $ct_1(s) = v_1-s\cdot u_1$ and $ct_2(s) = v_2-s\cdot u_2$
-When multiplying these two values together, the following equation is created:
+The multiplication of these two values results in the equation \ref{eq:ciphertextMultiplication}
 \begin{equation}
   \begin{split}
     [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-s\cdot u_1) \cdot (v_2-s\cdot u_2)]_q                                          \\
@@ -56,15 +54,16 @@ When multiplying these two values together, the following equation is created:
   \label{eq:ciphertextMultiplication}
 \end{equation}
 
-This creates three blocks, each depending on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, that we now have a similar equation, just with the additional $x_m\cdot s^2$ factor. 
-Now a way needs to be found to create an approximation of $x_m\cdot s^2$, which can be added to $v_m$ and $u_m$, in order to reduce the degree of the equation from 2 to 1. This process is called Relinearisation. The formalization can be seen in equation \ref{eq:relinFormalized}, where $r$ is an error, which should be as small as possible, as otherwise the decryption will not work.
+Equation \ref{eq:ciphertextMultiplication} results in the formation of three blocks, each dependent on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, it can be observed that the current equation is similar, with the exception of the additional $x_m\cdot s^2$ factor. 
+A method is required to approximate $x_m\cdot s^2$ and combine it with $v_m$ and $u_m$. This will reduce the degree of the equation from two to one, which is known as relinearization. The formalization can be observed in Equation \ref{eq:relinFormalized}, where r represents an error that should be minimized to ensure successful decryption.
 
 \begin{equation}
   [v_m - u_m\cdot s + x_m \cdot s^2]_q = [v'_m - u'_m\cdot s + r]_q
   \label{eq:relinFormalized}
 \end{equation}
 
-In order to solve this problem, the "modulus switching" technique from \cite{bfv} will be used. The first step is to define an Relinearisation Key ($rlk$), which masks $s^2$. In this, the value $s^2$ will be multiplied with an new constant $p$. This constant is necessary to reduce the error that is generated when solving the rlk (see equation \ref{eq:RlkDecryption}).
+In order to resolve this issue, the "modulus switching" technique from \cite{bfv} will be employed. The initial step is to define a Relinearization Key ($rlk$), which masks $s^2$. In this process, the value $s^2$ will be multiplied with a new constant, $p$. This constant is essential for reducing the error that is generated when "decrypting" the $rlk$ (see equation \ref{eq:RlkDecryption}).
+The form of the masked value is based on the public key, such that when $A_{rlk}$ and $b_{rlk}$ are "decrypted" with $s$, the original value $p\cdot s^2$ is obtained. The generation of this $rlk$ is described in Algorithm \ref{alg:RingRLKGeneration}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -78,15 +77,13 @@ In order to solve this problem, the "modulus switching" technique from \cite{bfv
   \label{alg:RingRLKGeneration}
 \end{algorithm}
 
-The form of the masked is based on the public key, so when $A_{rlk}$ and $b_{rlk}$ are "decrypted" with $s$, the original value $p\cdot s^2$ is obtained.
-
-With the help of the $rlk$, we can now compute two versions of $x_m\cdot s^2$, one which is added to $v_m$, called $xv_m$ and one that is added to $u_m$ called $xu_m$.
+Utilizing the $rlk$, $x_m\cdot s^2$ is now decomposited into two distinct components. One component, designated $xv_m$, is added to $v_m$, while the other, $xu_m$, is added to $u_m$.
 
 \begin{equation}
   (xu_m, xv_m) = (\left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q, \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q )
 \end{equation}
 
-When "decrypting" these values (as seen in equation \ref{eq:RlkDecryption}), it can be seen that $x_m$, which is a random element in $R_q$ is multiplied with the error $e_{rlk}$. That would create a huge error value. Because of this, it is divided by $p$ to decrease the error. To still be able to create $x_m \cdot s^2$, $s^2$ was multiplied with $p$  in the $rlk$.
+The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, reveals that $x_m$, a random element within $R_q$, is multiplied with the error $e_{rlk}$. This results in a significant error value. To mitigate this, the error is divided by $p$, thereby reducing its impact. In order to permit the creation of $x_m \cdot s^2$, $s^2$ was multiplied by $p$ in the $rlk$.
 
 \begin{equation}
   \begin{split}
@@ -99,7 +96,7 @@ When "decrypting" these values (as seen in equation \ref{eq:RlkDecryption}), it 
   \label{eq:RlkDecryption}
 \end{equation}
 
-The full algorithm for multiplying can be seen in Algorithm \ref{alg:RingMultiplication}. To make everything work, $\frac{t}{q}$ needs to be multiplied to the different factors, more detail on this can also be found in \cite{bfv}.
+The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMultiplication}. In order for the algorithm to function correctly, it is necessary to multiply the value of $\frac{t}{q}$ by each of the factors. Further details on this process can be found in \cite{bfv}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
