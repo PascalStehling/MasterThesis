@@ -43,18 +43,18 @@ The process of deriving the same result for multiplication is somewhat less stra
 \end{equation}
 
 Also let $ct_1$ and $ct_2$ be two ciphertext that we want to use, with $ct_1(s) = v_1-s\cdot u_1$ and $ct_2(s) = v_2-s\cdot u_2$
-The multiplication of these two values results in the equation \ref{eq:ciphertextMultiplication}
+The multiplication of these two values results in the equation \ref{eq:ringCiphertextMultiplication}
 \begin{equation}
   \begin{split}
-    [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-s\cdot u_1) \cdot (v_2-s\cdot u_2)]_q                                          \\
-                         & = [v_1\cdot v_2 - v_1\cdot u_2 \cdot s- v_2\cdot u_1\cdot s + u_1\cdot u_2\cdot s^2]_q \\
-                         & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot u_2 + v_2\cdot u_1)}_{u_m}\cdot s + \underbrace{u_1\cdot u_2\cdot}_{x_m} s^2]_q \\
-                         & = [v_m - u_m\cdot s + x_m \cdot s^2]_q
+    [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-s\cdot u_1) \cdot (v_2-s\cdot u_2)]_q                                                                                              \\
+                             & = [v_1\cdot v_2 - v_1\cdot u_2 \cdot s- v_2\cdot u_1\cdot s + u_1\cdot u_2\cdot s^2]_q                                                     \\
+                             & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot u_2 + v_2\cdot u_1)}_{u_m}\cdot s + \underbrace{u_1\cdot u_2\cdot}_{x_m} s^2]_q \\
+                             & = [v_m - u_m\cdot s + x_m \cdot s^2]_q
   \end{split}
-  \label{eq:ciphertextMultiplication}
+  \label{eq:ringCiphertextMultiplication}
 \end{equation}
 
-Equation \ref{eq:ciphertextMultiplication} results in the formation of three blocks, each dependent on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, it can be observed that the current equation is similar, with the exception of the additional $x_m\cdot s^2$ factor. 
+Equation \ref{eq:ringCiphertextMultiplication} results in the formation of three blocks, each dependent on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, it can be observed that the current equation is similar, with the exception of the additional $x_m\cdot s^2$ factor. 
 A method is required to approximate $x_m\cdot s^2$ and combine it with $v_m$ and $u_m$. This will reduce the degree of the equation from two to one, which is known as relinearization. The formalization can be observed in Equation \ref{eq:relinFormalized}, where r represents an error that should be minimized to ensure successful decryption.
 
 \begin{equation}
@@ -68,8 +68,8 @@ The form of the masked value is based on the public key, such that when $A_{rlk}
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
     \REQUIRE $s$
-    \STATE $A \leftarrow R^d_{p \cdot q}$
-    \STATE $e \leftarrow \chi_R^{'d}$
+    \STATE $A \leftarrow R_{p \cdot q}$
+    \STATE $e \leftarrow \chi_R^{'}$
     \STATE $b = [A\cdot s+e+p\cdot s^2]_{p \cdot q}$
     \RETURN $rlk:=(A_{rlk}, b_{rlk})$
   \end{algorithmic}
@@ -87,11 +87,11 @@ The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, 
 
 \begin{equation}
   \begin{split}
-    xv_m + xu_m \cdot s &= \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q - \left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q \cdot s \\
-    &\approx \left[\frac{x_m \cdot b_{rlk}}{p} - \frac{x_m \cdot A_{rlk}}{p} \cdot s\right]_q \\
-    &\approx \left[\frac{x_m \cdot (A_{rlk}\cdot s+e_{rlk}+p\cdot s^2)}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q \\
-    &\approx \left[\frac{x_m \cdot A_{rlk}\cdot s}{p}+\frac{x_m \cdot e_{rlk}}{p}+\frac{x_m \cdot p\cdot s^2}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q \\
-    &\approx \left[\frac{x_m \cdot e_{rlk}}{p}+ x_m \cdot s^2 \right]_q
+    xv_m + xu_m \cdot s & = \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q - \left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q \cdot s  \\
+                        & \approx \left[\frac{x_m \cdot b_{rlk}}{p} - \frac{x_m \cdot A_{rlk}}{p} \cdot s\right]_q                                                                   \\
+                        & \approx \left[\frac{x_m \cdot (A_{rlk}\cdot s+e_{rlk}+p\cdot s^2)}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q                                       \\
+                        & \approx \left[\frac{x_m \cdot A_{rlk}\cdot s}{p}+\frac{x_m \cdot e_{rlk}}{p}+\frac{x_m \cdot p\cdot s^2}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q \\
+                        & \approx \left[\frac{x_m \cdot e_{rlk}}{p}+ x_m \cdot s^2 \right]_q
   \end{split}
   \label{eq:RlkDecryption}
 \end{equation}
@@ -111,6 +111,115 @@ The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMu
   \caption{R-LWE: Multiplication}
   \label{alg:RingMultiplication}
 \end{algorithm}
+
+\subsection{Generalizing from R-LWE to M-LWE}
+
+As previously stated in Section \ref{sec:TransformingLweToRlweAndMlwe}, M-LWE is a generalization of R-LWE, where matrices and vectors of polynomials are used. Consequently, the dimension $n$ will be set to a value greater than $1$. In consequence, the dimensions of nearly all variables do change (see Table \ref{table:LweKeys}). Most importantly, $\textbf{u}$ and $\textbf{s}$ will now be vectors of length $n$, instead of single polynomials. To make the difference now more visible, vectors and matrices will now be written with bold.
+
+\subsection*{Addition}
+
+The addition operation has no impact on the shape of u and v, and thus the same algorithm can be used as before. The only difference is that the input ciphertexts and the newly created ciphertext are of shape $R_q^{n}\times R_q$.
+
+\subsection*{Multiplication}
+
+In contrast, the concept of multiplication is more complex due to the necessity of dealing with changing dimensions. When equation \ref{eq:baseCt} is applied, the term $\textbf{s}\cdot \textbf{u}$ is now a dot product between two vectors, rather than a simple polynomial multiplication. The objective is, as before, to generate new $v'_m$ and $\textbf{u}'_m$ terms, which can be used for further operations or decryption. In contrast to the previous iteration, $\textbf{u}'_m$ must now be represented as a vector rather than a polynomial.
+
+When two ciphertexts are multiplied, the resulting equation is given by equation \ref{eq:moduleCiphertextMultiplication}. Given the complexity of the aforementioned process, a brief overview of the requisite steps will be provided in the subsequent paragraphs.
+
+\begin{equation}
+  \begin{split}
+    [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-\textbf{s}\cdot \textbf{u}_1) \cdot (v_2-\textbf{s}\cdot \textbf{u}_2)]_q                                                                                                                                                              \\
+                             & = [(v_1-\sum_{i=0}^{n-1}s_iu_{1i}) \cdot (v_2-\sum_{i=0}^{n-1}s_iu_{2i})]_q                                                                                                                                                                    \\
+                             & = [v_1\cdot v_2 - v_1\cdot \sum_{i=0}^{n-1}s_iu_{2i}- v_2\cdot \sum_{i=0}^{n-1}s_iu_{1i} + \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j]_q                                                                                               \\    
+                             & = [v_1\cdot v_2 - v_1\cdot \textbf{u}_2\cdot \textbf{s} - v_2\cdot \textbf{u}_1\cdot \textbf{s} + sum((\textbf{u}_{1}\otimes\textbf{u}_{2})\odot(\textbf{s}\otimes\textbf{s}))]_q                                                              \\
+                             & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot \textbf{u}_2 + v_2\cdot \textbf{u}_1)}_{\textbf{u}_m}\cdot \textbf{s} + sum((\underbrace{\textbf{u}_{1}\otimes\textbf{u}_{2}}_{\textbf{X}_m})\odot(\textbf{s}\otimes\textbf{s}))]_q \\
+                             & = [v_m - \textbf{u}_m\cdot \textbf{s} + sum(\textbf{X}_m\odot(\textbf{s}\otimes\textbf{s}))]_q
+  \end{split}
+  \label{eq:moduleCiphertextMultiplication}
+\end{equation}
+
+The first technique employed was to convert the vector dot product into its sum form. As per the definition of the dot product between two vectors, it can be rewritten as a sum: $\textbf{s}\cdot \textbf{u} = \sum_{i=0}^{n-1}s_iu_i$.
+
+The subsequent step is to transform the resulting sums once more. With the single sums, this is a relatively straightforward process, as they can simply be reformulated as dot products with an additional scalar (polynomial) multiplication. As with scalar-vector multiplication, the scalar is multiplied with each value in the vector. With this, some further transformations can be made to create a new $\textbf{u}_m$, which is a vector. 
+
+For the double sum, it is a bit more difficult process to extract a new $x_m$. The main Idea here is, that because of the double sum, essentially an $n\times n$ matrix with all combinations of $i$ and $j$ is generated and all values are then added up. For example with $n=3$ the following matrix will be created:
+
+$$
+  \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j = sum\left(\begin{bmatrix}
+      u_{11}u_{21}s_{1}s_{1} & u_{12}u_{21}s_{2}s_{1} & u_{13}u_{21}s_{3}s_{1} \\
+      u_{11}u_{22}s_{1}s_{2} & u_{12}u_{22}s_{2}s_{2} & u_{13}u_{22}s_{3}s_{2} \\
+      u_{11}u_{23}s_{1}s_{3} & u_{12}u_{23}s_{2}s_{3} & u_{13}u_{23}s_{3}s_{3} \\
+    \end{bmatrix}\right)
+$$
+
+The $sum$ is simply a summation of all values, which is sometimes referred to as the "grand sum." This is essentially a double dot product with a vector of length $n$, where all values are $1$, which is denoted by the symbol $1$-vector ($\textbf{1}$): $sum(\textbf{X}):= \textbf{1}\cdot \textbf{X} \cdot \textbf{1} = \sum_{i=0}^{n-1}\sum_{j=0}^{n-1} \textbf{X}_{ij}$
+
+The next step involves splitting the $n \times n$ matrix into two matrices, one for the $u$ values and one for the $s$ values. Each term in the matrix is a product of four values, which can be split apart using the Associative Law. The $\textbf{u}$ and $\textbf{s}$ values are then multiplied separately, and the two matrices are multiplied together again using element-wise multiplication, also known as the Hadamard product, denoted by the $\odot$ symbol. Finally, the individual matrices can be decomposed into vector operations. This can be achieved through the use of the outer product, also referred to as the tensor product, which is represented by the symbol $\otimes$.
+
+\begin{align*}
+  \begin{bmatrix}
+    u_{11}u_{21}s_{1}s_{1} & u_{12}u_{21}s_{2}s_{1} & u_{13}u_{21}s_{3}s_{1} \\
+    u_{11}u_{22}s_{1}s_{2} & u_{12}u_{22}s_{2}s_{2} & u_{13}u_{22}s_{3}s_{2} \\
+    u_{11}u_{23}s_{1}s_{3} & u_{12}u_{23}s_{2}s_{3} & u_{13}u_{23}s_{3}s_{3} \\
+  \end{bmatrix}
+   & = \begin{bmatrix}
+         u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
+         u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
+         u_{11}u_{23} & u_{12}u_{23} & u_{13}u_{23} \\
+       \end{bmatrix} \odot \begin{bmatrix}
+                             s_{1}s_{1} & s_{2}s_{1} & s_{3}s_{1} \\
+                             s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
+                             s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
+                           \end{bmatrix}                \\
+   & = (\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )
+\end{align*}
+
+Having achieved a separation between $u$ and $s$, the next step is to find a method for approximating the double sum in order to add it to $v_m$ and $\textbf{u}_m$. This needs to be done in a manner analogous to equation \ref{eq:relinFormalized}. Previously, a masking of $s^2$ was employed in order to eliminate this term. In the current context, an analogous issue arises with $s \otimes s$ and a second problem emerges, namely the shape of $v_m$ as a polynomial and $\textbf{u}_m$ as a vector.
+
+As a first step, it is necessary to revisit the original $rlk$ generation process, as outlined in Algorithm \ref{alg:RingRLKGeneration}. In order to transform it into M-LWE, the same dimensions as those employed in the standard M-LWE key generation process are used: specifically, $\textbf{A} \in R^{n \times n}_{p \cdot q}$, $\textbf{e} \in \chi^{'n}_{R}$ and $\textbf{s} \in R^n_q$. When calculating the first part of $\textbf{b}$ we get $\textbf{A}\cdot \textbf{s} + \textbf{e}$, which is an vector in $R^n$. As the second part needs to be added to this vector, the masked part (formerly $s^2$) needs to be a vector of the same dimension. As $s \otimes s$ is a matrix of dimension $n \times n$, it cannot be used directly. However, it can be split into $n$ $n$-dimensional vectors, which can then be used instead. A similar approach must be taken with the $u_1 \otimes u_2$ matrix. The matching vectors of both matrices must be multiplied elementwise. This is a feasible approach, as all values within the matrix will be summed collectively at the final step, which can be done in any order (commutative law).
+
+\begin{align*}
+   & sum\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right) \\
+   & = sum\left(\begin{bmatrix}
+                    u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
+                    u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
+                    u_{11}u_{23} & u_{12}u_{23} & u_{13}u_{23} \\
+                  \end{bmatrix} \odot \begin{bmatrix}
+                                        s_{1}s_{1} & s_{2}s_{1} & s_{3}s_{1} \\
+                                        s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
+                                        s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
+                                      \end{bmatrix}\right)                     \\
+   & = sum\left(\begin{bmatrix}
+                    u_{11}u_{21} \\
+                    u_{11}u_{22} \\
+                    u_{11}u_{23} \\
+                  \end{bmatrix} \odot \begin{bmatrix}
+                                        s_{1}s_{1} \\
+                                        s_{1}s_{2} \\
+                                        s_{1}s_{3} \\
+                                      \end{bmatrix}
+  + \begin{bmatrix}
+        u_{12}u_{21} \\
+        u_{12}u_{22} \\
+        u_{12}u_{23} \\
+      \end{bmatrix} \odot \begin{bmatrix}
+                            s_{2}s_{1} \\
+                            s_{2}s_{2} \\
+                            s_{2}s_{3} \\
+                          \end{bmatrix}
+  + \begin{bmatrix}
+        u_{13}u_{21} \\
+        u_{13}u_{22} \\
+        u_{13}u_{23} \\
+      \end{bmatrix} \odot \begin{bmatrix}
+                            s_{3}s_{1} \\
+                            s_{3}s_{2} \\
+                            s_{3}s_{3} \\
+                          \end{bmatrix}\right)                                                    \\
+   & = sum\left(\sum_{i=0}^{n-1}(u_{1i}\cdot \textbf{u}_2) \odot (s_i \cdot \textbf{s}) \right) \\
+\end{align*}
+
+% Als nächstes wie RLK abgewandelt wird und somit die verschiedenen s vektoren maskiert und multipliziert werden können
 
 % Tasks:
 % \begin{itemize}
