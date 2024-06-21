@@ -80,14 +80,15 @@ The form of the masked value is based on the public key, such that when $A_{rlk}
 Utilizing the $rlk$, $x_m\cdot s^2$ is now decomposited into two distinct components. One component, designated $xv_m$, is added to $v_m$, while the other, $xu_m$, is added to $u_m$.
 
 \begin{equation}
-  (xu_m, xv_m) = (\left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q, \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q )
+  (xu_m, xv_m) = \left(\left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q, \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q\right)
+  \label{eq:ringXmSplitting}
 \end{equation}
 
 The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, reveals that $x_m$, a random element within $R_q$, is multiplied with the error $e_{rlk}$. This results in a significant error value. To mitigate this, the error is divided by $p$, thereby reducing its impact. In order to permit the creation of $x_m \cdot s^2$, $s^2$ was multiplied by $p$ in the $rlk$.
 
 \begin{equation}
   \begin{split}
-    xv_m + xu_m \cdot s & = \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q - \left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q \cdot s  \\
+    xv_m - xu_m \cdot s & = \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q - \left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q \cdot s  \\
                         & \approx \left[\frac{x_m \cdot b_{rlk}}{p} - \frac{x_m \cdot A_{rlk}}{p} \cdot s\right]_q                                                                   \\
                         & \approx \left[\frac{x_m \cdot (A_{rlk}\cdot s+e_{rlk}+p\cdot s^2)}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q                                       \\
                         & \approx \left[\frac{x_m \cdot A_{rlk}\cdot s}{p}+\frac{x_m \cdot e_{rlk}}{p}+\frac{x_m \cdot p\cdot s^2}{p} - \frac{x_m \cdot A_{rlk} \cdot s}{p}\right]_q \\
@@ -179,7 +180,7 @@ Having achieved a separation between $u$ and $s$, the next step is to find a met
 As a first step, it is necessary to revisit the original $rlk$ generation process, as outlined in Algorithm \ref{alg:RingRLKGeneration}. In order to transform it into M-LWE, the same dimensions as those employed in the standard M-LWE key generation process are used: specifically, $\textbf{A} \in R^{n \times n}_{p \cdot q}$, $\textbf{e} \in \chi^{'n}_{R}$ and $\textbf{s} \in R^n_q$. When calculating the first part of $\textbf{b}$ we get $\textbf{A}\cdot \textbf{s} + \textbf{e}$, which is an vector in $R^n$. As the second part needs to be added to this vector, the masked part (formerly $s^2$) needs to be a vector of the same dimension. As $s \otimes s$ is a matrix of dimension $n \times n$, it cannot be used directly. However, it can be split into $n$ $n$-dimensional vectors, which can then be used instead. A similar approach must be taken with the $u_1 \otimes u_2$ matrix. The matching vectors of both matrices must be multiplied elementwise. This is a feasible approach, as all values within the matrix will be summed collectively at the final step, which can be done in any order (commutative law).
 
 \begin{align*}
-   & sum\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right) \\
+   & sum\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right)                                                             \\
    & = sum\left(\begin{bmatrix}
                     u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
                     u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
@@ -188,7 +189,7 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
                                         s_{1}s_{1} & s_{2}s_{1} & s_{3}s_{1} \\
                                         s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
                                         s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
-                                      \end{bmatrix}\right)                     \\
+                                      \end{bmatrix}\right)                                                                                 \\
    & = sum\left(\begin{bmatrix}
                     u_{11}u_{21} \\
                     u_{11}u_{22} \\
@@ -215,11 +216,46 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
                             s_{3}s_{1} \\
                             s_{3}s_{2} \\
                             s_{3}s_{3} \\
-                          \end{bmatrix}\right)                                                    \\
-   & = sum\left(\sum_{i=0}^{n-1}(u_{1i}\cdot \textbf{u}_2) \odot (s_i \cdot \textbf{s}) \right) \\
+                          \end{bmatrix}\right)                                                                                                                \\
+   & = sum\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
 \end{align*}
 
-% Als nächstes wie RLK abgewandelt wird und somit die verschiedenen s vektoren maskiert und multipliziert werden können
+This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorithm \ref{alg:RingRLKGeneration}. However, this necessitates the computation of $n$ $rlk$ values, as is required for each $s_i$. The complete module $rlk$ generation process is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'_i$ represents the individual $s_i\cdot \textbf{s}$ values. 
+
+\begin{algorithm}[htb]
+  \begin{algorithmic}[1]
+    \REQUIRE $\textbf{s}$, $\textbf{s}'$
+    \STATE $\textbf{A} \leftarrow R_{p \cdot q}^{n \times n}$
+    \STATE $\textbf{e} \leftarrow \chi_R^{'n}$
+    \STATE $\textbf{b} = [\textbf{A}\cdot \textbf{s}+\textbf{e}+p\cdot \textbf{s}']_{p \cdot q}$
+    \RETURN $rlk:=(\textbf{A}_{s'}, \textbf{b}_{s'})$
+  \end{algorithmic}
+  \caption{M-LWE: RLK Generation}
+  \label{alg:ModuleRLKGeneration}
+\end{algorithm}
+
+As before, the $rlk$ can be used to create two values, $xu_m$ and $xv_m$. These values will be added to $\textbf{u}_m \in R^n_q$ and $v_m \in R_q$, respectively. Therefore, it is necessary for these values to have the same shape. However, as the encryption process used near identical formulas, the correct shapes will be produced automatically. Thus, equation \ref{eq:ringXmSplitting} can be translated into M-LWE, as shown in equation \ref{eq:moduleXmSplitting}.
+
+\begin{equation}
+  (\textbf{xu}_m, xv_m) = \left(\sum_{i=0}^{n-1}\left[\left\lfloor\frac{\textbf{A}_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q, \sum_{i=0}^{n-1}\left[\left\lfloor \frac{b_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q\right)
+  \label{eq:moduleXmSplitting}
+\end{equation}
+
+All this can be combined now into a single M-LWE multiplication algorithm, as seen in \ref{alg:moduleMultiplication}.
+
+\begin{algorithm}[htb]
+  \begin{algorithmic}[1]
+    \REQUIRE $rlk=((\textbf{A}_{s_0\cdot \textbf{s}}, \textbf{b}_{s_0\cdot \textbf{s}}), \ldots ,(\textbf{A}_{s_{n-1}\cdot \textbf{s}}, \textbf{b}_{s_{n-1}\cdot \textbf{s}}))$, $ct_1 = (\textbf{u}_1, v_1)$, $ct_2 = (\textbf{u}_2, v_2)$
+    \STATE $v_m = \left[\left\lfloor \frac{t}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
+    \STATE $u_m = \left[\left\lfloor \frac{t}{q}\cdot(v_1 \cdot \textbf{u}_2 + v_2 \cdot \textbf{u}_1)\right\rceil\right] _q$
+    \STATE $\textbf{x}_m = \left(\left[\left\lfloor \frac{t}{q}\cdot(u_{10} \cdot \textbf{u}_2)\right\rceil\right]_q,\ldots, \left[\left\lfloor \frac{t}{q}\cdot(u_{1n-1} \cdot \textbf{u}_2)\right\rceil\right]_q\right) $
+    \STATE $\textbf{xu}_m = \sum_{i=0}^{n-1}\left[\left\lfloor\frac{\textbf{A}_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
+    \STATE $xv_m = \sum_{i=0}^{n-1}\left[\left\lfloor \frac{b_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
+    \RETURN $ct_m:=(\left[\textbf{u}_m + \textbf{xu}_m\right]_q , \left[v_m + xv_m\right]_q )$
+  \end{algorithmic}
+  \caption{M-LWE: Multiplication}
+  \label{alg:moduleMultiplication}
+\end{algorithm}
 
 % Tasks:
 % \begin{itemize}
