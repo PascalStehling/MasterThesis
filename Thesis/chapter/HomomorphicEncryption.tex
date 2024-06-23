@@ -245,9 +245,9 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
-    \REQUIRE $rlk=((\textbf{A}_{s_0\cdot \textbf{s}}, \textbf{b}_{s_0\cdot \textbf{s}}), \ldots ,(\textbf{A}_{s_{n-1}\cdot \textbf{s}}, \textbf{b}_{s_{n-1}\cdot \textbf{s}}))$, $ct_1 = (\textbf{u}_1, v_1)$, $ct_2 = (\textbf{u}_2, v_2)$
+    \REQUIRE $rlk=((\textbf{A}_{\textbf{s}'_0}, \textbf{b}_{\textbf{s}'_0}), \ldots ,(\textbf{A}_{\textbf{s}'_{n-1}}, \textbf{b}_{\textbf{s}'_{n-1}}))$, $ct_1 = (\textbf{u}_1, v_1)$, $ct_2 = (\textbf{u}_2, v_2)$
     \STATE $v_m = \left[\left\lfloor \frac{t}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
-    \STATE $u_m = \left[\left\lfloor \frac{t}{q}\cdot(v_1 \cdot \textbf{u}_2 + v_2 \cdot \textbf{u}_1)\right\rceil\right] _q$
+    \STATE $\textbf{u}_m = \left[\left\lfloor \frac{t}{q}\cdot(v_1 \cdot \textbf{u}_2 + v_2 \cdot \textbf{u}_1)\right\rceil\right] _q$
     \STATE $\textbf{x}_m = \left(\left[\left\lfloor \frac{t}{q}\cdot(u_{10} \cdot \textbf{u}_2)\right\rceil\right]_q,\ldots, \left[\left\lfloor \frac{t}{q}\cdot(u_{1n-1} \cdot \textbf{u}_2)\right\rceil\right]_q\right) $
     \STATE $\textbf{xu}_m = \sum_{i=0}^{n-1}\left[\left\lfloor\frac{\textbf{A}_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
     \STATE $xv_m = \sum_{i=0}^{n-1}\left[\left\lfloor \frac{b_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
@@ -257,9 +257,6 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
   \label{alg:moduleMultiplication}
 \end{algorithm}
 
-% Tasks:
-% \begin{itemize}
-%   \item Explain what it is in general
-%   \item Show 1 or two homomorphic schemes, maybe one LWE and one R-LWE?: Useing BFV and BGV (see \cite{FheImplementations} Page 11)
-%   \item Translate them into M-LWE. Should be not to hard, based on what is explained before
-%   \item Define criteria to compare them
+\subsection*{Generate R-LWE from M-LWE}
+
+One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
