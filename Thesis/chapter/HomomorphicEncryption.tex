@@ -113,7 +113,7 @@ The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMu
   \label{alg:RingMultiplication}
 \end{algorithm}
 
-\subsection{Generalizing from R-LWE to M-LWE}
+\section{Generalizing from R-LWE to M-LWE}
 
 As previously stated in Section \ref{sec:TransformingLweToRlweAndMlwe}, M-LWE is a generalization of R-LWE, where matrices and vectors of polynomials are used. Consequently, the dimension $n$ will be set to a value greater than $1$. In consequence, the dimensions of nearly all variables do change (see Table \ref{table:LweKeys}). Most importantly, $\textbf{u}$ and $\textbf{s}$ will now be vectors of length $n$, instead of single polynomials. To make the difference now more visible, vectors and matrices will now be written with bold.
 
@@ -139,7 +139,7 @@ When two ciphertexts are multiplied, the resulting equation is given by equation
   \label{eq:moduleCiphertextMultiplication}
 \end{equation}
 
-The first technique employed was to convert the vector dot product into its sum form. As per the definition of the dot product between two vectors, it can be rewritten as a sum: $\textbf{s}\cdot \textbf{u} = \sum_{i=0}^{n-1}s_iu_i$.
+The first technique employed was to convert the vector dot product into its sum form. As per the definition of the dot product between two vectors, it can be rewritten as a sum: $\textbf{s}\cdot \textbf{u} = \sum_{i=0}^{n-1}s_iu_i$. This step is derived from the calculations presented in \cite{ModHE}.
 
 The subsequent step is to transform the resulting sums once more. With the single sums, this is a relatively straightforward process, as they can simply be reformulated as dot products with an additional scalar (polynomial) multiplication. As with scalar-vector multiplication, the scalar is multiplied with each value in the vector. With this, some further transformations can be made to create a new $\textbf{u}_m$, which is a vector. 
 

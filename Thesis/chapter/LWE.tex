@@ -7,7 +7,7 @@ In this section, we will take a closer look at the Learning with Errors (LWE) al
 
 In 2005, Regev first described the LWE problem \cite{Regev2005OnLL}. He also proved its hardness, but we won't go into those details here. The basic idea is to add an error vector to a linear system of equations. This makes the normally trivially solvable system surprisingly hard to solve.
 
-In more mathematical terms, $\mathbb{Z}_q = \mathbb{Z}/n$, $A \in \mathbb{Z}_q^{n \times m}$, $s \in \mathbb{Z}_q^m$, $b \in \mathbb{Z}_q^n$, with which we can form the linear system of equations, where $A$ and $b$ are given and the vector $s$ represents the unknowns we want to retrieve
+In more mathematical terms, $\mathbb{Z}_q = \mathbb{Z}/q$, $\textbf{A} \in \mathbb{Z}_q^{n \times m}$, $\textbf{s} \in \mathbb{Z}_q^m$, $\textbf{b} \in \mathbb{Z}_q^n$, with which we can form the linear system of equations, where $\textbf{A}$ and $\textbf{b}$ are given and the vector $\textbf{s}$ represents the unknowns we want to retrieve
 
 $$\textbf{A}\cdot \textbf{s} = \textbf{b}$$
 
@@ -15,18 +15,24 @@ Or written as system of equations it would look like:
 $$
   \setlength\arraycolsep{0pt}
   \begin{array}{ c  >{{}}c<{{}} c  >{{}}c<{{}}  c >{{}}c<{{}}  c @{{}={}} c }
-    A_{11}s_1 & + & A_{12}s_2 & + & \cdots & + & A_{1m}s_m & b_1    \\
-    A_{21}s_1 & + & A_{22}s_2 & + & \cdots & + & A_{2m}s_m & b_1    \\
-    \vdots    &   & \vdots    &   & \vdots &   & \vdots    & \vdots \\
-    A_{n1}s_1 & + & A_{n2}s_2 & + & \cdots & + & A_{nm}s_m & b_n    \\
+    \textbf{A}_{11}\textbf{s}_1 & + & \textbf{A}_{12}\textbf{s}_2 & + & \cdots & + & \textbf{A}_{1m}\textbf{s}_m & \textbf{b}_1 \\
+    \textbf{A}_{21}\textbf{s}_1 & + & \textbf{A}_{22}\textbf{s}_2 & + & \cdots & + & \textbf{A}_{2m}\textbf{s}_m & \textbf{b}_1 \\
+    \vdots                      &   & \vdots                      &   & \vdots &   & \vdots                      & \vdots       \\
+    \textbf{A}_{n1}\textbf{s}_1 & + & \textbf{A}_{n2}\textbf{s}_2 & + & \cdots & + & \textbf{A}_{nm}s_m          & \textbf{b}_n \\
   \end{array}
 $$
 
-This can easily be solved with the Gaussian algorithm. But if we just add an error vector $e \in \mathbb{Z}_q^n$ with small values, it becomes surprisingly hard. The hardness is based on variants of the Shortest Vector Problem (SVP), which describes the hardness of finding the shortest vector in the lattice. This is easily solvable in smaller dimensions, but gets harder as the dimensions are increased. The equation after adding the small error term is the following:
+This can easily be solved with the Gaussian algorithm. But if we just add an error vector $\textbf{e} \in \mathbb{Z}_q^n$ with small values, it becomes surprisingly hard. The hardness is based on variants of the Shortest Vector Problem (SVP), which describes the hardness of finding the shortest vector in the lattice. This is easily solvable in smaller dimensions, but gets harder as the dimensions are increased. The equation after adding the small error term is the following:
 
 $$\textbf{A}\cdot \textbf{s} + \textbf{e}= \textbf{b}$$
 
-This is the main equation that all LWE problems are based on. Most of the differences will come from the ring or the dimensions used.
+This is the fundamental equation that underlies all LWE problems. The majority of the differences will be attributable to the ring or dimensions in use. All LWE-based encryption schemes presented in this thesis will be asymmetric encryption schemes (\cite{Eckert2018}). In consequence, each of these schemes comprises a private key, $pk$, and a secret key, $sk$, and is composed of three principal functions:
+
+\begin{enumerate}
+  \item \textbf{KeyGen}: For generating the private and secret key
+  \item \textbf{Encryption}: For encrypting some message $m$ with the private key $pk$ creating a ciphertext $ct$
+  \item \textbf{Decryption}: For decrypting the ciphertext $ct$ with the secret key $sk$ retrieving the original message $m$
+\end{enumerate}
 
 \info[inline]{Maybe going more into detail of the SVP or general the hardness of the LWE Problem?}
 
@@ -37,33 +43,34 @@ In this section, we will describe a simple LWE-based encryption scheme and how i
 
 All calculations are done in the ring $R = \mathbb{Z}_q$, where $q$ is the modulus. If values from $R$ are chosen uniformly, this is denoted by $x \leftarrow R$. Otherwise, if small values are chosen from $R$, this is written as $x \leftarrow \chi_R$. This can be done by choosing uniformly from a set of small numbers all in $R$ (e.g., ${-4,\ldots, 4}$ if $q$ is big enougth), or by choosing from an error distribution, such as the discrete Gaussian, as described in \cite{Regev2005OnLL}.
 
-The following three algorithms describe the example schema. Algorithm \ref{alg: SampleLweKeyGen}, the key generation, describes how to generate the private key $pk$ and the secret key $sk$. It uses the LWE problem as described above. The secret key, which the owner should never share, is the vector $s$. The public key $pk$, which can be shared, consists of the transformation matrix $A$ and the transformed secret key plus the error $b$. The error $e$ is discarded after the computation of $b$. The values of $e$ and $s$ should be rather small, and $A$ is uniformly sampled from $R$.
+The following three algorithms describe the example schema. Algorithm \ref{alg: SampleLweKeyGen}, the key generation, describes how to generate the private key $pk$ and the secret key $sk$. It uses the LWE problem as described above. The secret key, which the owner should never share, is the vector $\textbf{s}$. The public key $pk$, which can be shared, consists of the transformation matrix $\textbf{A}$ and the transformed secret key plus the error $\textbf{b}$. The error $\textbf{e}$ is discarded after the computation of $\textbf{b}$. The values of $\textbf{e}$ and $\textbf{s}$ should be rather small, and $\textbf{A}$ is uniformly sampled from $R$.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
-    \STATE $s \leftarrow \chi_R^n$
-    \STATE $A \leftarrow R^{n \times n}$
-    \STATE $e \leftarrow \chi_R^n$
-    \STATE $b = A\cdot s+e$
-    \RETURN $(pk:=(A, b), sk:=s )$
+    \STATE $\textbf{s} \leftarrow \chi_R^n$
+    \STATE $\textbf{A} \leftarrow R^{n \times n}$
+    \STATE $\textbf{e} \leftarrow \chi_R^n$
+    \STATE $\textbf{b} = \textbf{A}\cdot \textbf{s}+\textbf{e}$
+    \RETURN $(pk:=(\textbf{A}, \textbf{b}), sk:=\textbf{s} )$
   \end{algorithmic}
   \caption{Sample LWE: KeyGen}
   \label{alg: SampleLweKeyGen}
 \end{algorithm}
 
-Algorithm \ref{alg: SampleLweEncryption}, the encryption, describes how to encrypt a message $m$ with the public key $pk$. The errors $e_1$ and $e_2$ are randomly sampled with small values and used to create more uncertainty around the message. The same message can therefore be decrypted with different errors and yield different values. This makes it harder for attackers to find patterns in the decryption. The idea behind $r$ is to select a subset of $A$ and $b$, since $~50\%$ of the values in $r$ will be $0$, meaning that these columns in $A$ and $b$ are irrelevant (multiplied by $0$). This helps to create more entropy between different encryptions, as a different subset of $A$ and $b$ will be used to encrypt each time.
+Algorithm \ref{alg: SampleLweEncryption}, the encryption, describes how to encrypt a message $m$ with the public key $pk$. The errors $\textbf{e}_1$ and $e_2$ are randomly sampled with small values and used to create more uncertainty around the message. The same message can therefore be decrypted with different errors and yield different values. This makes it harder for attackers to find patterns in the decryption. The idea behind $\textbf{r}$ is to select a subset of $\textbf{A}$ and $\textbf{b}$, since $~50\%$ of the values in $\textbf{r}$ will be $0$, meaning that these columns in $\textbf{A}$ and $\textbf{b}$ are irrelevant (multiplied by $0$). This helps to create more entropy between different encryptions, as a different subset of $\textbf{A}$ and $\textbf{b}$ will be used to encrypt each time.
 
-The new values and the public key are used to calculate two values: $u$ and $v$. The first term, $u$, can be considered the cancel term for $b$, where the secret $s$ is missing. $v$ is the actual value term, which is composed of a subset of $b$ with some small error added and the scaled message $m'$. For the scaled message $m' = m*\left\lfloor q/2\right\rfloor$, the message is multiplied with the rounded down version of half the modulus. This operation results in the values of the message $0$ and $1$ in the ring being approximately as distant from each other as possible.
+The new values and the public key are used to calculate two values: $\textbf{u}$ and $v$. The first term, $\textbf{u}$, can be considered the cancel term for $\textbf{b}$, where the secret $\textbf{s}$ is missing. $v$ is the actual value term, which is composed of a subset of $\textbf{b}$ with some small error added and the scaled message $m'$. For the scaled message $m' = m\cdot \left\lfloor q/2\right\rfloor$, the message is multiplied with the rounded down version of half the modulus. This operation results in the values of the message $0$ and $1$ in the ring being approximately as distant from each other as possible.
 
+\info[inline]{Als formeln nochmal kurz aufzeigen, dann pseudo code}
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
-    \REQUIRE $m \in \mathbb{Z}_2 = \{0, 1\}$, $pk = (A, b)$
-    \STATE $r \leftarrow \{0, 1\}^n$
-    \STATE $e_1 \leftarrow \chi_R^n$
-    \STATE $u = A^T \cdot r + e_1$
+    \REQUIRE $m \in \mathbb{Z}_2 = \{0, 1\}$, $pk = (\textbf{A}, \textbf{b})$
+    \STATE $\textbf{r} \leftarrow \{0, 1\}^n$
+    \STATE $\textbf{e}_1 \leftarrow \chi_R^n$
+    \STATE $\textbf{u} = \textbf{A}^T \cdot \textbf{r} + \textbf{e}_1$
     \STATE $e_2 \leftarrow \chi_R$
-    \STATE $v = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)$
-    \RETURN $ct := (u, v)$
+    \STATE $v = \textbf{b}^T \cdot \textbf{r} + e_2 + (m\cdot \left\lfloor q/2\right\rfloor)$
+    \RETURN $ct := (\textbf{u}, v)$
   \end{algorithmic}
   \caption{Sample LWE: Encryption}
   \label{alg: SampleLweEncryption}
@@ -75,8 +82,8 @@ Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decry
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
-    \REQUIRE $ct = (u, v)$, $sk = s$
-    \RETURN $\left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[v-s^T \cdot u\right]_q\right\rceil _2$
+    \REQUIRE $ct = (\textbf{u}, v)$, $sk = \textbf{s}$
+    \RETURN $\left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[v-\textbf{s}^T \cdot \textbf{u}\right]_q\right\rceil _2$
   \end{algorithmic}
   \caption{Sample LWE: Decryption}
   \label{alg: SampleLweDecryption}
@@ -86,16 +93,16 @@ Algorithm \ref{alg: SampleLweDecryption}, the Decryption, describes how to decry
 To get a better understanding, consider the following simplification of the term in algorithm \ref{alg: SampleLweDecryption}.
 
 \begin{align*}
-   & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[v-s^T \cdot u\right]_q\right\rceil _2                                                                                     \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T \cdot (A^T \cdot r + e_1)\right]_q \right\rceil _2             \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[(As+e)^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)-s^T A^T \cdot r - s^T e_1\right]_q \right\rceil _2            \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[(As)^T \cdot r + e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)-(As)^T \cdot r - s^T e_1\right]_q\right\rceil _2         \\
-   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[e^Tr+ e_2 + (m*\left\lfloor q/2\right\rfloor)- s^T e_1\right]_q\right\rceil _2                                          \\
-   & = \left\lfloor \frac{e^Tr}{\left\lfloor q/2\right\rfloor}+ \frac{e_2 }{\left\lfloor q/2\right\rfloor}+ m - \frac{s^T e_1}{\left\lfloor q/2\right\rfloor}\right\rceil _2 \\
-   & = \left\lfloor m' \right\rceil _2                                                                                                                                       \\
+   & \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[v-\textbf{s}^T \cdot \textbf{u}\right]_q\right\rceil _2                                                                                                                                        \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[\textbf{b}^T \cdot \textbf{r} + e_2 + (m\cdot \left\lfloor q/2\right\rfloor)-\textbf{s}^T \cdot (\textbf{A}^T \cdot \textbf{r} + \textbf{e}_1)\right]_q \right\rceil _2                      \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[(\textbf{As}+\textbf{e})^T \cdot \textbf{r} + e_2 + (m\cdot \left\lfloor q/2\right\rfloor)-\textbf{s}^T \textbf{A}^T \cdot \textbf{r} - \textbf{s}^T \textbf{e}_1\right]_q \right\rceil _2   \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[(\textbf{As})^T \cdot \textbf{r} + \textbf{e}^T\textbf{r}+ e_2 + (m\cdot \left\lfloor q/2\right\rfloor)-(\textbf{As})^T \cdot \textbf{r} - \textbf{s}^T \textbf{e}_1\right]_q\right\rceil _2 \\
+   & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot \left[\textbf{e}^T\textbf{r}+ e_2 + (m\cdot \left\lfloor q/2\right\rfloor)- \textbf{s}^T \textbf{e}_1\right]_q\right\rceil _2                                                                      \\
+   & = \left\lfloor \frac{\textbf{e}^T\textbf{r}}{\left\lfloor q/2\right\rfloor}+ \frac{e_2 }{\left\lfloor q/2\right\rfloor}+ m - \frac{\textbf{s}^T \textbf{e}_1}{\left\lfloor q/2\right\rfloor}\right\rceil _2                                                    \\
+   & = \left\lfloor m' \right\rceil _2                                                                                                                                                                                                                              \\
    & = m \in \{0,1\}
 \end{align*}
-As demonstrated by the calculation, by multiplying the cancellation term $u$ with the secret $s$, the transformation $(As)^T \cdot r$ in $v$ can be canceled out. This results in the message with some error values being added to it. The erroneous message will then be rounded, which will result in the original message. This process will only be successful if all error terms together are smaller than $\frac{q}{4}$. This is due to the fact that the possible values in the message are separated by a distance of $\frac{q}{2}$ from each other. Consequently, all values between $-\frac{q}{4}\mod q=\frac{3q}{4}$ and $\frac{q}{4}$ are rounded back to $0$, while all values between $\frac{q}{4}$ and $\frac{3q}{4}$ are rounded to $1$. Consequently, provided that the message (either $0$ or $\frac{q}{2}$) is not shifted by more than $\frac{q}{4}$, it will remain within the rounding area of the original message.
+As demonstrated by the calculation, by multiplying the cancellation term $\textbf{u}$ with the secret $\textbf{s}$, the transformation $(\textbf{As})^T \cdot \textbf{r}$ in $v$ can be canceled out. This results in the message with some error values being added to it. The erroneous message will then be rounded, which will result in the original message. This process will only be successful if all error terms together are smaller than $\frac{q}{4}$. This is due to the fact that the possible values in the message are separated by a distance of $\frac{q}{2}$ from each other. Consequently, all values between $-\frac{q}{4}\mod q=\frac{3q}{4}$ and $\frac{q}{4}$ are rounded back to $0$, while all values between $\frac{q}{4}$ and $\frac{3q}{4}$ are rounded to $1$. Consequently, provided that the message (either $0$ or $\frac{q}{2}$) is not shifted by more than $\frac{q}{4}$, it will remain within the rounding area of the original message.
 
 \info[inline]{Maybe add an image which shows the rounding with an clock}
 
@@ -106,7 +113,7 @@ To observe the functioning of this algorithm in practice, please refer to the ex
 \section{Transforming LWE to R-LWE and M-LWE}
 \label{sec:TransformingLweToRlweAndMlwe}
 
-To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $r$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic. All equations stay the same and the structure of the Algorithms does not change.
+To transform the algorithms described above into Ring-LWE, only a few changes need to be made. Most importantly, a polynomial ring will be defined as $R = \mathbb{Z}[x]_q/(x^d+1)$, with the dimension $n=1$, which means that there are only polynomials. Instead of having a vector $\textbf{r}$, it will now be a polynomial in the ring $R$, where all coefficients are either $0$ or $1$. The message to be encrypted is also transformed into a polynomial in $R$ with the message bits being the coefficients of the polynomial. Consequently, $d$ bits can now be encoded in one message. As all values are now polynomials, polynomial arithmetic is used in place of matrix arithmetic. However, as previously stated, the polynomial arithmetic in the ring can also be transformed into matrix arithmetic. All equations stay the same and the structure of the Algorithms does not change.
 
 An illustrative example of the three-step process for RLWE can be found in \ref{app:RlweExampleCalc}.
 
@@ -122,14 +129,14 @@ So in total, the only real differences between the Plain LWE, R-LWE and M-LWE ar
   \centering
   \begin{tabular}{|c|l|l|l|}
     \hline
-                & Plain LWE        & R-LWE                     & M-LWE                         \\
+                                                    & Plain LWE        & R-LWE                     & M-LWE                         \\
     \hline
-    Ring $R$    & $\mathbb{Z}_q$   & $\mathbb{Z}[x]_q/(x^d+1)$ & $\mathbb{Z}[x]_q/(x^d+1)$     \\
-    $A$         & $R^{n\times n}$  & $R$                       & $R^{n\times n}$               \\
-    $s,b,e,e_1$ & $R^{n}$          & $R$                       & $R^{n}$                       \\
-    $e_2$       & $R$              & $R$                       & $R$                           \\
-    $r$         & $\mathbb{Z}_2^n$ & $\mathbb{Z}[x]_2/(x^d+1)$ & $(\mathbb{Z}[x]_2/(x^d+1))^n$ \\
-    $m$         & $\mathbb{Z}_2$   & $\mathbb{Z}[x]_2/(x^d+1)$ & $\mathbb{Z}[x]_2/(x^d+1)$     \\
+    Ring $R$                                        & $\mathbb{Z}_q$   & $\mathbb{Z}[x]_q/(x^d+1)$ & $\mathbb{Z}[x]_q/(x^d+1)$     \\
+    $\textbf{A}$                                    & $R^{n\times n}$  & $R$                       & $R^{n\times n}$               \\
+    $\textbf{s},\textbf{b},\textbf{e},\textbf{e}_1$ & $R^{n}$          & $R$                       & $R^{n}$                       \\
+    $e_2$                                           & $R$              & $R$                       & $R$                           \\
+    $\textbf{r}$                                    & $\mathbb{Z}_2^n$ & $\mathbb{Z}[x]_2/(x^d+1)$ & $(\mathbb{Z}[x]_2/(x^d+1))^n$ \\
+    $m$                                             & $\mathbb{Z}_2$   & $\mathbb{Z}[x]_2/(x^d+1)$ & $\mathbb{Z}[x]_2/(x^d+1)$     \\
     \hline
   \end{tabular}
 \end{table}
@@ -145,11 +152,11 @@ The security of Plain LWE is entirely reliant on the size of $n$, whereas in M-L
   \centering
   \begin{tabular}{|c|l|l|l|}
     \hline
-              & Plain LWE                                        & R-LWE                                                                              & M-LWE                                                                                     \\
+         & Plain LWE                                        & R-LWE                                                            & M-LWE                                                                    \\
     \hline
-    $sk$      & $\mathbb{Z}_q^{n}$                               & $R_q^{d}$                                                                 & $R_q^{n\times d}$                                                                \\
-    $pk$      & $\mathbb{Z}_q^{n\times n}\times\mathbb{Z}_q^{n}$ & $R_q^{d}\times R_q^{d}$                                          & $R_q^{n\times n \times d}\times R_q^{n \times d}$                        \\
-    $m$       & $\ell \times \mathbb{Z}_2$                       & $\left\lceil \ell / d\right\rceil \times R_2^{d}$                         & $\left\lceil \ell / d\right\rceil \times R_2^{d}$                                 \\
+    $sk$ & $\mathbb{Z}_q^{n}$                               & $R_q^{d}$                                                        & $R_q^{n\times d}$                                                        \\
+    $pk$ & $\mathbb{Z}_q^{n\times n}\times\mathbb{Z}_q^{n}$ & $R_q^{d}\times R_q^{d}$                                          & $R_q^{n\times n \times d}\times R_q^{n \times d}$                        \\
+    $m$  & $\ell \times \mathbb{Z}_2$                       & $\left\lceil \ell / d\right\rceil \times R_2^{d}$                & $\left\lceil \ell / d\right\rceil \times R_2^{d}$                        \\
     $ct$ & $\ell\times(\mathbb{Z}_q^{n}\times\mathbb{Z}_q)$ & $\left\lceil \ell / d\right\rceil \times(R_q^{d}\times R_q^{d})$ & $\left\lceil \ell / d\right\rceil \times(R_q^{n\times d}\times R_q^{d})$ \\    \hline
   \end{tabular}
 \end{table}
