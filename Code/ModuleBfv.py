@@ -61,29 +61,32 @@ class BfvEncrypted:
     def __mul__(self, other: "BfvEncrypted") -> "BfvEncrypted":
         assert self.config == other.config
 
+        def tq_round(inp):
+            return (inp * 2) // self.config.modulus
+
+
         c0 = (self.v * other.v)
         c1 = (self.v * other.u + other.v * self.u).T
         c2 = self.u @ other.u.T
 
-        tq = 2 / self.config.modulus
-        c0 = round(c0 * tq) % self.config.modulus
-        c1 = round(c1 * tq) % self.config.modulus
-        c2 = round(c2 * tq) % self.config.modulus
+        c0 = tq_round(c0) % self.config.modulus
+        c1 = tq_round(c1) % self.config.modulus
+        c2 = tq_round(c2) % self.config.modulus
 
         big_mod = self.config.p * self.config.modulus
-        c2s = [(round((self.u * other.u.poly_mat[r][0]) * tq) %
+        c2s = [(tq_round((self.u * other.u.poly_mat[r][0])) %
                 self.config.modulus).change_modulus(big_mod)
                for r in range(self.config.mat_size)]
 
         assert len(self.rlks) == len(c2s)
         v_relin = [
-            round((relin.rb.T @ c) / self.config.p).change_modulus(
+            ((relin.rb.T @ c) // self.config.p).change_modulus(
                 self.config.modulus) for relin, c in zip(self.rlks, c2s)
         ]
         v = (c0 + reduce(add, v_relin)) % self.config.modulus
 
         u_relin = [
-            round((relin.ra @ c) / self.config.p).change_modulus(
+            ((relin.ra @ c) // self.config.p).change_modulus(
                 self.config.modulus) for relin, c in zip(self.rlks, c2s)
         ]
         u = (c1.T + reduce(add, u_relin)) % self.config.modulus
@@ -177,7 +180,7 @@ class BFV:
 
 
 if __name__ == "__main__":
-    conf = BfvConfig(4, 4, 2**30, 2**60)
+    conf = BfvConfig(1, 4, 2**60, 2**600)
     sk, pk, rlk = BFV.keygen(conf)
 
     m1 = RingPoly([1, 1, 0, 0])
@@ -190,7 +193,7 @@ if __name__ == "__main__":
     assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1 * m_e1)
 
     op_count = []
-    for j in tqdm(range(200)):
+    for j in tqdm(range(5000)):
 
         # Single Test Start
         sk, pk, rlks = BFV.keygen(conf)

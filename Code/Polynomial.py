@@ -1,6 +1,6 @@
 from functools import reduce
 from itertools import chain
-from operator import add, mul, sub, truediv
+from operator import add, floordiv, mul, sub, truediv
 from random import randint
 from typing import Callable, Sized
 from xmlrpc.client import boolean
@@ -45,7 +45,8 @@ class RingPoly:
         if isinstance(other, (int, float)):
             return RingPoly([operator(v, other) for v in self.poly])
 
-        raise NotImplementedError(f"{operator} Not implemented for type: {type(other)}")
+        raise NotImplementedError(
+            f"{operator} Not implemented for type: {type(other)}")
 
     def __mul__(self, other) -> "RingPoly":
         if isinstance(other, RingPoly):
@@ -57,7 +58,7 @@ class RingPoly:
             return RingPoly([v * other for v in self.poly])
         else:
             raise NotImplementedError()
-        
+
     def __rmul__(self, other):
         return self * other
 
@@ -69,6 +70,9 @@ class RingPoly:
 
     def __truediv__(self, other) -> "RingPoly":
         return self._calc(other, truediv)
+
+    def __floordiv__(self, other) -> "RingPoly":
+        return self._calc(other, floordiv)
 
     def __eq__(self, other) -> boolean:
         if isinstance(other, RingPoly):
@@ -150,7 +154,6 @@ class PolynomialMatrix(object):
             for _ in range(matrix_shape[1])
         ] for _ in range(matrix_shape[0])], modulus)
 
-
     def __repr__(self) -> str:
         return f"PolyMatrix({repr(self.poly_mat)})"
 
@@ -212,6 +215,11 @@ class PolynomialMatrix(object):
             return self._calc_scalar(other, truediv)
         raise NotImplementedError()
 
+    def __floordiv__(self, other) -> "PolynomialMatrix":
+        if isinstance(other, (int, float)):
+            return self._calc_scalar(other, floordiv)
+        raise NotImplementedError()
+
     def __matmul__(self, other: "PolynomialMatrix") -> "PolynomialMatrix":
         assert self.shape[1] == other.shape[1], "Different Ring Polynomials"
         assert self.modulus == other.modulus, "Different Modulus"
@@ -258,7 +266,7 @@ class PolynomialMatrix(object):
             raise NotImplementedError()
 
         return self.poly_mat == other.poly_mat
-    
+
     def __iter__(self):
         yield from chain(*self.poly_mat)
 
@@ -291,7 +299,7 @@ if __name__ == "__main__":
     o1 = [[1, -4, -3, -2],
           [2, 1, -4, -3],
           [3, 2, 1, -4],
-          [4, 3, 2, 1]] # yapf: disable
+          [4, 3, 2, 1]]  # yapf: disable
     assert generate_multiplication_matrix(i1) == o1
 
     a = RingPoly([98, 3, 0])
