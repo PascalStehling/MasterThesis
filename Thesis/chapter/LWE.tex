@@ -4,6 +4,7 @@
 In this section, we will take a closer look at the Learning with Errors (LWE) algorithm (also called Plain LWE) and its different versions, namely Ring LWE (R-LWE) and Module LWE (M-LWE).
 
 \section{The Learning with Errors Problem}
+\label{sec:LweProblem}
 
 In 2005, Regev first described the LWE problem \cite{Regev2005OnLL}. He also proved its hardness, but we won't go into those details here. The basic idea is to add an error vector to a linear system of equations. This makes the normally trivially solvable system surprisingly hard to solve.
 
@@ -26,7 +27,7 @@ This can easily be solved with the Gaussian algorithm. But if we just add an err
 
 $$\textbf{A}\cdot \textbf{s} + \textbf{e}= \textbf{b}$$
 
-This is the fundamental equation that underlies all LWE problems. The majority of the differences will be attributable to the ring or dimensions in use. All LWE-based encryption schemes presented in this thesis will be asymmetric encryption schemes (\cite{Eckert2018}). In consequence, each of these schemes comprises a private key, $pk$, and a secret key, $sk$, and is composed of three principal functions:
+This is the fundamental equation that underlies all LWE problems. The majority of the differences will be attributable to the ring or dimensions in use. All LWE-based encryption schemes presented in this thesis will be asymmetric encryption schemes (\cite{Eckert2018}). In consequence, each of these schemes comprises a private key, $pk$, and a secret key, $sk$, and is composed of three functions:
 
 \begin{enumerate}
   \item \textbf{KeyGen}: For generating the private and secret key

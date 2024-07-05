@@ -14,13 +14,24 @@ As the algorithm will be used on binary data, the operations are often reduced t
 
 The Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They also proposed an PHE scheme, based on RSA., for multiplication only. More PHE schemes were developed over time and in 2009 C. Gentry proposed the first FHE scheme \cite{Gentry2009AFH} based on a bootstrapping technique, which refreshes the ciphertext, so that the internal errors are reduced and further calculations can be done. With that, all SWHE systems can be converted into FHE systems. However, the conversion results in a significant reduction in performance due to the computational intensity of the bootstrapping operation.
 
+In order to implement a homomorphic encryption scheme based on LWE, it is necessary to define three additional functions in addition to the three functions defined in section \ref{sec:LweProblem}:
+
+\begin{enumerate}
+  \item \textbf{Addition}: This operation takes two ciphertexts as inputs and returns a new ciphertext by adding them together.
+  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key Pair (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes.
+  \item \textbf{Multiplication}: This operation takes two ciphertexts and a RLK as inputs and performs a multiplication operation on the ciphertexts, with the help of the RLK, returning a new ciphertext.
+\end{enumerate}
+
+The binary space allows for the derivation of all other operations based on addition and multiplication. Consequently, the majority of HE schemes concentrate on developing functional versions of these operations.
+
+
 \section{The R-LWE SWHE Scheme}
 
-As previously stated, the two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an FHE scheme. All other operations can be derived from these initial two operations. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed. Construction of addition and multiplication will be based on a modified version of the BFV (\cite{bfv}) scheme.
+As previously stated, the two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an HE scheme. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed. Construction of addition and multiplication will be based on a modified version of the BFV scheme (\cite{bfv}).
 
 \subsection*{Addition}
 
-The objective is to develop a method for adding encrypted messages in such a way that the result is identical to that obtained by adding the plaintext messages. This can be achieved by adding the ciphertext together, with the error increasing linearly. Further details on this approach can be found in reference \cite{bfv}. 
+The objective is to develop a method for adding encrypted messages in such a way that the result is identical to that obtained by adding the plaintext messages. This can be achieved by adding the ciphertext together, with the error increasing linearly. Further details on this approach can be found in the BFV scheme \cite{bfv}. 
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -132,9 +143,9 @@ When two ciphertexts are multiplied, the resulting equation is given by equation
     [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-\textbf{s}\cdot \textbf{u}_1) \cdot (v_2-\textbf{s}\cdot \textbf{u}_2)]_q                                                                                                                                                              \\
                              & = [(v_1-\sum_{i=0}^{n-1}s_iu_{1i}) \cdot (v_2-\sum_{i=0}^{n-1}s_iu_{2i})]_q                                                                                                                                                                    \\
                              & = [v_1\cdot v_2 - v_1\cdot \sum_{i=0}^{n-1}s_iu_{2i}- v_2\cdot \sum_{i=0}^{n-1}s_iu_{1i} + \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j]_q                                                                                               \\    
-                             & = [v_1\cdot v_2 - v_1\cdot \textbf{u}_2\cdot \textbf{s} - v_2\cdot \textbf{u}_1\cdot \textbf{s} + sum((\textbf{u}_{1}\otimes\textbf{u}_{2})\odot(\textbf{s}\otimes\textbf{s}))]_q                                                              \\
-                             & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot \textbf{u}_2 + v_2\cdot \textbf{u}_1)}_{\textbf{u}_m}\cdot \textbf{s} + sum((\underbrace{\textbf{u}_{1}\otimes\textbf{u}_{2}}_{\textbf{X}_m})\odot(\textbf{s}\otimes\textbf{s}))]_q \\
-                             & = [v_m - \textbf{u}_m\cdot \textbf{s} + sum(\textbf{X}_m\odot(\textbf{s}\otimes\textbf{s}))]_q
+                             & = [v_1\cdot v_2 - v_1\cdot \textbf{u}_2\cdot \textbf{s} - v_2\cdot \textbf{u}_1\cdot \textbf{s} + \mathrm{sum}((\textbf{u}_{1}\otimes\textbf{u}_{2})\odot(\textbf{s}\otimes\textbf{s}))]_q                                                              \\
+                             & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot \textbf{u}_2 + v_2\cdot \textbf{u}_1)}_{\textbf{u}_m}\cdot \textbf{s} + \mathrm{sum}((\underbrace{\textbf{u}_{1}\otimes\textbf{u}_{2}}_{\textbf{X}_m})\odot(\textbf{s}\otimes\textbf{s}))]_q \\
+                             & = [v_m - \textbf{u}_m\cdot \textbf{s} + \mathrm{sum}(\textbf{X}_m\odot(\textbf{s}\otimes\textbf{s}))]_q
   \end{split}
   \label{eq:moduleCiphertextMultiplication}
 \end{equation}
@@ -146,14 +157,14 @@ The subsequent step is to transform the resulting sums once more. With the singl
 For the double sum, it is a bit more difficult process to extract a new $x_m$. The main Idea here is, that because of the double sum, essentially an $n\times n$ matrix with all combinations of $i$ and $j$ is generated and all values are then added up. For example with $n=3$ the following matrix will be created:
 
 $$
-  \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j = sum\left(\begin{bmatrix}
+  \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j = \mathrm{sum}\left(\begin{bmatrix}
       u_{11}u_{21}s_{1}s_{1} & u_{12}u_{21}s_{2}s_{1} & u_{13}u_{21}s_{3}s_{1} \\
       u_{11}u_{22}s_{1}s_{2} & u_{12}u_{22}s_{2}s_{2} & u_{13}u_{22}s_{3}s_{2} \\
       u_{11}u_{23}s_{1}s_{3} & u_{12}u_{23}s_{2}s_{3} & u_{13}u_{23}s_{3}s_{3} \\
     \end{bmatrix}\right)
 $$
 
-The $sum$ is simply a summation of all values, which is sometimes referred to as the "grand sum." This is essentially a double dot product with a vector of length $n$, where all values are $1$, which is denoted by the symbol $1$-vector ($\textbf{1}$): $sum(\textbf{X}):= \textbf{1}\cdot \textbf{X} \cdot \textbf{1} = \sum_{i=0}^{n-1}\sum_{j=0}^{n-1} \textbf{X}_{ij}$
+The $\mathrm{sum}$ is simply a summation of all values, which is sometimes referred to as the "grand sum." This is essentially a double dot product with a vector of length $n$, where all values are $1$, which is denoted by the symbol $1$-vector ($\textbf{1}$): $\mathrm{sum}(\textbf{X}):= \textbf{1}\cdot \textbf{X} \cdot \textbf{1} = \sum_{i=0}^{n-1}\sum_{j=0}^{n-1} \textbf{X}_{ij}$
 
 The next step involves splitting the $n \times n$ matrix into two matrices, one for the $u$ values and one for the $s$ values. Each term in the matrix is a product of four values, which can be split apart using the Associative Law. The $\textbf{u}$ and $\textbf{s}$ values are then multiplied separately, and the two matrices are multiplied together again using element-wise multiplication, also known as the Hadamard product, denoted by the $\odot$ symbol. Finally, the individual matrices can be decomposed into vector operations. This can be achieved through the use of the outer product, also referred to as the tensor product, which is represented by the symbol $\otimes$.
 
@@ -180,8 +191,8 @@ Having achieved a separation between $u$ and $s$, the next step is to find a met
 As a first step, it is necessary to revisit the original $rlk$ generation process, as outlined in Algorithm \ref{alg:RingRLKGeneration}. In order to transform it into M-LWE, the same dimensions as those employed in the standard M-LWE key generation process are used: specifically, $\textbf{A} \in R^{n \times n}_{p \cdot q}$, $\textbf{e} \in \chi^{'n}_{R}$ and $\textbf{s} \in R^n_q$. When calculating the first part of $\textbf{b}$ we get $\textbf{A}\cdot \textbf{s} + \textbf{e}$, which is an vector in $R^n$. As the second part needs to be added to this vector, the masked part (formerly $s^2$) needs to be a vector of the same dimension. As $s \otimes s$ is a matrix of dimension $n \times n$, it cannot be used directly. However, it can be split into $n$ $n$-dimensional vectors, which can then be used instead. A similar approach must be taken with the $u_1 \otimes u_2$ matrix. The matching vectors of both matrices must be multiplied elementwise. This is a feasible approach, as all values within the matrix will be summed collectively at the final step, which can be done in any order (commutative law).
 
 \begin{align*}
-   & sum\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right)                                                             \\
-   & = sum\left(\begin{bmatrix}
+   & \mathrm{sum}\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right)                                                             \\
+   & = \mathrm{sum}\left(\begin{bmatrix}
                     u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
                     u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
                     u_{11}u_{23} & u_{12}u_{23} & u_{13}u_{23} \\
@@ -190,7 +201,7 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
                                         s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
                                         s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
                                       \end{bmatrix}\right)                                                                                 \\
-   & = sum\left(\begin{bmatrix}
+   & = \mathrm{sum}\left(\begin{bmatrix}
                     u_{11}u_{21} \\
                     u_{11}u_{22} \\
                     u_{11}u_{23} \\
@@ -217,7 +228,7 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
                             s_{3}s_{2} \\
                             s_{3}s_{3} \\
                           \end{bmatrix}\right)                                                                                                                \\
-   & = sum\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
+   & = \mathrm{sum}\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
 \end{align*}
 
 This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorithm \ref{alg:RingRLKGeneration}. However, this necessitates the computation of $n$ $rlk$ values, as is required for each $s_i$. The complete module $rlk$ generation process is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'_i$ represents the individual $s_i\cdot \textbf{s}$ values. 
@@ -260,3 +271,30 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 \subsection*{Generate R-LWE from M-LWE}
 
 One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
+
+
+\subsection{Criteria for Comparing LWE based Homomorph encryption schemes}
+
+This section defines different criteria for comparing the three Homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
+
+
+
+% Variable sizes based on n and d
+% SK Size
+% PK Size (including rlk)
+% CT size
+
+% Practical Test - Performance Comparison based on n,d,q,p
+% KeyGen (with RLK)
+% Encryption
+% Addition
+% Multiplication
+% Decryption
+
+% Practical Test - Error Development - Max Rounds based on n,d,q,p 
+% Addition
+% Multiplication
+
+% error development (linear/quadratic) test?
+% Addition
+% Multiplication

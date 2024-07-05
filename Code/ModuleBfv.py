@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import reduce
 from itertools import chain
 from operator import add
+from statistics import mean
 
 from Polynomial import Polynomial, PolynomialMatrix, RingPoly
 
@@ -179,6 +180,15 @@ class BFV:
         ).poly_mat[0][0] # yapf: disable
 
 
+def get_error(m_enc:BfvEncrypted, m_tar:RingPoly, sk:BfvSecretKey):
+    dec = ((
+        ((((m_enc.v + m_enc.u.T @ sk.sk) %
+           m_enc.config.modulus) * 2) / m_enc.config.modulus)
+    ) % 2).poly_mat[0][0].poly
+
+    return mean([abs(d-t) if t==1 else (d if d < 0.5 else 2-d) for d,t in zip(dec, m_tar.poly)])
+
+
 if __name__ == "__main__":
     conf = BfvConfig(1, 4, 2**60, 2**600)
     sk, pk, rlk = BFV.keygen(conf)
@@ -193,8 +203,10 @@ if __name__ == "__main__":
     assert (m1 * m1) % 2 == BFV.decrypt(sk, m_e1 * m_e1)
 
     op_count = []
-    for j in tqdm(range(5000)):
+    errors = []
+    for j in tqdm(range(100)):
 
+        error_dev = []
         # Single Test Start
         sk, pk, rlks = BFV.keygen(conf)
         m1 = RingPoly.random_ring_poly(conf.poly_len, 0, 1)
@@ -204,9 +216,11 @@ if __name__ == "__main__":
             m_e2 = BFV.encrypt(conf, pk, rlks, m2)
             m_e1 = m_e1 * m_e2
             m1 = (m1 * m2) % 2
+            error_dev.append(get_error(m_e1, m1, sk))
             # assert BFV.decrypt(sk, m_e1) == m1.poly_mat[0].tolist(), f"{i}: {m1} -- {BFV.decrypt(sk, m_e1)}"
             if BFV.decrypt(sk, m_e1) != m1:
                 op_count.append(i)
+                errors.append(error_dev)
                 break
 
     print("Average Operations:", sum(op_count) / len(op_count))

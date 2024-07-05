@@ -20,4 +20,6 @@ In diesem Dokument ist eine Sammlung von Mathematischen Begriffen, Formeln, ... 
 
 - [Testkonzept](https://www.informatik-aktuell.de/entwicklung/methoden/das-perfekte-testkonzept-in-6-schritten.html)
 
+- https://link.springer.com/chapter/10.1007/978-3-658-31228-2_1
+
 - [LWE Survey Regev](https://cims.nyu.edu/~regev/papers/lwesurvey.pdf)
