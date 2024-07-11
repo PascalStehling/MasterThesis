@@ -275,14 +275,23 @@ One simple method for evaluating the efficacy of the generalization is to genera
 
 \subsection{Criteria for Comparing LWE based Homomorph encryption schemes}
 
-This section defines different criteria for comparing the three Homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
+This section defines different criteria for comparing the three Homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two dimension variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
 
-
+Based on these two dimension variables, the size of the output Variables of the different steps can be compared. These are the secret key $sk$, the public key $pk$, the relinearization key $rlk$ and the ciphertext $ct$.
 
 % Variable sizes based on n and d
 % SK Size
 % PK Size (including rlk)
 % CT size
+
+To compare the performance between the models, an example implementation with python will be created and the results of these will be compared. As the same Algorithm, with different dimension sizes ($n$ and $d$) can be used be used to describe all three schemes. As python is a quite slow performing language and the algorithm is not super optimized, the absolute numbers are not very meaningful, but the relative performance between the schemes should be very comparable.
+
+All performance tests, if not stated different, will be done for all algorithms, namely: \textit{KeyGen (with RlkGen)}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}.
+The first thing that will be tested is the performance of each model separately based on the two dimension variables $n$ and $d$ as well as the modulus $q$ and $p$ (where applicable).
+
+The next tests will compare the different schemes against each other, based on the same modulus values. 
+
+Additionally the addition and multiplicative depth should be found based on the variables. With this it can be checked how many calculations can be done in succession, while still being able to successfully decrypt the ciphertext. To make better prediction, the error development for addition and multiplication should also be tested. With that, better predictions about the influence of the variables and the depth can be made.
 
 % Practical Test - Performance Comparison based on n,d,q,p
 % KeyGen (with RLK)
@@ -298,3 +307,5 @@ This section defines different criteria for comparing the three Homomorphic LWE 
 % error development (linear/quadratic) test?
 % Addition
 % Multiplication
+
+There will be no test, evaluation and comparison of the security between the different schemes. This will not be done, as a lot of additional theory and explanation would be needed, which would go over the size of this Thesis. 
