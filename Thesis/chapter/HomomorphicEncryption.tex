@@ -273,25 +273,20 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
 
 
-\subsection{Criteria for Comparing LWE based Homomorph encryption schemes}
+\section{Criteria for Comparing LWE based Homomorph encryption schemes}
 
-This section defines different criteria for comparing the three Homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two dimension variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
+This section outlines the  criteria for comparing the three homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two dimension variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
 
-Based on these two dimension variables, the size of the output Variables of the different steps can be compared. These are the secret key $sk$, the public key $pk$, the relinearization key $rlk$ and the ciphertext $ct$.
+The size of the output values of the different steps can be compared based on these two dimension variables. The outputs in question are the secret key $sk$, the public key $pk$, the relinearization key $rlk$ and the ciphertext $ct$.
 
 % Variable sizes based on n and d
 % SK Size
 % PK Size (including rlk)
 % CT size
 
-To compare the performance between the models, an example implementation with python will be created and the results of these will be compared. As the same Algorithm, with different dimension sizes ($n$ and $d$) can be used be used to describe all three schemes. As python is a quite slow performing language and the algorithm is not super optimized, the absolute numbers are not very meaningful, but the relative performance between the schemes should be very comparable.
+To facilitate a comparative analysis of the models' performance, an example implementation in Python will be constructed and the resulting data will be evaluated. As the same algorithm, with varying dimensions ($n$ and $d$), can be utilized to describe all three schemes, the relative performance between them can be effectively assessed. However, given that Python is a relatively slow-performing language and the algorithm is not optimized, the absolute values may not be entirely meaningful. Nevertheless, the relative performance between the schemes should remain highly comparable.
 
-All performance tests, if not stated different, will be done for all algorithms, namely: \textit{KeyGen (with RlkGen)}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}.
-The first thing that will be tested is the performance of each model separately based on the two dimension variables $n$ and $d$ as well as the modulus $q$ and $p$ (where applicable).
-
-The next tests will compare the different schemes against each other, based on the same modulus values. 
-
-Additionally the addition and multiplicative depth should be found based on the variables. With this it can be checked how many calculations can be done in succession, while still being able to successfully decrypt the ciphertext. To make better prediction, the error development for addition and multiplication should also be tested. With that, better predictions about the influence of the variables and the depth can be made.
+Unless otherwise indicated, all performance tests will be conducted on all algorithms, specifically: \textit{KeyGen (with RlkGen)}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}. The first stage of the testing process will be to assess the performance of each model in isolation, with the results expressed in terms of the dimension variables $n$ and $d$, as well as the modulus $q$ and $p$ (where applicable). Subsequently, the objective will be to evaluate the relative performance of the various algorithms by comparing them against each other, with the same modulus values employed in each comparison. 
 
 % Practical Test - Performance Comparison based on n,d,q,p
 % KeyGen (with RLK)
@@ -299,6 +294,9 @@ Additionally the addition and multiplicative depth should be found based on the 
 % Addition
 % Multiplication
 % Decryption
+
+Furthermore, the addition and multiplicative depth should be identified based on the variables. This allows for the assessment of the number of consecutive calculations that can be performed while maintaining the ability to successfully decrypt the ciphertext. To enhance the precision of the predictions, it is essential to examine the evolution of the errors associated with addition and multiplication. This enables a more accurate understanding of the impact of the variables and depth on the outcomes.
+
 
 % Practical Test - Error Development - Max Rounds based on n,d,q,p 
 % Addition
@@ -308,4 +306,4 @@ Additionally the addition and multiplicative depth should be found based on the 
 % Addition
 % Multiplication
 
-There will be no test, evaluation and comparison of the security between the different schemes. This will not be done, as a lot of additional theory and explanation would be needed, which would go over the size of this Thesis. 
+A comparative analysis of the security features of the various schemes will not be undertaken, as it would require a significant investment of time and resources that would exceed the scope of this thesis.
