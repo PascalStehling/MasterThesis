@@ -273,29 +273,14 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
 
 
-\section{Criteria for Comparing LWE based Homomorph encryption schemes}
+\section{Criteria for comparing LWE-based homomorphic encryption schemes}
 
-This section outlines the  criteria for comparing the three homomorphic LWE schemes. The primary distinctions between the three LWE schemes are related to two dimension variables, matrix dimension $n$ and polynomial rank $d$. As previously outlined in section \ref{sec:TransformingLweToRlweAndMlwe}, when $n>1$ and $d=1$, an Plain-LWE scheme is obtained. Conversely, when $n=1$ and $d>1$, the resulting scheme is R-LWE, and when $n>1$ and $d>1$, the scheme is M-LWE.
+In order to conduct a comparative analysis of homomorphic encryption schemes, the same methodology previously outlined in Section \ref{sec:LweComparisonCriteria} can be employed to evaluate the underlying encryption and decryption mechanisms. To assess the homomorphic properties, the tests must be expanded. The first extension to the storage test is to include the relinearization key ($rlk$) in the evaluation. This entails computing the size of the rlk and comparing it between each scheme. The time cost tests can be extended by also including the Addition and Multiplication algorithms into the tests and extending the KeyGen algorithm to include the generation of the relinearization key.
 
-The size of the output values of the different steps can be compared based on these two dimension variables. The outputs in question are the secret key $sk$, the public key $pk$, the relinearization key $rlk$ and the ciphertext $ct$.
+Moreover, the additive and multiplicative depth should be identified. This allows for the assessment of the number of consecutive calculations that can be performed while maintaining the ability to successfully decrypt the ciphertext. To enhance the precision of the predictions, it is essential to examine the evolution of the errors associated with addition and multiplication. This enables a more accurate understanding of the impact of the variables and depth on the outcomes.
 
-% Variable sizes based on n and d
-% SK Size
-% PK Size (including rlk)
-% CT size
+% Unless otherwise indicated, all performance tests will be conducted on all algorithms, specifically: \textit{KeyGen}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}. The first stage of the testing process will be to assess the performance of each model in isolation, with the results expressed in terms of the dimension variables $n$ and $d$, as well as the modulus $q$ and $p$ (where applicable). Subsequently, the objective will be to evaluate the relative performance of the various algorithms by comparing them against each other, with the same modulus values employed in each comparison. 
 
-To facilitate a comparative analysis of the models' performance, an example implementation in Python will be constructed and the resulting data will be evaluated. As the same algorithm, with varying dimensions ($n$ and $d$), can be utilized to describe all three schemes, the relative performance between them can be effectively assessed. However, given that Python is a relatively slow-performing language and the algorithm is not optimized, the absolute values may not be entirely meaningful. Nevertheless, the relative performance between the schemes should remain highly comparable.
-
-Unless otherwise indicated, all performance tests will be conducted on all algorithms, specifically: \textit{KeyGen (with )}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}. The first stage of the testing process will be to assess the performance of each model in isolation, with the results expressed in terms of the dimension variables $n$ and $d$, as well as the modulus $q$ and $p$ (where applicable). Subsequently, the objective will be to evaluate the relative performance of the various algorithms by comparing them against each other, with the same modulus values employed in each comparison. 
-
-% Practical Test - Performance Comparison based on n,d,q,p
-% KeyGen (with RLK)
-% Encryption
-% Addition
-% Multiplication
-% Decryption
-
-Furthermore, the addition and multiplicative depth should be identified based on the variables. This allows for the assessment of the number of consecutive calculations that can be performed while maintaining the ability to successfully decrypt the ciphertext. To enhance the precision of the predictions, it is essential to examine the evolution of the errors associated with addition and multiplication. This enables a more accurate understanding of the impact of the variables and depth on the outcomes.
 
 
 % Practical Test - Error Development - Max Rounds based on n,d,q,p 
@@ -305,5 +290,3 @@ Furthermore, the addition and multiplicative depth should be identified based on
 % error development (linear/quadratic) test?
 % Addition
 % Multiplication
-
-A comparative analysis of the security features of the various schemes will not be undertaken, as it would require a significant investment of time and resources that would exceed the scope of this thesis.
