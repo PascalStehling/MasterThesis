@@ -1,33 +1,27 @@
 \chapter{Homomorphic Encryption}
 
-Homomorphic encryption (HE) is a specialized cryptographic system that enables the execution of operations on encrypted data in a similar fashion to that of unencrypted data. This capability allows for the outsourcing of data storage and computation to external services while maintaining the confidentiality of the data. This creates a zero-trust environment, where there is no need to trust external providers as they are unable to decrypt the data. Furthermore, the occurrence of data breaches would be effectively eliminated, as the data is always encrypted.
+Homomorphic encryption (HE) is a specialized cryptographic system that enables the execution of operations on encrypted data in a manner analogous to that of unencrypted data. Such operations may include, but are not limited to, addition and multiplication. This capability permits the outsourcing of data storage and computation to external services while maintaining the confidentiality of the data. This results in the formation of a zero-trust environment, wherein the necessity for trust in external providers is negated due to their inability to decrypt the data, while they remain capable of working with it. Moreover, the occurrence of data breaches would be effectively eliminated, as the data is always encrypted.
+
+The concept was initially proposed by Rivest et al. in 1978 \cite{Rivest1978}. The authors proposed a homomorphic encryption (HE) scheme based on RSA, which is able to perform multiplication operations. This allows for the multiplication of two ciphertexts, each encrypted with the same RSA private key, with the result of the multiplication being retrievable after decryption. This result will be identical to that which would be obtained if the two ciphertexts were multiplied unencrypted. A system that is capable of performing a single operation (e.g., multiplication) for an unlimited duration is referred to as \textbf{Partially Homomorphic Encryption (PHE)}  \cite{FheImplementations, SurveyOfHomomorphicEncryption}.Similarly, the same principle can also be observed with El Gamal for multiplication or Paillier for addition, in addition to RSA. If an encryption scheme with the capacity to perform addition and multiplication on a single ciphertext can be constructed, then fully powered compute engines can be created using homomorphic circuits based on NAND gates, which can be constructed from addition and multiplication in binary space.
+
+But for a long time, it was not feasible to integrate addition and multiplication into a unified encryption scheme until the advent of the BGN scheme in 2005 \cite{BGN}. The scheme allows for the realization of an arbitrary number of additions and a single multiplication. This novel scheme can be classified as a  \textbf{Somewhat Homomorphic Encryption (SWHE)}  scheme. Such schemes permit the execution of multiple types of operations, although only a limited number of times.
+
+In 2009, C. Gentry introduced the first  \textbf{Fully Homomorphic Encryption (FHE)} scheme \cite{Gentry2009AFH}. The scheme was based on an ideal lattice and permitted the execution of a multitude of operations, which could be performed an unlimited number of times. This encryption scheme is based on a SWHE scheme that utilizes a bootstrapping technique to refresh the ciphertext, thereby reducing internal errors and enabling further calculations. The initial version of the scheme suffered from performance issues, particularly with regard to bootstrapping, which is a highly resource-intensive process.
+
+This Idea of bootstrapping was later used on LWE schemes by Brakerski and Vaikuntanathan \cite{FirstLweFHE} to create the first LWE, more specifically RLWE, based FHE scheme. Based on this works a lot of improvements followed (see \cite{SurveyOfHomomorphicEncryption}, \cite{FheImplementations}, \cite{FHESurvey}). One of these improved schemes was the BFV \cite{bfv} scheme, which will be discussed in more detail in the next section. The concept of bootstrapping was subsequently employed by Brakerski and Vaikuntanathan \cite{FirstLweFHE} to develop the first LWE, specifically RLWE, based FHE scheme. Subsequently, numerous enhancements have been proposed (for further details, please see \cite{SurveyOfHomomorphicEncryption}, \cite{FheImplementations} or \cite{FHESurvey}). One such enhanced scheme was the BFV scheme, which will be discussed in greater detail in the subsequent section.
 
 
-As described in \cite{FheImplementations}, HE algorithms can be grouped into 3 classes:
-\begin{description}
-  \item [Partially Homomorphic Encryption (PHE)]\hfill \\one type of operation can be performed an unlimited amount of times
-  \item [Somewhat Homomorphic Encryption (SWHE)]\hfill \\some types of operations for an limited number of times
-  \item [Fully Homomorphic Encryption (FHE)]\hfill \\an unlimited type of operations for an unlimited amount of times
-\end{description}
-
-As the algorithm will be used on binary data, the operations are often reduced to addition and multiplication, as with these two, all other basic operations can be done in binary space.
-
-The Idea was first developed by Rivest et al. \cite{Rivest1978} in 1978. They also proposed an PHE scheme, based on RSA., for multiplication only. More PHE schemes were developed over time and in 2009 C. Gentry proposed the first FHE scheme \cite{Gentry2009AFH} based on a bootstrapping technique, which refreshes the ciphertext, so that the internal errors are reduced and further calculations can be done. With that, all SWHE systems can be converted into FHE systems. However, the conversion results in a significant reduction in performance due to the computational intensity of the bootstrapping operation.
+\section{Adding homomorphic characteristics to R-LWE}
 
 In order to implement a homomorphic encryption scheme based on LWE, it is necessary to define three additional functions in addition to the three functions defined in section \ref{sec:LweProblem}:
 
 \begin{enumerate}
+  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key Pair (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes. In other HE schemes, such a process is often called evaluation key. In this context we use the more specific term relinearization key.
   \item \textbf{Addition}: This operation takes two ciphertexts as inputs and returns a new ciphertext by adding them together.
-  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key Pair (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes.
   \item \textbf{Multiplication}: This operation takes two ciphertexts and a RLK as inputs and performs a multiplication operation on the ciphertexts, with the help of the RLK, returning a new ciphertext.
 \end{enumerate}
 
-The binary space allows for the derivation of all other operations based on addition and multiplication. Consequently, the majority of HE schemes concentrate on developing functional versions of these operations.
-
-
-\section{The R-LWE SWHE Scheme}
-
-As previously stated, the two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an HE scheme. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed. Construction of addition and multiplication will be based on a modified version of the BFV scheme (\cite{bfv}).
+The two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an HE scheme. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed (see section \ref{sec:TransformingLweToRlweAndMlwe}). Construction of addition and multiplication will be based on a modified version of the BFV scheme (\cite{bfv}). The goal is to create a fully function SWHE scheme, which can later be generalized to M-LWE.
 
 \subsection*{Addition}
 
