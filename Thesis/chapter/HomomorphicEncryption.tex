@@ -126,6 +126,15 @@ As previously stated in Section \ref{sec:TransformingLweToRlweAndMlwe}, M-LWE is
 
 The addition operation has no impact on the shape of u and v, and thus the same algorithm can be used as before. The only difference is that the input ciphertexts and the newly created ciphertext are of shape $R_q^{n}\times R_q$.
 
+\begin{algorithm}[htb]
+  \begin{algorithmic}[1]
+    \REQUIRE $ct_1 = (\textbf{u}_1, v_2)$, $ct_2 = (\textbf{u}_2, v_2)$
+    \RETURN $ct_{add} = ([\textbf{u}_1 + \textbf{u}_2]_q, [v_1 + v_2]_q)$
+  \end{algorithmic}
+  \caption{M-LWE: Addition}
+  \label{alg:MlweAddition}
+\end{algorithm}
+
 \subsection*{Multiplication}
 
 In contrast, the concept of multiplication is more complex due to the necessity of dealing with changing dimensions. When equation \ref{eq:baseCt} is applied, the term $\textbf{s}\cdot \textbf{u}$ is now a dot product between two vectors, rather than a simple polynomial multiplication. The objective is, as before, to generate new $v'_m$ and $\textbf{u}'_m$ terms, which can be used for further operations or decryption. In contrast to the previous iteration, $\textbf{u}'_m$ must now be represented as a vector rather than a polynomial.
@@ -225,7 +234,7 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
    & = \mathrm{sum}\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
 \end{align*}
 
-This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorithm \ref{alg:RingRLKGeneration}. However, this necessitates the computation of $n$ $rlk$ values, as is required for each $s_i$. The complete module $rlk$ generation process is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'_i$ represents the individual $s_i\cdot \textbf{s}$ values. 
+This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorithm \ref{alg:RingRLKGeneration}. However, this necessitates the computation of $n$ $rlk$ values, as is required for each $s_i$. The complete module $rlk$ generation process is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'_i$ represents the individual $s_i\cdot \textbf{s}$ values.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -239,6 +248,8 @@ This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorith
   \label{alg:ModuleRLKGeneration}
 \end{algorithm}
 
+\info{Some update to the KeyGen should be written here, as now also the RLK generation is part of the keygen}
+
 As before, the $rlk$ can be used to create two values, $xu_m$ and $xv_m$. These values will be added to $\textbf{u}_m \in R^n_q$ and $v_m \in R_q$, respectively. Therefore, it is necessary for these values to have the same shape. However, as the encryption process used near identical formulas, the correct shapes will be produced automatically. Thus, equation \ref{eq:ringXmSplitting} can be translated into M-LWE, as shown in equation \ref{eq:moduleXmSplitting}.
 
 \begin{equation}
@@ -246,7 +257,7 @@ As before, the $rlk$ can be used to create two values, $xu_m$ and $xv_m$. These 
   \label{eq:moduleXmSplitting}
 \end{equation}
 
-All this can be combined now into a single M-LWE multiplication algorithm, as seen in \ref{alg:moduleMultiplication}.
+All this can be combined now into a single M-LWE multiplication algorithm, as seen in \ref{alg:moduleMultiplication}. And the new updates Key Generation, with the generation of the $rlk$ can be seen in \ref{alg:HomomorphKeyGen}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -262,12 +273,33 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
   \label{alg:moduleMultiplication}
 \end{algorithm}
 
+
+\begin{algorithm}[htb]
+  \begin{algorithmic}[1]
+    \STATE $\textbf{s} \leftarrow \chi_R^n$
+    \STATE $\textbf{A} \leftarrow R^{n \times n}$
+    \STATE $\textbf{e} \leftarrow \chi_R^n$
+    \STATE $\textbf{b} = \textbf{A}\cdot \textbf{s}+\textbf{e}$
+    \STATE $rlk = ()$
+    \FOR{$i=0$ to $n-1$}
+      \STATE $\textbf{A}_i \leftarrow R_{p \cdot q}^{n \times n}$
+      \STATE $\textbf{e}_i \leftarrow \chi_R^{'n}$
+      \STATE $\textbf{b}_i = [\textbf{A}_i\cdot \textbf{s}+\textbf{e}_i+p\cdot \textbf{s} \cdot s_i]_{p \cdot q}$
+      \STATE $rlk_i = (\textbf{A}_i, \textbf{b}_i)$
+    \ENDFOR
+    \RETURN $(pk:=(\textbf{A}, \textbf{b}), sk:=\textbf{s}, rlk:= rlk )$
+  \end{algorithmic}
+  \caption{M-LWE: KeyGen}
+  \label{alg:HomomorphKeyGen}
+\end{algorithm}
+
 \subsection*{Generate R-LWE from M-LWE}
 
 One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
 
 
 \section{Criteria for comparing LWE-based homomorphic encryption schemes}
+\label{sec:HomomorphCriteria}
 
 In order to conduct a comparative analysis of homomorphic encryption schemes, the same methodology previously outlined in Section \ref{sec:LweComparisonCriteria} can be employed to evaluate the underlying encryption and decryption mechanisms. To assess the homomorphic properties, the tests must be expanded. The first extension to the storage test is to include the relinearization key ($rlk$) in the evaluation. This entails computing the size of the rlk and comparing it between each scheme. The time cost tests can be extended by also including the Addition and Multiplication algorithms into the tests and extending the KeyGen algorithm to include the generation of the relinearization key.
 

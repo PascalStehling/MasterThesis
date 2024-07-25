@@ -140,7 +140,7 @@ class PolynomialMatrix(object):
                                  modulus: int,
                                  matrix_shape: tuple = (),
                                  min_val: int = 0,
-                                 max_val: int = None) -> "PolynomialMatrix":
+                                 max_val: int | None = None) -> "PolynomialMatrix":
         """
         Generate an random polynomial of shape in the ring R^{rows x cols}_{modulus} with values
         evenly retrieved from min_val (default 0) to max_val (default modulus)

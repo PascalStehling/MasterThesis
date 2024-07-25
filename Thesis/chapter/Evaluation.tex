@@ -1,10 +1,10 @@
 \chapter{M-LWE Comparison and Evaluation}
 
-\unsure[inline]{should i add a precious chapter with implementation details, describe this in an sunsection here briefly or leave it completely out?}
+This chapter will now compare the the three different LWE schemes, with teh criteria discussed already in section \ref{sec:LweComparisonCriteria} and \ref{sec:HomomorphCriteria}. The first comparison will be based the size cost of the variables, that are created when running the schemes. Here some general formulars will be created to calculate the size and then some comparisons, based on real world values will be compared.
 
-In this chapter the three different LWE Schemas (Plain-LWE, R-LWE and M-LWE) will be first evaluated on there own and in comparison.
+The second comparison will concentrate on the time cost of the algorithms for the different schemes. Here some general characteristics will be discussed first. \info{Complete after having written all tests}
 
-\section{Output size comparison}
+\section{Size cost comparison}
 
 The initial comparison will be the size in bits of the various output variables generated when working with the different schemes. The output is dependent on four variables: the matrix dimension $n$, the polynomial rank $d$, the number of bits of the modulus $q_b$ and the number of bits of the message $\ell$. In the case of Plain-LWE, the polynomial rank is equal to one, while in R-LWE, the matrix dimension is equal to one. In all other cases, the polynomial rank and matrix dimension are greater than one. The size of the different variables can be calculated based on the dimensions defined in Table \ref{table:LweKeys}. As the $rlk$ is essentially a modified private key, it has the same dimension; it is simply required $n$ times. All equations for computing the number of bits needed for the different variables for the schemes can be found in Table \ref{table:OutputVariableSize}. 
 
@@ -31,8 +31,8 @@ To provide a more intuitive understanding of the differences between the various
 
 \begin{figure}[ht!]
   \centering
-  \includegraphics[scale=0.55]{images/OutputFactors.png}
-  \caption[Output Variable Factors by Scheme]{The development of factors for the various output variables by schema, based on $n$ and $d$. In the case of M-LWE, the different line types indicate different values of $d$. The message length $l=64$}
+  \includegraphics[scale=0.52]{images/OutputFactors.png}
+  \caption[Output Variable Factors by Scheme]{The development of factors for the various output variables by schema. Each of the 3 columns of plots is for one scheme. Plain-LWE and M-LWE use $n$ for the x-axis, R-LWE uses $d$. The y-axis is for all plots the calculated number of factors. For M-LWE, the different line types indicate different values of $d$. The message length $l=64$}
   \label{fig:OutputFactors}
 \end{figure}
 
@@ -64,3 +64,35 @@ A comparison of the physical space required for the various encryption schemes, 
 \end{table}
 
 In conclusion, the comparison based on the size of the output values indicates that R-LWE has the slowest growth of physical space needed based on its dimension variables. Although M-LWE has the fastest growth rate, as it is based on multiple dimension variables, this makes it far more secure than Plain-LWE. Consequently, the dimensions can be smaller in general to achieve a similar level of security, which results in a smaller physical size of its output variables. In terms of storage requirements for the output variables, Plain-LWE is by far the most demanding, with M-LWE requiring more physical space than R-LWE. However, the difference in these requirements is not as significant as that observed in the comparison with Plain-LWE.
+
+\section{Time cost comparison}
+
+The objective of this section is to perform a comparative analysis of the runtime performance of the algorithms with respect to a selected set of input parameters. To minimize the impact of noise, multiple iterations of each algorithm were executed with the specified inputs, and the median time value in seconds was calculated. In total, there are four parameters that can be manipulated: the dimensions $n$ and $d$, as well as the modulus values $q$ and $p$. To simplify the analysis of multiple variables and enhance the visualization of the differences, two performance tests were conducted. One test was conducted with varying dimension variables $n$ and $d$, while the modulus values $q$ and $p$ were constant. The second test was performed with the variables $n$ and $d$ fixed while the modulus values $q$ and $p$ were allowed to vary. This should provide a more straightforward means of illustrating the impact of these variables on the performance of the algorithms. The algorithms that are evaluated are the \textit{KeyGen} (Algorithm \ref{alg:HomomorphKeyGen}), the \textit{Encryption} (Algorithm \ref{alg: SampleLweEncryption}), the \textit{Decryption} (Algorithm \ref{alg: SampleLweDecryption}), the \textit{Addition} (Algorithm \ref{alg:MlweAddition}) and the \textit{Multiplication} (Algorithm \ref{alg:moduleMultiplication}).
+
+The initial comparison is that of processing time, based on the two size dimensions, namely, $n$ and $d$. The results of the comparative analysis of the algorithms' performance are presented in Figure \ref{fig:nd-performance}. 
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[scale=0.5]{images/nd-performance.png}
+  \caption[Performance of the HE algorithms by $n$ and $d$]{Performance of the main algorithms in regard to dimensions $n$ and $d$ and the time in seconds. Each row is a different function, as stated always above the left plot. The left column plots the time against $n$ for some $d$ values. The right column plots the time against $d$ for some $n$ values.}
+  \label{fig:nd-performance}
+\end{figure}
+
+In the figure, Plain-LWE is illustrated in the left column, in the line representing $d=1$, and R-LWE is shown in the right column with $n=1$. All other lines represent distinct versions of M-LWE. It can be observed that the \textit{KeyGen} and \textit{Multiplication} algorithms are the most time-consuming. Regardless of whether $n$ or $d$ is increased, these algorithms exhibit an exponential growth in time cost. However, the rate of increase for $d$ is relatively modest, in contrast to the significant rise observed in the case of $n$. This exponential growth can be attributed to the fact that, in order to perform matrix multiplication, the number of scalar multiplications increases quadratically. One potential solution to this issue is the use of dedicated matrix multiplication hardware, which performs the entire operation in a single step, or the incorporation of other optimized libraries. In order to work with numbers greater than 64 bits, it was not feasible to utilize the aforementioned libraries in the implemented system. Consequently, arbitrary-size integers in pure Python were employed, which yielded the observed outcomes. This provides an explanation as to why the increase of $n$ results in exponential Growth, but also demonstrates that this phenomenon occurs at a slower rate when $d$ is increased. The rationale behind this approach is that, in order to perform polynomial multiplication, the methodology outlined in Section \ref{sec:PolyMulMath} was employed, which translates polynomial multiplication into matrix-vector multiplication. As the value of $d$ increases, the dimensions of the matrix also increase, resulting in a quadratic growth in the number of multiplications required, following the same pattern previously described. The combination of these two facts also explains why the growth for $n$ is more pronounced. In addition to the increase in the number of polynomial multiplications due to the larger dimensions, each new polynomial multiplication also exhibits a quadratic runtime.
+As the number of matrix multiplications increases, the algorithms become less efficient, exhibiting a decline in speed. This phenomenon is most evident in the \textit{KeyGen} and \textit{Multiplication}, where a single matrix multiplication is required for each $rlk$, which increases linearly with $n$. Consequently, these algorithms are quite slow. The \textit{Encryption} algorithm requires only a single matrix-vector and one vector-vector multiplication, resulting in a quadratic growth rate. This makes it significantly faster than the previously mentioned algorithms. In contrast, \textit{Addition} does not require any multiplication, making it the fastest algorithm by far. As only vectors need to be added, the time growth is also linear, as the number of additions scales linearly with the size of the vectors. With the \textit{Decryption}, there is a very interesting pattern. While the runtime scales linearly with the increase of $n$, it has a quadratic growth with the increase of $d$. This is due to the quadratic scaling of the matrix required for the polynomial multiplication, as previously explained. 
+
+
+
+
+% Explain the growth rate based on the formulars
+
+% \section{Comparison of the multiplicative and additive depth}
+
+% https://eprint.iacr.org/2011/277 Hier stehen sachen zur fehlernetwicklung von Addition und Multiplikation drin (seite 3 oben). Kann evtl praktisch sein, da man die tests theoretisch untermauern kann.
+
+% \begin{figure}[ht!]
+%   \centering
+%   \includegraphics[scale=0.35]{images/MultiplicativeDepth.png}
+%   \caption[Multiplicative Depth by $n$ and $d$]{The Multiplicative Depth for $n$ and $d$ by $q$}
+%   \label{fig:MultiplicativeDepth}
+% \end{figure}
