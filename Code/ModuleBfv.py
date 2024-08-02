@@ -65,19 +65,17 @@ class BfvEncrypted:
         def tq_round(inp):
             return (inp * 2) // self.config.modulus
 
-
         c0 = (self.v * other.v)
         c1 = (self.v * other.u + other.v * self.u).T
-        c2 = self.u @ other.u.T
 
         c0 = tq_round(c0) % self.config.modulus
         c1 = tq_round(c1) % self.config.modulus
-        c2 = tq_round(c2) % self.config.modulus
 
         big_mod = self.config.p * self.config.modulus
-        c2s = [(tq_round((self.u * other.u.poly_mat[r][0])) %
-                self.config.modulus).change_modulus(big_mod)
-               for r in range(self.config.mat_size)]
+        c2s = [(
+            tq_round((self.u * other.u.poly_mat[r][0])) % self.config.modulus
+        ).change_modulus(big_mod)
+            for r in range(self.config.mat_size)]
 
         assert len(self.rlks) == len(c2s)
         v_relin = [
@@ -175,18 +173,19 @@ class BFV:
     def decrypt(sk: BfvSecretKey, m_enc: BfvEncrypted) -> list:
         return (
             round(
-                ((((m_enc.v + m_enc.u.T @ sk.sk) % m_enc.config.modulus) * 2) / m_enc.config.modulus)
+                ((((m_enc.v + m_enc.u.T @ sk.sk) %
+                 m_enc.config.modulus) * 2) / m_enc.config.modulus)
             ) % 2
-        ).poly_mat[0][0] # yapf: disable
+        ).poly_mat[0][0]  # yapf: disable
 
 
-def get_error(m_enc:BfvEncrypted, m_tar:RingPoly, sk:BfvSecretKey):
+def get_error(m_enc: BfvEncrypted, m_tar: RingPoly, sk: BfvSecretKey):
     dec = ((
         ((((m_enc.v + m_enc.u.T @ sk.sk) %
            m_enc.config.modulus) * 2) / m_enc.config.modulus)
     ) % 2).poly_mat[0][0].poly
 
-    return mean([abs(d-t) if t==1 else (d if d < 0.5 else 2-d) for d,t in zip(dec, m_tar.poly)])
+    return mean([abs(d-t) if t == 1 else (d if d < 0.5 else 2-d) for d, t in zip(dec, m_tar.poly)])
 
 
 if __name__ == "__main__":
