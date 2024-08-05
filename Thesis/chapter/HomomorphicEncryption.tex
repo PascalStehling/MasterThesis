@@ -304,15 +304,3 @@ One simple method for evaluating the efficacy of the generalization is to genera
 In order to conduct a comparative analysis of homomorphic encryption schemes, the same methodology previously outlined in Section \ref{sec:LweComparisonCriteria} can be employed to evaluate the underlying encryption and decryption mechanisms. To assess the homomorphic properties, the tests must be expanded. The first extension to the storage test is to include the relinearization key ($rlk$) in the evaluation. This entails computing the size of the rlk and comparing it between each scheme. The time cost tests can be extended by also including the Addition and Multiplication algorithms into the tests and extending the KeyGen algorithm to include the generation of the relinearization key.
 
 Moreover, the additive and multiplicative depth should be identified. This allows for the assessment of the number of consecutive calculations that can be performed while maintaining the ability to successfully decrypt the ciphertext. To enhance the precision of the predictions, it is essential to examine the evolution of the errors associated with addition and multiplication. This enables a more accurate understanding of the impact of the variables and depth on the outcomes.
-
-% Unless otherwise indicated, all performance tests will be conducted on all algorithms, specifically: \textit{KeyGen}, \textit{Encryption}, \textit{Decryption}, \textit{Addition} and \textit{Multiplication}. The first stage of the testing process will be to assess the performance of each model in isolation, with the results expressed in terms of the dimension variables $n$ and $d$, as well as the modulus $q$ and $p$ (where applicable). Subsequently, the objective will be to evaluate the relative performance of the various algorithms by comparing them against each other, with the same modulus values employed in each comparison. 
-
-
-
-% Practical Test - Error Development - Max Rounds based on n,d,q,p 
-% Addition
-% Multiplication
-
-% error development (linear/quadratic) test?
-% Addition
-% Multiplication
