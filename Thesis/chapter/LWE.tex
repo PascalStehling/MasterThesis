@@ -103,6 +103,8 @@ To get a better understanding, consider the following simplification of the term
    & = \left\lfloor m' \right\rceil _2                                                                                                                                                                                                                              \\
    & = m \in \{0,1\}
 \end{align*}
+\info[inline]{Die ltzte Zeile weg lassen oder anders schreiben, da das gerunde nur dann gleich m ist wenn der fehler klein genug ist. Das muss entweder in der gleichung oder durch den text genau heraus kommen}
+
 As demonstrated by the calculation, by multiplying the cancellation term $\textbf{u}$ with the secret $\textbf{s}$, the transformation $(\textbf{As})^T \cdot \textbf{r}$ in $v$ can be canceled out. This results in the message with some error values being added to it. The erroneous message will then be rounded, which will result in the original message. This process will only be successful if all error terms together are smaller than $\frac{q}{4}$. This is due to the fact that the possible values in the message are separated by a distance of $\frac{q}{2}$ from each other. Consequently, all values between $-\frac{q}{4}\mod q=\frac{3q}{4}$ and $\frac{q}{4}$ are rounded back to $0$, while all values between $\frac{q}{4}$ and $\frac{3q}{4}$ are rounded to $1$. Consequently, provided that the message (either $0$ or $\frac{q}{2}$) is not shifted by more than $\frac{q}{4}$, it will remain within the rounding area of the original message.
 
 \info[inline]{Maybe add an image which shows the rounding with an clock}
