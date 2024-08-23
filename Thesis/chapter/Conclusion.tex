@@ -1,0 +1,25 @@
+\chapter{Conclusion}
+
+The goal of this Thesis was to port the BFV encryption scheme from R-LWE to M-LWE. This allows for varying not just the polynomial length and modulus as security features, but also the matrix dimension.
+
+% Was war das Ziel? Erstellen eines HE schemas auf basis von M-LWE bei dem die Matrix und Polynom dimension beliebig verändert werden können
+% was wurde erreicht --> es konnte ein M-LWE HE schema erstellt werden, die dimensionen können beliebig verändert werden und es ist möglich homomorphe operationen auszuführen
+
+% die höhere varianze durch mehr variablen, konnte nicht die fehlerrate senken, sondern
+
+% Ergebnisse des Vergleichs
+
+
+
+% erst darauf eingehen das es möglich ist aus R-LWE schemes M-LWE schemes zu machen, daraus resultiert aber ein großes wachstum von parametern
+% Dies führt zu performance und memory problemen, wie hier unten bereits geschrieben
+
+It is evident that a homomorphic version based on BFV \cite{bfv} cannot be used to construct a secure encryption scheme with Plain-LWE. The primary challenge lies in the substantial memory requirements for the variables (see \ref{table:OutputVariableInKB}), particularly the relinearization key, which is significantly higher than what a practical implementation would allow. Even with future advancements in memory, networking for transmission, and computing power, the size will remain impractically large. Exchanging the key and performing operations with it will be computationally expensive, making it infeasible. This conclusion is particularly noteworthy given that the other two methods are perceived to be more effective.
+
+When looking at R-LWE and M-LWE it is not so easy to make a definitive conclusion. For space and time cost, R-LWE is the better scheme to choose, as the tests showed. But when considering the examples with numbers from real encryption schemes, M-LWE is not so much off the performance and memory footprint from R-LWE. For the computational depth, R-LWE and M-LWE are quite similar for the same security level. The only real difference there is, that R-LWE works with an bigger word-size. The big question here is, if this is even necessary. As most computations and datastructures run on a $32$ or $64$-bit system, only these sizes are what is needed most of the time. Even when bigger numbers are sometimes used, $512$ bit, which is the practical size of the polynomial rank $d$ for R-LWE, calculations are rare. So here the questions arises, is it maybe better to use smaller polynomial ranks and increase the security by scaling up the matrix dimension $n$. One problem, the performance could then easily be solved by creating optimized matrix multiplications for a fixed size $d$. These fixed size matrix multiplication can then be used multiple times, when increasing $n$, which should therefore not decrease the performance to much. This has already be done for the Crystal Kyber encryption scheme \cite{CyrstalsKyber}, where already hardware solutions have been constructed (\cite{KyberHardware}, \cite{KyberHardware2}). The problem that still remains is the big growth rate of the memory sizes for the keys, especially for the relinearization key. With some improvements and compression, these could also be reduced, but that same for R-LWE. 
+
+% Future Work
+% Making SWHE to FHE
+% Analyzing security aspect in more detail
+% Using different, more modern basis instead of BFV
+% Trying improved implementation and maybe Hardware acceleration
