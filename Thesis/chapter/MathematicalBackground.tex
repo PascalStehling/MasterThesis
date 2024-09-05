@@ -3,6 +3,20 @@
 
 In order to comprehend the mathematical principles underlying the encryption algorithms described in this thesis, it is first necessary to grasp a few fundamental concepts. However, it is assumed that the reader has a basic familiarity with linear algebra and polynomial calculus.
 
+\section{Preliminaries}
+
+The following notations are used throughout this thesis:
+
+\begin{itemize}[label=$ $]
+  \item $a$ \leftarrow scalar: lowercase plain letter
+  \item $\textbf{a}$ \leftarrow vector: lowercase bold letter
+  \item $\textbf{A}$ \leftarrow matrix: uppercase bold letters
+  \item $a(x)$ \leftarrow polynomial: lowercase plain letter with the variable in brackets
+  \item $R$ \leftarrow always a ring: uppercase plain
+  \item $+$ \leftarrow addition
+  \item $\cdot$ \leftarrow multiplication between scalars and polynomials; dot product between vectors and/or matrices
+\end{itemize}
+
 \section{Lattice}
 
 % Based on \cite{LatticeTutorial}.
@@ -104,40 +118,40 @@ $$[48]_{60} + [3]_{60}\cdot [13]_{60} = [48+3\cdot 13]_{60} = [87]_{60} = [27]_{
 \subsection*{Polynomial Rings}
 
 A polynomial with coefficients in a ring $R$ is expressed as 
-$$f = a_0+ a_1x+\cdots+ a_{n-1}x^{d-1}+a_dx^d | a_0, \cdots, a_d \in R$$
+$$f(x) = a_0+ a_1x+\cdots+ a_{n-1}x^{d-1}+a_dx^d | a_0, \cdots, a_d \in R$$
 
-The variable $d$ defines the degree $\deg(f)$ of the polynomial, which is the largest exponent in a polynomial.
+The variable $d$ defines the degree $\deg(f(x))$ of the polynomial, which is the largest exponent in a polynomial.
 
 They can be added and multiplied like any other polynomial. Such a polynomial ring with one variable $x$ and its coefficients in $R$ is written as $R[x]$. This is a generalization of the rings we had before, because $R$ is a subset of $R[x]$ ($R \subset R[x]$), since $R$ is a polynomial with $\deg(0)$: $R = R[x] := a\cdot x^0 = a$.
 
-Such a polynomial ring can also be defined over a finite ring, so that each coefficient is part of that finite ring. This is written as $R_q = \mathbb{Z}_q[x]$. The coefficients follow the same rules for addition and multiplication as described above. The following example takes place in the ring $R_5 = \mathbb{Z}_5[x]$ and $f, g \in R_5$ with $f=1+2x+3x^2$ and $g=4+2x$:
+Such a polynomial ring can also be defined over a finite ring, so that each coefficient is part of that finite ring. This is written as $R_q = \mathbb{Z}_q[x]$. The coefficients follow the same rules for addition and multiplication as described above. The following example takes place in the ring $R_5 = \mathbb{Z}_5[x]$ and $f, g \in R_5$ with $f(x)=1+2x+3x^2$ and $g(x)=4+2x$:
 
 \begin{align*}
-  f\cdot 4 & = (1+2x+3x^2) * 4                                 \\
+  f(x)\cdot 4 & = (1+2x+3x^2) * 4                                 \\
            & = [4]_5+[8]_5x+[12]_5x^2                          \\
            & = 4+3x+2x^2                                       \\
-  f+g      & = (1+2x+3x^2)+(4+2x)                              \\
+  f(x)+g(x)      & = (1+2x+3x^2)+(4+2x)                              \\
            & = [5]_5+[4]_5x+[3]_5x^2                           \\
            & = 4x+3x^2                                         \\
-  f\cdot g & = (1+2x+3x^2)\cdot(4+2x)                          \\ 
+  f(x)\cdot g(x) & = (1+2x+3x^2)\cdot(4+2x)                          \\ 
            & = [4]_5+[2]_5x+[8]_5x+[4]_5x^2+[12]_5x^2+[6]_5x^3 \\
            & = [4]_5+[10]_5x+[16]_5x^2+[6]_5x^3                \\
            & = 4+0x+1x^2+1x^3                                  \\
 \end{align*}
 
-As with any polynomial multiplication, the degree can increase as you multiply two polynomials, leading to increasingly larger polynomials with each multiplication. Since the modulo operation creates a finite ring, we can also create a modulo operation that creates a finite ring over a polynomial where the degree stays the same or is less than some upper bound. For this we have a ring $R$ and $f, g, q, r \in R[x], g\neq 0$, where $f$ is a polynomial, $g$ is the modulus, and $r$ is the remainder:
+As with any polynomial multiplication, the degree can increase as you multiply two polynomials, leading to increasingly larger polynomials with each multiplication. Since the modulo operation creates a finite ring, we can also create a modulo operation that creates a finite ring over a polynomial where the degree stays the same or is less than some upper bound. For this we have a ring $R$ and $f(x), g(x), q(x), r(x) \in R[x], g\neq 0$, where $f(x)$ is a polynomial, $g(x)$ is the modulus, and $r(x)$ is the remainder:
 \begin{center}
-  $f = g\cdot q + r $ and $\deg(r)<\deg(g)$.
+  $f(x) = g(x)\cdot q(x) + r(x) $ and $\deg(r(x))<\deg(g(x))$.
 \end{center}
 
-After this calculation, $r$ will be the remainder of $f$ with a degree smaller than that of $g$, which will be used for further calculations. With this, we can now define polynomial rings that have a module to generate finite coefficients and a polynomial function to generate finite degree. This is written as 
+After this calculation, $r(x)$ will be the remainder of $f(x)$ with a degree smaller than that of $g(x)$, which will be used for further calculations. With this, we can now define polynomial rings that have a module to generate finite coefficients and a polynomial function to generate finite degree. This is written as 
 $$R_q = \mathbb{Z}_q[x]/f(x)$$
 
 
 In this thesis the modulus function $f(x)$ will be an cyclotomic polynomial with shape $x^d+1$. To generate these $d$ needs to be a power of two ($2,4,8, \cdots$). These polynomials are used as they simplify the calculation of the remainder, because the polynomial division can be simplified to simpler addition and subtraction. When doing a polynomial division, one can simply subtract $d$ from the exponent and invert the coefficient if the exponent is greater than or equal to $d$. This must be repeated until the largest exponent is less than $d$. For example, $f \in \mathbb{Z}_5[x]/(x^3+1)$
 
 \begin{align*}
-  f & = 3+4x^2+2x^3+x^5+3x^6 & \mod (x^3+1) \\
+  f(x) & = 3+4x^2+2x^3+x^5+3x^6 & \mod (x^3+1) \\
     & = 3+4x^2-2-x^2-3x^3    & \mod (x^3+1) \\
     & = 3+4x^2-2-x^2+3                      \\
     & = 4+3x^2
