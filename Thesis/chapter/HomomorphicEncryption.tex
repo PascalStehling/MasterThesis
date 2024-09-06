@@ -1,25 +1,42 @@
 \chapter{Homomorphic Encryption}
 
-Homomorphic encryption (HE) is a specialized cryptographic system that enables the execution of operations on encrypted data in a manner analogous to that of unencrypted data. Such operations may include, but are not limited to, addition and multiplication. This capability permits the outsourcing of data storage and computation to external services while maintaining the confidentiality of the data. This results in the formation of a zero-trust environment, wherein the necessity for trust in external providers is negated due to their inability to decrypt the data, while they remain capable of working with it. Moreover, the occurrence of data breaches would be effectively eliminated, as the data is always encrypted.
+This chapter will present a general overview of the concept of homomorphic encryption (HE). Subsequently, the encryption scheme developed in the previous chapter will be extended to create a homomorphic encryption scheme based on an already existing HE scheme. This will result in an R-LWE-based homomorphic encryption scheme. The forthcoming and novel step will be to generalise the concepts of the R-LWE-based HE scheme into an M-LWE-based one. Finally, a brief overview will be provided of additional criteria for comparing HE schemes with one another.
 
-The concept was initially proposed by Rivest et al. in 1978 \cite{Rivest1978}. The authors proposed a homomorphic encryption (HE) scheme based on RSA, which is able to perform multiplication operations. This allows for the multiplication of two ciphertexts, each encrypted with the same RSA private key, with the result of the multiplication being retrievable after decryption. This result will be identical to that which would be obtained if the two ciphertexts were multiplied unencrypted. A system that is capable of performing a single operation (e.g., multiplication) for an unlimited duration is referred to as \textbf{Partially Homomorphic Encryption (PHE)}  \cite{FheImplementations, SurveyOfHomomorphicEncryption}.Similarly, the same principle can also be observed with El Gamal for multiplication or Paillier for addition, in addition to RSA. If an encryption scheme with the capacity to perform addition and multiplication on a single ciphertext can be constructed, then fully powered compute engines can be created using homomorphic circuits based on NAND gates, which can be constructed from addition and multiplication in binary space.
+\section{Introduction to Homomorphic Encryption}
 
+Homomorphic encryption is a specialized cryptographic system that enables the execution of operations on encrypted data in a manner analogous to that of unencrypted data. Such operations may include, but are not limited to, addition and multiplication. This capability permits the outsourcing of data storage and computation to external services while maintaining the confidentiality of the data. This results in the formation of a zero-trust environment, wherein the necessity for trust in external providers is negated due to their inability to decrypt the data, while they remain capable of working with it. Moreover, the occurrence of data breaches would be effectively eliminated, as the data is always encrypted.
+
+The concept was initially proposed by Rivest et al. in 1978 \cite{Rivest1978}. The authors proposed a homomorphic encryption (HE) scheme based on RSA, which is able to perform multiplication operations. This allows for the multiplication of two ciphertexts, each encrypted with the same RSA private key, with the result of the multiplication being retrievable after decryption. This result will be identical to that which would be obtained if the two ciphertexts were multiplied unencrypted. A system that is capable of performing a single operation (e.g., multiplication) for an unlimited amount of times is referred to as \textbf{Partially Homomorphic Encryption (PHE)}  \cite{FheImplementations, SurveyOfHomomorphicEncryption}.Similarly, the same principle can also be observed with the El Gamal cryptosystem \cite{ElGamal} for multiplication or the Paillier cryptosystem \cite{Paillier} for addition, in addition to RSA. If an encryption scheme with the capacity to perform addition and multiplication on a single ciphertext can be constructed, then fully powered compute engines can be created using homomorphic circuits based on NAND gates, which can be constructed from addition and multiplication in binary space. \\
 But for a long time, it was not feasible to integrate addition and multiplication into a unified encryption scheme until the advent of the BGN scheme in 2005 \cite{BGN}. The scheme allows for the realization of an arbitrary number of additions and a single multiplication. This novel scheme can be classified as a  \textbf{Somewhat Homomorphic Encryption (SWHE)}  scheme. Such schemes permit the execution of multiple types of operations, although only a limited number of times.
 
-In 2009, C. Gentry introduced the first  \textbf{Fully Homomorphic Encryption (FHE)} scheme \cite{Gentry2009AFH}. The scheme was based on an ideal lattice and permitted the execution of a multitude of operations, which could be performed an unlimited number of times. This encryption scheme is based on a SWHE scheme that utilizes a bootstrapping technique to refresh the ciphertext, thereby reducing internal errors and enabling further calculations. The initial version of the scheme suffered from performance issues, particularly with regard to bootstrapping, which is a highly resource-intensive process.
-
-This Idea of bootstrapping was later used on LWE schemes by Brakerski and Vaikuntanathan \cite{FirstLweFHE} to create the first LWE, more specifically RLWE, based FHE scheme. Based on this works a lot of improvements followed (see \cite{SurveyOfHomomorphicEncryption}, \cite{FheImplementations}, \cite{FHESurvey}). One of these improved schemes was the BFV \cite{bfv} scheme, which will be discussed in more detail in the next section. The concept of bootstrapping was subsequently employed by Brakerski and Vaikuntanathan \cite{FirstLweFHE} to develop the first LWE, specifically RLWE, based FHE scheme. Subsequently, numerous enhancements have been proposed (for further details, please see \cite{SurveyOfHomomorphicEncryption}, \cite{FheImplementations} or \cite{FHESurvey}). One such enhanced scheme was the BFV scheme, which will be discussed in greater detail in the subsequent section.
-
-\info[inline]{Die verschiedenen model typen und ihre spezifikationen nochmal mit tabelle genauer verdeutlichen}
-\info[inline]{Bootstrapping nochmal genauer und vertiefen}
+In 2009, C. Gentry introduced the first  \textbf{Fully Homomorphic Encryption (FHE)} scheme \cite{Gentry2009AFH}. The scheme was based on an ideal lattice and enabled the execution of addition and multiplication, which could be performed an unlimited number of times. But the primary factor contributing to the initial success of the first FHE scheme was the process of bootstrapping. The concept is to execute the decryption process, but not with the conventional secret key, but rather with an encrypted version of the secret key, frequently referred to as a "refreshing key." The decryption is performed in a homomorphic manner on the ciphertext. This results in the generation of a new ciphertext, wherein the internal error is reduced while still maintaining encryption. The new ciphertext can then be subjected to further operations, and if the error increases, the bootstrapping technique can be re-executed. This allows for the possibility of performing an unlimited number of computations, provided that the bootstrapping process is repeated at regular intervals. However, there are two significant drawbacks to this approach. Firstly, the bootstrapping process is highly resource-intensive, which can lead to suboptimal performance. Secondly, the new refresh key must be transmitted alongside the private key, increasing the amount of data that needs to be sent. Furthermore, if an attacker is able to decrypt the refresh key, they gain access to the secret key. 
 
 
-\section{Adding homomorphic characteristics to R-LWE}
+\begin{table}
+  \caption{Comparison of the three different types of homomorphic encryption}
+  \label{table:HeTypeComparison}
+  \begin{tabular}{|p{5cm}|p{2.8cm}|p{2.1cm}|p{3cm}|}
+    \toprule
+    HE Type                                         & Operations                           & Number of consecutive operations & Examples                                                                           \\
+    \midrule
+    Partially Homomorphic \newline Encryption (PHE) & addition \textbf{OR} multiplication  & unlimited                        & ElGamal \cite{ElGamal}, \newline RSA \cite{RSA}, \newline Paillier \cite{Paillier} \\
+    \midrule
+    Somewhat Homomorphic \newline Encryption (SWHE) & addition \textbf{AND} multiplication & limited                          & BGN \cite{BGN}                                                                     \\
+    \midrule
+    Fully Homomorphic \newline Encryption (FHE)     & addition \textbf{AND} multiplication & unlimited                        & BVF \cite{bfv},\newline LTV \cite{LTV}                                             \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-In order to implement a homomorphic encryption scheme based on LWE, it is necessary to define three additional functions in addition to the three functions defined in section \ref{sec:LweProblem}:
+By employing this bootstrapping technique, SWHE schemes can be transformed into FHE schemes, as they are capable of reducing their own internal error. This innovation has led to the development of numerous new FHE encryption schemes in the subsequent years. In 2011, Brakerski and Vaikuntanathan published two new FHE schemes based on the bootstrapping technique. One was based on LWE \cite{FirstLweFHE} and the other on R-LWE \cite{FirstRLweFHE}. Subsequently, numerous enhancements have been proposed (for further details, please see \cite{SurveyOfHomomorphicEncryption}, \cite{FheImplementations} or \cite{FHESurvey}). One such enhanced scheme was the BFV scheme (also called just FV scheme) \cite{bfv}, which will be discussed in greater detail in the subsequent section.
+
+
+\section{Extending R-LWE based encryption to be homomorphic}
+
+In this section, the R-LWE based encryption scheme from section \ref{sec:TransformingLweToRlweAndMlwe} will be extend to create an SWHE scheme. In order to implement a homomorphic encryption scheme based on LWE, it is necessary to define three additional functions in addition to the three functions defined in section \ref{sec:LweProblem}:
 
 \begin{enumerate}
-  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key Pair (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes. In other HE schemes, such a process is often called evaluation key. In this context we use the more specific term relinearization key.
+  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes. In other HE schemes, such a process is often called evaluation key. In this context we use the more specific term relinearization key.
   \item \textbf{Addition}: This operation takes two ciphertexts as inputs and returns a new ciphertext by adding them together.
   \item \textbf{Multiplication}: This operation takes two ciphertexts and a RLK as inputs and performs a multiplication operation on the ciphertexts, with the help of the RLK, returning a new ciphertext.
 \end{enumerate}
@@ -147,9 +164,9 @@ When two ciphertexts are multiplied, the resulting equation is given by equation
 
 \begin{equation}
   \begin{split}
-    [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-\textbf{s}\cdot \textbf{u}_1) \cdot (v_2-\textbf{s}\cdot \textbf{u}_2)]_q                                                                                                                                                              \\
-                             & = [(v_1-\sum_{i=0}^{n-1}s_iu_{1i}) \cdot (v_2-\sum_{i=0}^{n-1}s_iu_{2i})]_q                                                                                                                                                                    \\
-                             & = [v_1\cdot v_2 - v_1\cdot \sum_{i=0}^{n-1}s_iu_{2i}- v_2\cdot \sum_{i=0}^{n-1}s_iu_{1i} + \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j]_q                                                                                               \\    
+    [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-\textbf{s}\cdot \textbf{u}_1) \cdot (v_2-\textbf{s}\cdot \textbf{u}_2)]_q                                                                                                                                                                       \\
+                             & = [(v_1-\sum_{i=0}^{n-1}s_iu_{1i}) \cdot (v_2-\sum_{i=0}^{n-1}s_iu_{2i})]_q                                                                                                                                                                             \\
+                             & = [v_1\cdot v_2 - v_1\cdot \sum_{i=0}^{n-1}s_iu_{2i}- v_2\cdot \sum_{i=0}^{n-1}s_iu_{1i} + \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j]_q                                                                                                        \\    
                              & = [v_1\cdot v_2 - v_1\cdot \textbf{u}_2\cdot \textbf{s} - v_2\cdot \textbf{u}_1\cdot \textbf{s} + \mathrm{sum}((\textbf{u}_{1}\otimes\textbf{u}_{2})\odot(\textbf{s}\otimes\textbf{s}))]_q                                                              \\
                              & = [\underbrace{v_1\cdot v_2}_{v_m} - \underbrace{(v_1\cdot \textbf{u}_2 + v_2\cdot \textbf{u}_1)}_{\textbf{u}_m}\cdot \textbf{s} + \mathrm{sum}((\underbrace{\textbf{u}_{1}\otimes\textbf{u}_{2}}_{\textbf{X}_m})\odot(\textbf{s}\otimes\textbf{s}))]_q \\
                              & = [v_m - \textbf{u}_m\cdot \textbf{s} + \mathrm{sum}(\textbf{X}_m\odot(\textbf{s}\otimes\textbf{s}))]_q
@@ -200,23 +217,23 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
 \begin{align*}
    & \mathrm{sum}\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right)                                                             \\
    & = \mathrm{sum}\left(\begin{bmatrix}
-                    u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
-                    u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
-                    u_{11}u_{23} & u_{12}u_{23} & u_{13}u_{23} \\
-                  \end{bmatrix} \odot \begin{bmatrix}
-                                        s_{1}s_{1} & s_{2}s_{1} & s_{3}s_{1} \\
-                                        s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
-                                        s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
-                                      \end{bmatrix}\right)                                                                                 \\
+                             u_{11}u_{21} & u_{12}u_{21} & u_{13}u_{21} \\
+                             u_{11}u_{22} & u_{12}u_{22} & u_{13}u_{22} \\
+                             u_{11}u_{23} & u_{12}u_{23} & u_{13}u_{23} \\
+                           \end{bmatrix} \odot \begin{bmatrix}
+                                                 s_{1}s_{1} & s_{2}s_{1} & s_{3}s_{1} \\
+                                                 s_{1}s_{2} & s_{2}s_{2} & s_{3}s_{2} \\
+                                                 s_{1}s_{3} & s_{2}s_{3} & s_{3}s_{3} \\
+                                               \end{bmatrix}\right)                                                                                 \\
    & = \mathrm{sum}\left(\begin{bmatrix}
-                    u_{11}u_{21} \\
-                    u_{11}u_{22} \\
-                    u_{11}u_{23} \\
-                  \end{bmatrix} \odot \begin{bmatrix}
-                                        s_{1}s_{1} \\
-                                        s_{1}s_{2} \\
-                                        s_{1}s_{3} \\
-                                      \end{bmatrix}
+                             u_{11}u_{21} \\
+                             u_{11}u_{22} \\
+                             u_{11}u_{23} \\
+                           \end{bmatrix} \odot \begin{bmatrix}
+                                                 s_{1}s_{1} \\
+                                                 s_{1}s_{2} \\
+                                                 s_{1}s_{3} \\
+                                               \end{bmatrix}
   + \begin{bmatrix}
         u_{12}u_{21} \\
         u_{12}u_{22} \\
@@ -234,7 +251,7 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
                             s_{3}s_{1} \\
                             s_{3}s_{2} \\
                             s_{3}s_{3} \\
-                          \end{bmatrix}\right)                                                                                                                \\
+                          \end{bmatrix}\right)                                                                                                                         \\
    & = \mathrm{sum}\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
 \end{align*}
 
@@ -286,10 +303,10 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
     \STATE $\textbf{b} = \textbf{A}\cdot \textbf{s}+\textbf{e}$
     \STATE $rlk = ()$
     \FOR{$i=0$ to $n-1$}
-      \STATE $\textbf{A}_i \leftarrow R_{p \cdot q}^{n \times n}$
-      \STATE $\textbf{e}_i \leftarrow \chi_R^{'n}$
-      \STATE $\textbf{b}_i = [\textbf{A}_i\cdot \textbf{s}+\textbf{e}_i+p\cdot \textbf{s} \cdot s_i]_{p \cdot q}$
-      \STATE $rlk_i = (\textbf{A}_i, \textbf{b}_i)$
+    \STATE $\textbf{A}_i \leftarrow R_{p \cdot q}^{n \times n}$
+    \STATE $\textbf{e}_i \leftarrow \chi_R^{'n}$
+    \STATE $\textbf{b}_i = [\textbf{A}_i\cdot \textbf{s}+\textbf{e}_i+p\cdot \textbf{s} \cdot s_i]_{p \cdot q}$
+    \STATE $rlk_i = (\textbf{A}_i, \textbf{b}_i)$
     \ENDFOR
     \RETURN $(pk:=(\textbf{A}, \textbf{b}), sk:=\textbf{s}, rlk:= rlk )$
   \end{algorithmic}
