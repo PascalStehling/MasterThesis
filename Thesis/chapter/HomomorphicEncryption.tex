@@ -36,16 +36,16 @@ By employing this bootstrapping technique, SWHE schemes can be transformed into 
 In this section, the R-LWE based encryption scheme from section \ref{sec:TransformingLweToRlweAndMlwe} will be extend to create an SWHE scheme. In order to implement a homomorphic encryption scheme based on LWE, it is necessary to define three additional functions in addition to the three functions defined in section \ref{sec:LweProblem}:
 
 \begin{enumerate}
-  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes. In other HE schemes, such a process is often called evaluation key. In this context we use the more specific term relinearization key.
   \item \textbf{Addition}: This operation takes two ciphertexts as inputs and returns a new ciphertext by adding them together.
+  \item \textbf{Relinearization KeyGen}: This operation accepts a secret and a mapping value as input and generates a Relinearization Key (RLK). The RLK is necessary for creating a functional multiplication algorithm for LWE-based schemes. In other HE schemes, such a process is often called evaluation key. In this context we use the more specific term relinearization key.
   \item \textbf{Multiplication}: This operation takes two ciphertexts and a RLK as inputs and performs a multiplication operation on the ciphertexts, with the help of the RLK, returning a new ciphertext.
 \end{enumerate}
 
-The two operations, addition and multiplication, must be implemented within the ciphertext space in order to construct an HE scheme. The aforementioned operations will first be created for the R-LWE version of the scheme, which has already been developed (see section \ref{sec:TransformingLweToRlweAndMlwe}). Construction of addition and multiplication will be based on a modified version of the BFV scheme (\cite{bfv}). The goal is to create a fully function SWHE scheme, which can later be generalized to M-LWE.
+The construction of the addition and multiplication operations will be based on a slightly modified version of the BFV scheme \cite{bfv}. The objective is to develop a fully functional SWHE scheme that can subsequently be generalized to M-LWE. The step of creating a FHE scheme using bootstrapping will not be addressed in this thesis, as it was not feasible to incorporate it within the scope of this work. However, given that bootstrapping is based on homomorphic operations, as long as these are successfully implemented, it should be possible to also construct the bootstrapping process.
 
 \subsection*{Addition}
 
-The objective is to develop a method for adding encrypted messages in such a way that the result is identical to that obtained by adding the plaintext messages. This can be achieved by adding the ciphertext together, with the error increasing linearly. Further details on this approach can be found in the BFV scheme \cite{bfv}. 
+The objective is to develop a method for adding encrypted messages in such a way that the result is identical to that obtained by adding the plaintext messages. This can be achieved by simply adding the matching ciphertext variables together. The resulting error is thus increased linearly, as the errors from both ciphertexts are simply added together. Further details on this approach can be found in the BFV scheme.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -56,19 +56,18 @@ The objective is to develop a method for adding encrypted messages in such a way
   \label{alg:RlweAddition}
 \end{algorithm}
 
-The newly created $ct_{add}$ can then be used, like any other ciphertext, to be decrypted and used for other operations. However, it should be noted that the error in it has increased, which may result in the incorrect result being produced at some point.
+The newly created $ct_{add}$ can then be employed, like any other ciphertext, for decryption or subsequent utilization in other operations. However, it is important to acknowledge that the error in it has increased, which may potentially result in the generation of an incorrect decrypted message at some point.
 
 \subsection*{Multiplication}
 
-The process of deriving the same result for multiplication is somewhat less straightforward. In order to simplify the following derivations and explanations, the following simplification is made, based on Algorithm \ref{alg: SampleLweDecryption}:
+Generating a functional multiplication operation in ciphertext space is a more complex process. To simplify the subsequent derivations and explanations, a simplification is made based on Algorithm \ref{alg: SampleLweDecryption} and can be seen in equation \ref{eq:baseCt}.
 
 \begin{equation}
   ct(s)_q = v-s\cdot u
   \label{eq:baseCt}
 \end{equation}
 
-Also let $ct_1$ and $ct_2$ be two ciphertext that we want to use, with $ct_1(s) = v_1-s\cdot u_1$ and $ct_2(s) = v_2-s\cdot u_2$
-The multiplication of these two values results in the equation \ref{eq:ringCiphertextMultiplication}
+Also let $ct_1$ and $ct_2$ be two ciphertext that we want to use, with $ct_1(s) = v_1-s\cdot u_1$ and $ct_2(s) = v_2-s\cdot u_2$. The multiplication of these two values results in the equation \ref{eq:ringCiphertextMultiplication}
 \begin{equation}
   \begin{split}
     [ct_1(s)\cdot ct_2(s)]_q & = [(v_1-s\cdot u_1) \cdot (v_2-s\cdot u_2)]_q                                                                                              \\
@@ -79,16 +78,15 @@ The multiplication of these two values results in the equation \ref{eq:ringCiphe
   \label{eq:ringCiphertextMultiplication}
 \end{equation}
 
-Equation \ref{eq:ringCiphertextMultiplication} results in the formation of three blocks, each dependent on a different power of $s$. In comparison to Equation \ref{eq:baseCt}, it can be observed that the current equation is similar, with the exception of the additional $x_m\cdot s^2$ factor. 
-A method is required to approximate $x_m\cdot s^2$ and combine it with $v_m$ and $u_m$. This will reduce the degree of the equation from two to one, which is known as relinearization. The formalization can be observed in Equation \ref{eq:relinFormalized}, where r represents an error that should be minimized to ensure successful decryption.
+Equation \ref{eq:ringCiphertextMultiplication} results in the formation of three blocks, each dependent on a different power of $s$ ($s^0=1$, $s^1$ and $s^2$). In comparison to Equation \ref{eq:baseCt}, it can be observed that the current equation is similar, with the exception of the additional $x_m\cdot s^2$ factor. A method is required to approximate $x_m\cdot s^2$ and combine it with $v_m$ and $u_m$, in order to reduce the degree of the equation from two to one. This process is known as relinearization. The formalization can be observed in Equation \ref{eq:relinFormalized}, where $v'_m$ and $u'_m$ are extended to include $x_m\cdot s^2$ and $r$ represents the error that is created in this process, which should be minimized to ensure successful decryption. 
 
 \begin{equation}
   [v_m - u_m\cdot s + x_m \cdot s^2]_q = [v'_m - u'_m\cdot s + r]_q
   \label{eq:relinFormalized}
 \end{equation}
 
-In order to resolve this issue, the "modulus switching" technique from \cite{bfv} will be employed. The initial step is to define a Relinearization Key ($rlk$), which masks $s^2$. In this process, the value $s^2$ will be multiplied with a new constant, $p$. This constant is essential for reducing the error that is generated when "decrypting" the $rlk$ (see equation \ref{eq:RlkDecryption}).
-The form of the masked value is based on the public key, such that when $A_{rlk}$ and $b_{rlk}$ are "decrypted" with $s$, the original value $p\cdot s^2$ is obtained. The generation of this $rlk$ is described in Algorithm \ref{alg:RingRLKGeneration}.
+In order to resolve this issue, the "modulus switching" technique from BFV will be employed. The initial step is to define a Relinearization Key ($rlk$), which masks $s^2$. In this process, the value $s^2$ will be multiplied with a new constant, $p$. This constant is essential for reducing the error that is generated when "decrypting" the $rlk$ (see equation \ref{eq:RlkDecryption}).
+The form of the masked value is based on the public key (see algorithm \ref{alg: SampleLweKeyGen}), such that when $A_{rlk}$ and $b_{rlk}$ are "decrypted" with $s$, by putting them in equation \ref{eq:baseCt}, the original value $p\cdot s^2$ is obtained. The generation of this $rlk$ is described in Algorithm \ref{alg:RingRLKGeneration}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -109,7 +107,7 @@ Utilizing the $rlk$, $x_m\cdot s^2$ is now decomposited into two distinct compon
   \label{eq:ringXmSplitting}
 \end{equation}
 
-The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, reveals that $x_m$, a random element within $R_q$, is multiplied with the error $e_{rlk}$. This results in a significant error value. To mitigate this, the error is divided by $p$, thereby reducing its impact. In order to permit the creation of $x_m \cdot s^2$, $s^2$ was multiplied by $p$ in the $rlk$.
+The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, reveals that $x_m$, a random element within $R_q$, is multiplied with the error $e_{rlk}$. This means, in worst case $x_m = q-1$, which is then multiplied with an small error, for example $1$. This would mean the error is nearly $q$, but as discussed in section \ref{sec:Lwe-Encryption}, the error should not be bigger than $\frac{q}{4}$, otherwise the decryption does not work. To mitigate this, the error is divided by $p$, thereby reducing its impact. In order to permit the creation of $x_m \cdot s^2$, $s^2$ was multiplied by $p$ in the $rlk$ to reverse the effect of dividing by $p$ later on.
 
 \begin{equation}
   \begin{split}
@@ -122,7 +120,7 @@ The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, 
   \label{eq:RlkDecryption}
 \end{equation}
 
-The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMultiplication}. In order for the algorithm to function correctly, it is necessary to multiply the value of $\frac{t}{q}$ by each of the factors. Further details on this process can be found in \cite{bfv}.
+The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMultiplication}. In order for the algorithm to function correctly, it is necessary to multiply each of the factors by the value of $\frac{t}{q}$. Further details on this process can be found in the BFV paper \cite{bfv}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -141,7 +139,7 @@ The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMu
 \section{Generalizing from R-LWE to M-LWE}
 \label{sec:GeneralizingToMLWE}
 
-As previously stated in Section \ref{sec:TransformingLweToRlweAndMlwe}, M-LWE is a generalization of R-LWE, where matrices and vectors of polynomials are used. Consequently, the dimension $n$ will be set to a value greater than $1$. In consequence, the dimensions of nearly all variables do change (see Table \ref{table:LweDiffs}). Most importantly, $\textbf{u}$ and $\textbf{s}$ will now be vectors of length $n$, instead of single polynomials. To make the difference now more visible, vectors and matrices will now be written with bold.
+The objective in this section is to extend the algorithms defined in the previous section in order to make them applicable to M-LWE. As previously stated in section \ref{sec:TransformingLweToRlweAndMlwe}, M-LWE is a generalization of R-LWE, where matrices and vectors of polynomials are used. Consequently, the dimension $n$ will be set to a value greater than $1$. In consequence, the dimensions of nearly all variables do change (see Table \ref{table:LweDiffs}). Most importantly, $\textbf{u}$ and $\textbf{s}$ will now be vectors of length $n$, instead of single polynomials.
 
 \subsection*{Addition}
 
@@ -174,11 +172,9 @@ When two ciphertexts are multiplied, the resulting equation is given by equation
   \label{eq:moduleCiphertextMultiplication}
 \end{equation}
 
-The first technique employed was to convert the vector dot product into its sum form. As per the definition of the dot product between two vectors, it can be rewritten as a sum: $\textbf{s}\cdot \textbf{u} = \sum_{i=0}^{n-1}s_iu_i$. This step is derived from the calculations presented in \cite{ModHE}.
-
-The subsequent step is to transform the resulting sums once more. With the single sums, this is a relatively straightforward process, as they can simply be reformulated as dot products with an additional scalar (polynomial) multiplication. As with scalar-vector multiplication, the scalar is multiplied with each value in the vector. With this, some further transformations can be made to create a new $\textbf{u}_m$, which is a vector. 
-
-For the double sum, it is a bit more difficult process to extract a new $x_m$. The main Idea here is, that because of the double sum, essentially an $n\times n$ matrix with all combinations of $i$ and $j$ is generated and all values are then added up. For example with $n=3$ the following matrix will be created:
+The first technique employed was to convert the vector dot product into its sum form. As per the definition of the dot product between two vectors, it can be rewritten as a sum: $\textbf{s}\cdot \textbf{u} = \sum_{i=0}^{n-1}s_iu_i$. This step is derived from the calculations presented in \cite{ModHE}.\\
+The subsequent step is to transform the resulting sums once more. With the single sums, this is a relatively straightforward process, as they can simply be reformulated as dot products with an additional scalar (polynomial) multiplication. Essentially just reverting the previous step. With some bracketing and factoring out $s$, a new vector $\textbf{u}_m$ can be created. \\
+For the double sum, it is a bit more difficult process to extract a new $x_m$. The main Idea here is, that because of the double sum, an $n\times n$ matrix with all combinations of $i$ and $j$ is generated and all values are then added up. For example with $n=3$ the following matrix will be created:
 
 $$
   \sum_{i=0}^{n-1}\sum_{j=0}^{n-1}u_{1i}u_{2j}s_is_j = \mathrm{sum}\left(\begin{bmatrix}
@@ -188,9 +184,9 @@ $$
     \end{bmatrix}\right)
 $$
 
-The $\mathrm{sum}$ is simply a summation of all values, which is sometimes referred to as the "grand sum." This is essentially a double dot product with a vector of length $n$, where all values are $1$, which is denoted by the symbol $1$-vector ($\textbf{1}$): $\mathrm{sum}(\textbf{X}):= \textbf{1}\cdot \textbf{X} \cdot \textbf{1} = \sum_{i=0}^{n-1}\sum_{j=0}^{n-1} \textbf{X}_{ij}$
+The $\mathrm{sum}$ is simply a summation of all values, which is sometimes referred to as the "grand sum." This is just a double dot product with a vector of length $n$, where all values are $1$, which is denoted by the symbol $1$-vector ($\textbf{1}$): $\mathrm{sum}(\textbf{X}):= \textbf{1}\cdot \textbf{X} \cdot \textbf{1} = \sum_{i=0}^{n-1}\sum_{j=0}^{n-1} \textbf{X}_{ij}$
 
-The next step involves splitting the $n \times n$ matrix into two matrices, one for the $u$ values and one for the $s$ values. Each term in the matrix is a product of four values, which can be split apart using the Associative Law. The $\textbf{u}$ and $\textbf{s}$ values are then multiplied separately, and the two matrices are multiplied together again using element-wise multiplication, also known as the Hadamard product, denoted by the $\odot$ symbol. Finally, the individual matrices can be decomposed into vector operations. This can be achieved through the use of the outer product, also referred to as the tensor product, which is represented by the symbol $\otimes$.
+The next step involves splitting the $n \times n$ matrix into two matrices, one for the $u$ values and one for the $s$ values. This can be seen in the equation below. Each term in the matrix is a product of four values, which can be split apart using the Associative Law. The $\textbf{u}$ and $\textbf{s}$ values are then multiplied separately, and the two matrices are multiplied together again using element-wise multiplication, also known as the Hadamard product, denoted by the $\odot$ symbol. Finally, the individual matrices can be decomposed into vector operations. This can be achieved through the use of the outer product, also referred to as the tensor product, which is represented by the symbol $\otimes$.
 
 \begin{align*}
   \begin{bmatrix}
@@ -210,9 +206,10 @@ The next step involves splitting the $n \times n$ matrix into two matrices, one 
    & = (\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )
 \end{align*}
 
-Having achieved a separation between $u$ and $s$, the next step is to find a method for approximating the double sum in order to add it to $v_m$ and $\textbf{u}_m$. This needs to be done in a manner analogous to equation \ref{eq:relinFormalized}. Previously, a masking of $s^2$ was employed in order to eliminate this term. In the current context, an analogous issue arises with $s \otimes s$ and a second problem emerges, namely the shape of $v_m$ as a polynomial and $\textbf{u}_m$ as a vector.
+When doing all these steps, a separation between $\textbf{u}$ and $\textbf{s}$ is achieved. The new factor $\textbf{u}_1 \otimes \textbf{u}_2$ will be the new matrix $\textbf{X}_m$, as shown in equation \ref{eq:moduleCiphertextMultiplication}.
 
-As a first step, it is necessary to revisit the original $rlk$ generation process, as outlined in Algorithm \ref{alg:RingRLKGeneration}. In order to transform it into M-LWE, the same dimensions as those employed in the standard M-LWE key generation process are used: specifically, $\textbf{A} \in R^{n \times n}_{p \cdot q}$, $\textbf{e} \in \chi^{'n}_{R}$ and $\textbf{s} \in R^n_q$. When calculating the first part of $\textbf{b}$ we get $\textbf{A}\cdot \textbf{s} + \textbf{e}$, which is an vector in $R^n$. As the second part needs to be added to this vector, the masked part (formerly $s^2$) needs to be a vector of the same dimension. As $s \otimes s$ is a matrix of dimension $n \times n$, it cannot be used directly. However, it can be split into $n$ $n$-dimensional vectors, which can then be used instead. A similar approach must be taken with the $u_1 \otimes u_2$ matrix. The matching vectors of both matrices must be multiplied elementwise. This is a feasible approach, as all values within the matrix will be summed collectively at the final step, which can be done in any order (commutative law).
+The next step is to find a method for approximating the double sum in order to add it to $v_m$ and $\textbf{u}_m$. This needs to be done in a manner analogous to equation \ref{eq:relinFormalized}. Previously, a masking of $s^2$ was employed in order to eliminate this term. In the current context, an analogous issue arises with $s \otimes s$ and a second problem emerges, namely the shape of $v_m$ as a polynomial and $\textbf{u}_m$ as a vector. \\
+As a first step, it is necessary to revisit the original $rlk$ generation process, as outlined in Algorithm \ref{alg:RingRLKGeneration}. In order to transform it into M-LWE, the same dimensions as those employed in the standard M-LWE key generation process are used: specifically, $\textbf{A} \in R^{n \times n}_{p \cdot q}$, $\textbf{e} \in \chi^{'n}_{R}$ and $\textbf{s} \in R^n_q$. When calculating the first part of $\textbf{b}$ we get $\textbf{A}\cdot \textbf{s} + \textbf{e}$, which is an vector in $R^n$. As the second part needs to be added to this vector, the masked part (formerly $s^2$) needs to be a vector of the same dimension. As $\textbf{s} \otimes \textbf{s}$ is a matrix of dimension $n \times n$, it cannot be used directly. However, it can be split into $n$ $n$-dimensional vectors, which can then be used instead. A similar approach must be taken with the $\textbf{u}_1 \otimes \textbf{u}_2$ matrix. The matching vectors of both matrices must be multiplied elementwise. This is a feasible approach, as all values within the matrix will be summed collectively at the final step, which can be done in any order (commutative law). This process is shown in the equation below and with it, the $\textbf{X}_m$ matrix is split into $n$ $n$-dimensional $\textbf{x}_{mi}$ vectors and there corresponding secret vectors $\textbf{s}'_i$ are created.
 
 \begin{align*}
    & \mathrm{sum}\left((\textbf{u}_1 \otimes \textbf{u}_2) \odot (\textbf{s} \otimes \textbf{s} )\right)                                                             \\
@@ -255,7 +252,8 @@ As a first step, it is necessary to revisit the original $rlk$ generation proces
    & = \mathrm{sum}\left(\sum_{i=0}^{n-1}(\underbrace{u_{1i}\cdot \textbf{u}_2}_{\textbf{x}_{mi}}) \odot (\underbrace{s_i \cdot \textbf{s}}_{\textbf{s}'_i}) \right) \\
 \end{align*}
 
-This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorithm \ref{alg:RingRLKGeneration}. However, this necessitates the computation of $n$ $rlk$ values, as is required for each $s_i$. The complete module $rlk$ generation process is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'_i$ represents the individual $s_i\cdot \textbf{s}$ values.
+In order to use $s_i \cdot \textbf{s} = \textbf{s}'_i$ in the $rlk$ generation, the fixed $s^2$ in the original $rlk$ generation algorithm \ref{alg:RingRLKGeneration} needs to be replaced with a variable, so the different $\textbf{s}'_i$ can be encoded. The $rlk$ generation process for a single $\textbf{s}_i$ is illustrated in Algorithm \ref{alg:ModuleRLKGeneration}, where $\textbf{s}'$ represents the individual $s_i\cdot \textbf{s}$ values. However, $n$ $rlk$ values, as one is required for each $\textbf{s}'_i$ need to be created in order to encode the whole $\textbf{s} \otimes \textbf{s}$ matrix. The full $rlk$ generation can be found in algorithm \ref{alg:HomomorphKeyGen}.
+
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -265,20 +263,18 @@ This allows us to employ $s_i \cdot \textbf{s}$ in the $rlk$ generation algorith
     \STATE $\textbf{b} = [\textbf{A}\cdot \textbf{s}+\textbf{e}+p\cdot \textbf{s}']_{p \cdot q}$
     \RETURN $rlk:=(\textbf{A}_{s'}, \textbf{b}_{s'})$
   \end{algorithmic}
-  \caption{M-LWE: RLK Generation}
+  \caption{M-LWE: RLK Generation for a single $\textbf{s}_i$}
   \label{alg:ModuleRLKGeneration}
 \end{algorithm}
 
-\info{Some update to the KeyGen should be written here, as now also the RLK generation is part of the keygen}
-
-As before, the $rlk$ can be used to create two values, $xu_m$ and $xv_m$. These values will be added to $\textbf{u}_m \in R^n_q$ and $v_m \in R_q$, respectively. Therefore, it is necessary for these values to have the same shape. However, as the encryption process used near identical formulas, the correct shapes will be produced automatically. Thus, equation \ref{eq:ringXmSplitting} can be translated into M-LWE, as shown in equation \ref{eq:moduleXmSplitting}.
+As before, the $rlk$ can be used to create two values, $\textbf{xu}_m$ and $xv_m$. These values will be added to $\textbf{u}_m \in R^n_q$ and $v_m \in R_q$, respectively. Therefore, it is necessary for these values to have the same shape. However, as the encryption process used near identical formulas, the correct shapes come by themselves. Thus, equation \ref{eq:ringXmSplitting} can be translated into M-LWE, as shown in equation \ref{eq:moduleXmSplitting}. 
 
 \begin{equation}
   (\textbf{xu}_m, xv_m) = \left(\sum_{i=0}^{n-1}\left[\left\lfloor\frac{\textbf{A}_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q, \sum_{i=0}^{n-1}\left[\left\lfloor \frac{b_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q\right)
   \label{eq:moduleXmSplitting}
 \end{equation}
 
-All this can be combined now into a single M-LWE multiplication algorithm, as seen in \ref{alg:moduleMultiplication}. And the new updates Key Generation, with the generation of the $rlk$ can be seen in \ref{alg:HomomorphKeyGen}.
+All this can be combined now into a single M-LWE multiplication algorithm, as seen in \ref{alg:moduleMultiplication}. And the new updated Key Generation, with the generation of the $rlk$ can be seen in \ref{alg:HomomorphKeyGen}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
@@ -316,12 +312,12 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 
 \subsection*{Generate R-LWE from M-LWE}
 
-One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of 1, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are both single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
+One simple method for evaluating the efficacy of the generalization is to generate the R-LWE scheme with the M-LWE scheme and $n=1$. The initial step is to calculate the $rlk$. With a dimension of $1$, there is only a single $rlk$, which is calculated with $s'_0 = s_0 \cdot \textbf{s} = s_0 \cdot s_0 = s^2$. It can be seen that the M-LWE $rlk(s, s^2)$ (see algorithm \ref{alg:ModuleRLKGeneration}) is identical to the R-LWE $rlk(s)$ (see algorithm \ref{alg:RingRLKGeneration}), as both $A^{1 \times 1}$ and $e^1$ are single polynomials. As with $s$, the vector $\textbf{u}$ is a single polynomial. Consequently, the calculation of $u_m$ is identical between M-LWE (algorithm \ref{alg:moduleMultiplication}) and R-LWE (algorithm \ref{alg:RingMultiplication}). Furthermore, only a single $x_m$ value is required in M-LWE (as $n=1$), which is then used to calculate both $xu$ and $xv$, which are also single polynomials. Therefore, the entire calculation is identical to the R-LWE multiplication, which is a positive indication.
 
 
 \section{Criteria for comparing LWE-based homomorphic encryption schemes}
 \label{sec:HomomorphCriteria}
 
-In order to conduct a comparative analysis of homomorphic encryption schemes, the same methodology previously outlined in Section \ref{sec:LweComparisonCriteria} can be employed to evaluate the underlying encryption and decryption mechanisms. To assess the homomorphic properties, the tests must be expanded. The first extension to the storage test is to include the relinearization key ($rlk$) in the evaluation. This entails computing the size of the rlk and comparing it between each scheme. The time cost tests can be extended by also including the Addition and Multiplication algorithms into the tests and extending the KeyGen algorithm to include the generation of the relinearization key.
+In order to conduct a comparative analysis of homomorphic encryption schemes, the same methodology previously outlined in Section \ref{sec:LweComparisonCriteria} can be employed to evaluate the underlying encryption and decryption mechanisms. To assess the homomorphic properties, the tests must be expanded. The first extension to the \textit{size cost} test is to include the relinearization key ($rlk$) in the evaluation. This entails computing the size of the $rlk$ and comparing it between the schemes. The \textit{time cost} test can be extended by also including the Addition and Multiplication algorithms into the tests and extending the KeyGen algorithm to include the generation of the relinearization key.
 
 Moreover, the additive and multiplicative depth should be identified. This allows for the assessment of the number of consecutive calculations that can be performed while maintaining the ability to successfully decrypt the ciphertext. To enhance the precision of the predictions, it is essential to examine the evolution of the errors associated with addition and multiplication. This enables a more accurate understanding of the impact of the variables and depth on the outcomes.
