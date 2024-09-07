@@ -120,14 +120,14 @@ The process of "decryption," as illustrated in equation \ref{eq:RlkDecryption}, 
   \label{eq:RlkDecryption}
 \end{equation}
 
-The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMultiplication}. In order for the algorithm to function correctly, it is necessary to multiply each of the factors by the value of $\frac{t}{q}$. Further details on this process can be found in the BFV paper \cite{bfv}.
+The complete algorithm for multiplying can be found in Algorithm \ref{alg:RingMultiplication}. In order for the algorithm to function correctly, it is necessary to multiply each of the factors by the value of $\frac{2}{q}$. Further details on this process can be found in the BFV paper \cite{bfv}.
 
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
     \REQUIRE $rlk=(A_{rlk}, b_{rlk})$, $ct_1 = (v_1, u_1)$, $ct_2 = (v_2, u_2)$
-    \STATE $v_m = \left[\left\lfloor \frac{t}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
-    \STATE $u_m = \left[\left\lfloor \frac{t}{q}\cdot(v_1 \cdot u_2 + v_2 \cdot u_1)\right\rceil\right] _q$
-    \STATE $x_m = \left[\left\lfloor \frac{t}{q}\cdot(u_1 \cdot u_2)\right\rceil\right] _q$
+    \STATE $v_m = \left[\left\lfloor \frac{2}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
+    \STATE $u_m = \left[\left\lfloor \frac{2}{q}\cdot(v_1 \cdot u_2 + v_2 \cdot u_1)\right\rceil\right] _q$
+    \STATE $x_m = \left[\left\lfloor \frac{2}{q}\cdot(u_1 \cdot u_2)\right\rceil\right] _q$
     \STATE $xu_m = \left[\left\lfloor \frac{x_m \cdot A_{rlk}}{p}  \right\rceil \right]_q$
     \STATE $xv_m = \left[\left\lfloor \frac{x_m \cdot b_{rlk}}{p}  \right\rceil \right]_q$
     \RETURN $ct_m:=(\left[u_m + xu_m\right]_q , \left[v_m + xv_m\right]_q )$
@@ -279,9 +279,9 @@ All this can be combined now into a single M-LWE multiplication algorithm, as se
 \begin{algorithm}[htb]
   \begin{algorithmic}[1]
     \REQUIRE $rlk=((\textbf{A}_{\textbf{s}'_0}, \textbf{b}_{\textbf{s}'_0}), \ldots ,(\textbf{A}_{\textbf{s}'_{n-1}}, \textbf{b}_{\textbf{s}'_{n-1}}))$, $ct_1 = (\textbf{u}_1, v_1)$, $ct_2 = (\textbf{u}_2, v_2)$
-    \STATE $v_m = \left[\left\lfloor \frac{t}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
-    \STATE $\textbf{u}_m = \left[\left\lfloor \frac{t}{q}\cdot(v_1 \cdot \textbf{u}_2 + v_2 \cdot \textbf{u}_1)\right\rceil\right] _q$
-    \STATE $\textbf{x}_m = \left(\left[\left\lfloor \frac{t}{q}\cdot(u_{10} \cdot \textbf{u}_2)\right\rceil\right]_q,\ldots, \left[\left\lfloor \frac{t}{q}\cdot(u_{1n-1} \cdot \textbf{u}_2)\right\rceil\right]_q\right) $
+    \STATE $v_m = \left[\left\lfloor \frac{2}{q}\cdot (v_1 \cdot v_2)\right\rceil\right] _q $
+    \STATE $\textbf{u}_m = \left[\left\lfloor \frac{2}{q}\cdot(v_1 \cdot \textbf{u}_2 + v_2 \cdot \textbf{u}_1)\right\rceil\right] _q$
+    \STATE $\textbf{x}_m = \left(\left[\left\lfloor \frac{2}{q}\cdot(u_{10} \cdot \textbf{u}_2)\right\rceil\right]_q,\ldots, \left[\left\lfloor \frac{2}{q}\cdot(u_{1n-1} \cdot \textbf{u}_2)\right\rceil\right]_q\right) $
     \STATE $\textbf{xu}_m = \sum_{i=0}^{n-1}\left[\left\lfloor\frac{\textbf{A}_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
     \STATE $xv_m = \sum_{i=0}^{n-1}\left[\left\lfloor \frac{b_{\textbf{s}'_i} \cdot \textbf{x}_{mi}}{p}  \right\rceil \right]_q$
     \RETURN $ct_m:=(\left[\textbf{u}_m + \textbf{xu}_m\right]_q , \left[v_m + xv_m\right]_q )$

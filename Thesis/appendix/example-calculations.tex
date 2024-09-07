@@ -1,27 +1,25 @@
 \chapter{Example Calculations}
 
-\info[inline]{Hier müssen überall richtig gestellt werden was matrix und was vektor ist durch dick schreiben und so}
-
 \section{Example Multidimensional Ring Calculation}
 \label{app:ExampleMultiRingCalc}
 
 Consider the ring $R = \mathbb{Z}_5[x]/(x^3+1)$ and 
 $$
-  f =\begin{bmatrix}
+  f(x) =\begin{bmatrix}
     1+2x+3x^2 & 2+3x+4x^2 \\
     3+4x+x^2  & 1+3x+4x^2 \\
   \end{bmatrix} \in R^{2\times 2}
 $$
 
 $$
-  g = \begin{bmatrix}
+  g(x) = \begin{bmatrix}
     1+x+x^2   \\
     2+2x+2x^2 \\
   \end{bmatrix} \in R^2
 $$
 
 \begin{align*}
-  f \cdot g & = {
+  f(x) \cdot g(x) & = {
   \begin{bmatrix}
     1+2x+3x^2 & 2+3x+4x^2 \\
     3+4x+x^2  & 1+3x+4x^2 \\
@@ -31,8 +29,8 @@ $$
     1+x+x^2   \\
     2+2x+2x^2 \\
   \end{bmatrix}
-  }               \\
-            & = {
+  }                      \\
+                  & = {
   \begin{bmatrix}
     \begin{bmatrix}
       1 & -3 & -2 \\
@@ -68,14 +66,14 @@ $$
       2 \\
     \end{bmatrix} \\
   \end{bmatrix}
-  }               \\
-            & = {
+  }                      \\
+                  & = {
   \begin{bmatrix}
-    1 & -3 & -2 & 2 & -4 & -3 \\
-    2 & 1  & -3 & 3 & 2  & -4 \\
-    3 & 2  & 1  & 4 & 3  & 2  \\
-    3 & -1 & -4 & 1 & -4 & -3 \\
-    4 & 3  & -1 & 3 & 1  & -4 \\
+    1 & -3 & -2 & 2 & -4 & -3  \\
+    2 & 1  & -3 & 3 & 2  & -4  \\
+    3 & 2  & 1  & 4 & 3  & 2   \\
+    3 & -1 & -4 & 1 & -4 & -3  \\
+    4 & 3  & -1 & 3 & 1  & -4  \\
     1 & 4  & 3  & 4 & 3  & 1 
   \end{bmatrix}
   \cdot
@@ -87,8 +85,8 @@ $$
     2 \\
     2 
   \end{bmatrix}
-  }               \\
-            & = {
+  }                      \\
+                  & = {
   \begin{bmatrix}
     -14 \\
     2   \\
@@ -122,8 +120,8 @@ $$
       4
     \end{bmatrix} \\
   \end{bmatrix}
-  }               \\
-            & = {
+  }                      \\
+                  & = {
   \begin{bmatrix}
     1+2x+4x^2 \\
     1+1x+4x^2
@@ -134,18 +132,18 @@ $$
 
 \section{Plain LWE}
 \label{app:PlainLweCalc}
-The following calculations should show the working of the Plain LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}_{100}$ and $n=2$ for the dimensions. Starting first with the key generation:
+The following calculations show the working of the Plain LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}_{100}$ and $n=2$ for the matrix dimension. Starting first with the key generation:
 
 
 \begin{align*}
-  s  & = \begin{bmatrix}1 \\ 2 \end{bmatrix}
-  A  = \begin{bmatrix}56 & 77 \\ 29 & 59 \end{bmatrix}
-  e  = \begin{bmatrix}99 \\ 1 \end{bmatrix}       \\
-  b  & = As+e                                     \\
-     & = \begin{bmatrix}
-           56 & 77 \\
-           29 & 59
-         \end{bmatrix}
+  \textbf{s} & = \begin{bmatrix}1 \\ 2 \end{bmatrix}
+  \textbf{A}  = \begin{bmatrix}56 & 77 \\ 29 & 59 \end{bmatrix}
+  \textbf{e}  = \begin{bmatrix}99 \\ 1 \end{bmatrix}               \\
+  \textbf{b} & = \textbf{A}\textbf{s} +\textbf{e}                  \\
+             & = \begin{bmatrix}
+                   56 & 77  \\
+                   29 & 59
+                 \end{bmatrix}
   \cdot
   \begin{bmatrix}
     1 \\
@@ -157,7 +155,7 @@ The following calculations should show the working of the Plain LWE encryption f
     1 
   \end{bmatrix}
   \\
-     & = 1
+             & = 1
   \cdot
   \begin{bmatrix}
     56 \\
@@ -173,38 +171,38 @@ The following calculations should show the working of the Plain LWE encryption f
   \begin{bmatrix}
     99 \\ 
     1 
-  \end{bmatrix}                                  \\
-     & = \begin{bmatrix}
-           309 \\
-           148\end{bmatrix}_{100}                   \\
-     & = \begin{bmatrix}
-           9 \\ 
-           48 
-         \end{bmatrix}                           \\
-  sk & = s =  \begin{bmatrix}1 \\ 2 \end{bmatrix} \\
-  pk & = (A, b) = \left (
+  \end{bmatrix}                                                  \\
+             & = \begin{bmatrix}
+                   309 \\
+                   148\end{bmatrix}_{100}                            \\
+             & = \begin{bmatrix}
+                   9 \\ 
+                   48 
+                 \end{bmatrix}                                   \\
+  sk         & = \textbf{s} =  \begin{bmatrix}1 \\ 2 \end{bmatrix} \\
+  pk         & = (\textbf{A}, \textbf{b}) = \left (
   \begin{bmatrix}
-      56 & 77  \\
+      56 & 77   \\
       29 & 59 
     \end{bmatrix},
   \begin{bmatrix}
       9 \\
       48 
-    \end{bmatrix} \right )                          \\
+    \end{bmatrix} \right )                                           \\
 \end{align*}
 
 With the secret and public key generated, the next step is to encrypt the message $m=1$ with the public key $pk$
 
 \begin{align*}
-  r       & = \begin{bmatrix}0 \\ 1 \end{bmatrix}
-  e_1 = \begin{bmatrix}2 \\ 0 \end{bmatrix}
-  e_2 = 99                                                          \\
+  \textbf{r} & = \begin{bmatrix}0 \\ 1 \end{bmatrix}
+  \textbf{e}_1 = \begin{bmatrix}2 \\ 0 \end{bmatrix}
+  e_2 = 99                                                                               \\
   \\
-  u       & = A^T \cdot r + e_1                                     \\
-          & = \begin{bmatrix}
-                56 & 77 \\
-                29 & 59
-              \end{bmatrix}^T
+  \textbf{u} & = \textbf{A}^T \cdot \textbf{r} + \textbf{e}_1                            \\
+             & = \begin{bmatrix}
+                   56 & 77  \\
+                   29 & 59
+                 \end{bmatrix}^T
   \cdot
   \begin{bmatrix}
     0 \\
@@ -214,11 +212,11 @@ With the secret and public key generated, the next step is to encrypt the messag
   \begin{bmatrix}
     2 \\
     0
-  \end{bmatrix}                                                    \\
-          & = \begin{bmatrix}
-                56 & 29 
-                \\ 77 & 59 
-              \end{bmatrix}
+  \end{bmatrix}                                                                        \\
+             & = \begin{bmatrix}
+                   56 & 29 
+                   \\ 77 & 59 
+                 \end{bmatrix}
   \cdot 
   \begin{bmatrix}
     0 \\
@@ -228,8 +226,8 @@ With the secret and public key generated, the next step is to encrypt the messag
   \begin{bmatrix}
     2 \\
     0
-  \end{bmatrix}                                                    \\
-          & = 0\cdot
+  \end{bmatrix}                                                                        \\
+             & = 0\cdot
   \begin{bmatrix}
     56 \\
     77
@@ -243,74 +241,74 @@ With the secret and public key generated, the next step is to encrypt the messag
   \begin{bmatrix}
     2 \\
     0
-  \end{bmatrix}                                                    \\
-          & = \begin{bmatrix}
-                31 \\ 
-                61 
-              \end{bmatrix}_{100}
+  \end{bmatrix}                                                                        \\
+             & = \begin{bmatrix}
+                   31 \\ 
+                   61 
+                 \end{bmatrix}_{100}
   = 
   \begin{bmatrix}
     31 \\
     61
-  \end{bmatrix}                                                    \\
+  \end{bmatrix}                                                                        \\
   \\
-  v       & = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor) \\
-          & =\begin{bmatrix}
-               9 \\
-               48
-             \end{bmatrix}^T
+  v          & = \textbf{b}^T \cdot \textbf{r} + e_2 + (m*\left\lfloor q/2\right\rfloor) \\
+             & =\begin{bmatrix}
+                  9 \\
+                  48
+                \end{bmatrix}^T
   \cdot
   \begin{bmatrix}
     0 \\
     1
   \end{bmatrix}
-  + 99 + 1 \cdot \left\lfloor 100/2\right\rfloor                    \\
-          & =\begin{bmatrix}
-               9 & 48
-             \end{bmatrix}
+  + 99 + 1 \cdot \left\lfloor 100/2\right\rfloor                                         \\
+             & =\begin{bmatrix}
+                  9 & 48
+                \end{bmatrix}
   \cdot
   \begin{bmatrix}
     0 \\ 
     1 
   \end{bmatrix}
-  + 99 + 50                                                         \\
-          & = 9 \cdot 0 +48 \cdot 1 + 99 + 50                       \\
-          & = 197_{100}                                             \\
-          & = 97                                                    \\
-  ct & = (u, v) = \left (
+  + 99 + 50                                                                              \\
+             & = 9 \cdot 0 +48 \cdot 1 + 99 + 50                                         \\
+             & = 197_{100}                                                               \\
+             & = 97                                                                      \\
+  ct         & = (\textbf{u}, v) = \left (
   \begin{bmatrix}
       31 \\
       61
-    \end{bmatrix}, 97   \right )                                      \\
+    \end{bmatrix}, 97   \right )                                                           \\
 \end{align*}
 
 Now the cipher text $ct$ can be decrypted again, using the secret key $sk$:
 \begin{align*}
-  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} *\left[v-s^T \cdot u\right]_{100} \right\rceil _2 \\
-    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} * \left[97-
-  \begin{bmatrix}
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} \cdot\left[v-\textbf{s}^T \cdot \textbf{u}\right]_{q} \right\rceil _2 \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} \cdot \left[97-
+    \begin{bmatrix}
       1 \\
       2
     \end{bmatrix}^T
-  \cdot
+    \cdot
   \begin{bmatrix}
       31 \\
       61
-    \end{bmatrix} \right]_{100}\right\rceil _2                                                      \\
-    & = \left\lfloor \frac{1}{50} * \left[97-
-  \begin{bmatrix}
+    \end{bmatrix} \right]_{100}\right\rceil _2                                                                                       \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[97-
+    \begin{bmatrix}
       1 & 2 
     \end{bmatrix}
-  \cdot 
+    \cdot 
   \begin{bmatrix}
       31 \\ 
       61
-    \end{bmatrix}\right]_{100}\right\rceil _2                                                       \\
-    & = \left\lfloor \frac{1}{50} * \left[97-(31 \cdot 1 + 61 \cdot 2)\right]_{100}\right\rceil _2            \\
-    & = \left\lfloor \frac{1}{50} * \left[-56\right] _{100}\right\rceil _2                               \\
-    & = \left\lfloor \frac{1}{50} * 44\right\rceil _2                                        \\
-    & = \left\lfloor \frac{44}{50}\right\rceil _2  = \left\lfloor 0.88\right\rceil _2        \\
-    & = 1                                                                                    \\
+    \end{bmatrix}\right]_{100}\right\rceil _2                                                                                        \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[97-(31 \cdot 1 + 61 \cdot 2)\right]_{100}\right\rceil _2                             \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[-56\right] _{100}\right\rceil _2                                                     \\
+    & = \left\lfloor \frac{1}{50} \cdot 44\right\rceil _2                                                                          \\
+    & = \left\lfloor \frac{44}{50}\right\rceil _2  = \left\lfloor 0.88\right\rceil _2                                              \\
+    & = 1                                                                                                                          \\
 \end{align*}
 
 \section{R-LWE}
@@ -322,7 +320,7 @@ The following calculations show the working of the Ring LWE encryption for the a
   A  & = 28 + 56x + 1x^2                                                 \\
   e  & = 1 + -1x + 2x^2= 1 + 99x + 2x^2                                  \\
   b  & = As + e                                                          \\
-     & = (28 + 56x + 1x^2)*(1 + 0x + 1x^2) + (1 + 99x + 2x^2)            \\
+     & = (28 + 56x + 1x^2)\cdot(1 + 0x + 1x^2) + (1 + 99x + 2x^2)        \\
      & = (28 + 28x^2) + (56x + 56x^3) + (1x^2 + 1x^4) + (1 + 99x + 2x^2) \\
      & = 29 + 155x + 31x^2 + 56x^3 + 1x^4 \mod x^3+1                     \\
      & = 29 + 155x + 31x^2 - 56 - 1x                                     \\
@@ -334,142 +332,142 @@ The following calculations show the working of the Ring LWE encryption for the a
 
 Encryption of message $m=(1,1,0)$:
 \begin{align*}
-  r       & =0 + 1 + 1x^2                                                                    \\
-  e_1     & =98 + 0x + 98x^2                                                                 \\
-  e_2     & =1 + 0x + 0x^2                                                                   \\
-  m       & = (1, 1, 0) = 1+ 1x+ 0x^2                                                        \\
-  u       & = A \cdot r + e_1                                                                \\
-          & = (28 + 56x + 1x^2)*(0 + 1 + 1x^2) + (98 + 0x + 98x^2)                           \\
-          & = (28x+84x^2+57x^3+x^4) + (98 + 0x + 98x^2)                                      \\
-          & = 98+28x+182x^2+57x^3+x^4 \mod (x^3+1)                                           \\
-          & = 98+28x+182x^2-57-x                                                             \\
-          & = 41+27x+182x^2  \mod 100                                                        \\
-          & = 41+27x+82x^2                                                                   \\
-  v       & = b \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)                            \\
-          & = (73 + 54x + 31x^2) * (0 + 1 + 1x^2) + (1 + 0x + 0x^2) +  (1+ 1x+ 0x^2)*(100/2) \\
-          & = (73x + 127x^2 + 85x^3 + 31x^4) + (1 + 0x + 0x^2) +  (50+ 50x+ 0x^2)            \\
-          & = 51 + 123x + 127x^2 + 85x^3 + 31x^4 \mod (x^3+1)                                \\
-          & = 51 + 123x + 127^2 - 85 - 31x                                                   \\
-          & = -34 + 92x + 127x^2 \mod 100                                                    \\
-          & = 66 + 92x + 27x^2                                                               \\
-  ct & = (u,v) = (41+27x+82x^2, 66 + 92x + 27x^2)                                       \\
+  r   & =0 + 1 + 1x^2                                                                            \\
+  e_1 & =98 + 0x + 98x^2                                                                         \\
+  e_2 & =1 + 0x + 0x^2                                                                           \\
+  m   & = (1, 1, 0) = 1+ 1x+ 0x^2                                                                \\
+  u   & = A \cdot r + e_1                                                                        \\
+      & = (28 + 56x + 1x^2)\cdot(0 + 1 + 1x^2) + (98 + 0x + 98x^2)                               \\
+      & = (28x+84x^2+57x^3+x^4) + (98 + 0x + 98x^2)                                              \\
+      & = 98+28x+182x^2+57x^3+x^4 \mod (x^3+1)                                                   \\
+      & = 98+28x+182x^2-57-x                                                                     \\
+      & = 41+27x+182x^2  \mod 100                                                                \\
+      & = 41+27x+82x^2                                                                           \\
+  v   & = b \cdot r + e_2 + (m\cdot\left\lfloor q/2\right\rfloor)                                \\
+      & = (73 + 54x + 31x^2) \cdot (0 + 1 + 1x^2) + (1 + 0x + 0x^2) +  (1+ 1x+ 0x^2)\cdot(100/2) \\
+      & = (73x + 127x^2 + 85x^3 + 31x^4) + (1 + 0x + 0x^2) +  (50+ 50x+ 0x^2)                    \\
+      & = 51 + 123x + 127x^2 + 85x^3 + 31x^4 \mod (x^3+1)                                        \\
+      & = 51 + 123x + 127^2 - 85 - 31x                                                           \\
+      & = -34 + 92x + 127x^2 \mod 100                                                            \\
+      & = 66 + 92x + 27x^2                                                                       \\
+  ct  & = (u,v) = (41+27x+82x^2, 66 + 92x + 27x^2)                                               \\
 \end{align*}
 
 Decryption:
 \begin{align*}
-  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}*\left[v-s^T \cdot u\right]_q \right\rceil _2                                               \\
-    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor}*\left[(66 + 92x + 27x^2 )- (1 + 0x + 1x^2) \cdot (41+27x+82x^2)\right]_{100}\right\rceil _2 \\
-    & = \left\lfloor \frac{1}{50}*\left[(66 + 92x + 27x^2 )- (41 + 27x + 123x^2 + 27x^3 + 82x^4)\right]_{100}\right\rceil _2                               \\
-    & = \left\lfloor \frac{1}{50}*\left[25 + 65x - 96x^2 - 27x^3 - 82x^4\right]_{100}\right\rceil _2 \mod (x^3+1)                                          \\
-    & = \left\lfloor \frac{1}{50}*\left[25 + 65x - 96x^2 + 27 + 82x\right]_{100}\right\rceil _2                                                            \\
-    & = \left\lfloor \frac{1}{50}*(52+147x-96x^2)\right\rceil _2 \mod 100                                                                 \\
-    & = \left\lfloor \frac{1}{50}*(52+47x+4x^2)\right\rceil _2                                                                            \\
-    & = \left\lfloor 1.04 + 0.64x + 0.08x^2\right\rceil _2                                                                                \\
-    & = 1 + 1x + 0x^2                                                                                                                     \\
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor}\cdot\left[v-s^T \cdot u\right]_q \right\rceil _2                                                  \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor}\cdot\left[(66 + 92x + 27x^2 )- (1 + 0x + 1x^2) \cdot (41+27x+82x^2)\right]_{100}\right\rceil _2 \\
+    & = \left\lfloor \frac{1}{50}\cdot\left[(66 + 92x + 27x^2 )- (41 + 27x + 123x^2 + 27x^3 + 82x^4)\right]_{100}\right\rceil _2                               \\
+    & = \left\lfloor \frac{1}{50}\cdot\left[25 + 65x - 96x^2 - 27x^3 - 82x^4\right]_{100}\right\rceil _2 \mod (x^3+1)                                          \\
+    & = \left\lfloor \frac{1}{50}\cdot\left[25 + 65x - 96x^2 + 27 + 82x\right]_{100}\right\rceil _2                                                            \\
+    & = \left\lfloor \frac{1}{50}\cdot(52+147x-96x^2)\right\rceil _2 \mod 100                                                                                  \\
+    & = \left\lfloor \frac{1}{50}\cdot(52+47x+4x^2)\right\rceil _2                                                                                             \\
+    & = \left\lfloor 1.04 + 0.64x + 0.08x^2\right\rceil _2                                                                                                     \\
+    & = 1 + 1x + 0x^2                                                                                                                                          \\
     & = (1, 1, 0)
 \end{align*}
 
 \section{M-LWE}
 \label{app:MlweExampleCalc}
-The following calculations show the working of the Module LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}[x]_{100}/(x^3+1)$ and the dimension $n=2$.
+The following calculations show the working of the Module LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}[x]_{100}/(x^3+1)$ and the matrix dimension $n=2$.
 
 Starting first with the key generation:
 \begin{align*}
-  s  & = \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                                 \\
-  A  & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix} \\
-  e  & = \begin{bmatrix}1+1x+2x^2 \\ -3+3x+3x^2=97+3x+3x^2 \end{bmatrix}                        \\
-  b  & = As+e                                                                                   \\
-     & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}
+  \textbf{s} & = \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                                 \\
+  \textbf{A} & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix} \\
+  \textbf{e} & = \begin{bmatrix}1+1x+2x^2 \\ -3+3x+3x^2=97+3x+3x^2 \end{bmatrix}                        \\
+  \textbf{b} & = \textbf{A}\textbf{s}+\textbf{e}                                                        \\
+             & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}
   \cdot
   \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}
   +
   \begin{bmatrix}1+1x+2x^2 \\ 97+3x+3x^2 \end{bmatrix}
   \\
-     & = 
+             & = 
   \begin{bmatrix}
     56+56x+233x^2 \\
     263+210x+519x^2
   \end{bmatrix}
   + 
-  \begin{bmatrix}1+1x+2x^2 \\ 97+3x+3x^2 \end{bmatrix}                                          \\
-     & =   \begin{bmatrix}
-             57+57x+235x^2 \\
-             360+213x+522x^2
-           \end{bmatrix}_{100}                                                                  \\
-     & = \begin{bmatrix}
-           57+57x+35x^2 \\
-           60+13x+22x^2
-         \end{bmatrix}                                                                         \\
-  sk & = s =  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                            \\
-  pk & = (A, b) = \left (
+  \begin{bmatrix}1+1x+2x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                  \\
+             & =   \begin{bmatrix}
+                     57+57x+235x^2 \\
+                     360+213x+522x^2
+                   \end{bmatrix}_{100}                                                                  \\
+             & = \begin{bmatrix}
+                   57+57x+35x^2 \\
+                   60+13x+22x^2
+                 \end{bmatrix}                                                                        \\
+  sk         & = \textbf{s} =  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}                   \\
+  pk         & = (\textbf{A}, \textbf{b}) = \left (
   \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix},
   \begin{bmatrix}
       57+57x+35x^2 \\
       60+13x+22x^2
-    \end{bmatrix} \right )                                                                        \\
+    \end{bmatrix} \right )                                                                                \\
 \end{align*}
 
 Encryption of message $m=(1,1,0)$:
 \begin{align*}
-  r       & = \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}                                       \\
-  e_1     & = \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                     \\
-  e_2     & = 2+97x+97x^2                                                                               \\
-  m       & =(1,1,0) = 1x+1x+0x^2                                                                       \\
+  \textbf{r}            & = \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}                                       \\
+  \textbf{e}_1 & = \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                     \\
+  e_2          & = 2+97x+97x^2                                                                               \\
+  m            & =(1,1,0) = 1+1x+0x^2                                                                       \\
   \\
   % Calculating u
-  u       & = A^T \cdot r + e_1                                                                         \\
+  \textbf{u}            & = \textbf{A}^T \cdot \textbf{r} + \textbf{e}_1                                                       \\
   % Step 2
-          & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}^T
+               & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}^T
   \cdot
   \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
   +
-  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                      \\
   % Step 3
-          & = \begin{bmatrix}27+2x+43x^2 & 91+34x+50x^2 \\ 30+10x+35x^2  & 82+21x+94x^2 \end{bmatrix}
+               & = \begin{bmatrix}27+2x+43x^2 & 91+34x+50x^2 \\ 30+10x+35x^2  & 82+21x+94x^2 \end{bmatrix}
   \cdot
   \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
   +
-  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                      \\
   %  Step 4
-          & = \begin{bmatrix}73+20x+122x^2 \\ 67+26x+169x^2 \end{bmatrix}
+               & = \begin{bmatrix}73+20x+122x^2 \\ 67+26x+169x^2 \end{bmatrix}
   +
-  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                 \\
+  \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                                      \\
   % Step 5
-          & = \begin{bmatrix}75+118x+125x^2 \\ 164+23x+172x^2 \end{bmatrix}_{100}
+               & = \begin{bmatrix}75+118x+125x^2 \\ 164+23x+172x^2 \end{bmatrix}_{100}
   = 
-  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}                                             \\
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}                                                  \\
   \\
   % Calculating V
-  v       & = b^T \cdot r + e_2 + (m*\left\lfloor q/2\right\rfloor)                                     \\
+  v            & = \textbf{b}^T \cdot \textbf{r} + e_2 + (m\cdot\left\lfloor q/2\right\rfloor)                        \\
   % Step 2
-          & =\begin{bmatrix}
-               57+57x+35x^2 \\
-               60+13x+22x^2
-             \end{bmatrix} ^T
+               & =\begin{bmatrix}
+                    57+57x+35x^2 \\
+                    60+13x+22x^2
+                  \end{bmatrix} ^T
   \cdot
   \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
-  + (2+97x+97x^2) + (1x+1x+0x^2) \cdot \left\lfloor 100/2\right\rfloor                                  \\
+  + (2+97x+97x^2) + (1+1x+0x^2) \cdot \left\lfloor 100/2\right\rfloor                                       \\
   % Step 4
-          & = (25+92x+171x^2) + (2+97x+97x^2) + (50x+50x+0x^2)                                          \\
+               & = (25+92x+171x^2) + (2+97x+97x^2) + (50+50x+0x^2)                                          \\
   % Step 5
-          & = (77+239x+268x^2)_{100}                                                                    \\
+               & = (77+239x+268x^2)_{100}                                                                    \\
   % Step 6
-          & = 77+39x+68x^2                                                                              \\
-  ct & = (u, v) = \left (
-  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}, 77+39x+68x^2   \right )                    \\
+               & = 77+39x+68x^2                                                                              \\
+  ct           & = (\textbf{u}, v) = \left (
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}, 77+39x+68x^2   \right )                         \\
 \end{align*}
 
 Decryption:
 \begin{align*}
-  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} *\left[v-s^T \cdot u\right]_{100}\right\rceil _2                                         \\
-    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} * \left[77+39x+68x^2-
-  \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}^T
-  \cdot
-  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix} \right]_{100}\right\rceil _2                                                  \\
-    & = \left\lfloor \frac{1}{50} * \left[77+39x+68x^2-(216+190x+377x^2)\right]_{100}\right\rceil _2                                                  \\
-    & = \left\lfloor \frac{1}{50} * \left[-139-151x-309x^2\right]_{100}\right\rceil _2                                                          \\
-    & = \left\lfloor \frac{1}{50} * \left[61+49x+91x^2\right]_{100} \right\rceil _2                                                                      \\
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} \cdot\left[v-\textbf{s}^T \cdot \textbf{u}\right]_{q}\right\rceil _2           \\
+    & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} \cdot \left[77+39x+68x^2-
+    \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}^T
+    \cdot
+  \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix} \right]_{100}\right\rceil _2                                             \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[77+39x+68x^2-(216+190x+377x^2)\right]_{100}\right\rceil _2                             \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[-139-151x-309x^2\right]_{100}\right\rceil _2                                           \\
+    & = \left\lfloor \frac{1}{50} \cdot \left[61+49x+91x^2\right]_{100} \right\rceil _2                                              \\
     & = \left\lfloor \frac{61}{50} +\frac{49}{50}x+\frac{91}{50}x^2\right\rceil _2  = \left\lfloor 1.22+0.98x+1.82x^2\right\rceil _2 \\
     & = \left\lfloor1+1x+2x^2\right\rceil _2 =           1+1x+0x^2                                                                   \\
-    &= (1,1,0)
+    & = (1,1,0)
 \end{align*}
