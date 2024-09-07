@@ -11,7 +11,7 @@ The initial comparison will be the size in bits of the various output variables 
 
 In the case of Plain-LWE, the polynomial degree is equal to one, while in R-LWE, the matrix dimension is equal to one. For M-LWE, the polynomial degree and matrix dimension are greater than one. The size of the different variables can be calculated based on the dimensions defined in Table \ref{table:LweDiffs}. As the $rlk$ is essentially a modified private key, it has the same dimension; it is simply required $n$ times. All equations for computing the number of bits needed for the different variables for the schemes can be found in Table \ref{table:OutputVariableSize}. 
 
-\begin{table}[h]
+\begin{table}[htp]
   \centering
   \caption{LWE output variable size in bits based on $n$, $d$, $q_b$ and $\ell$}
   \begin{tabular}{|l|c|c|c|}
@@ -34,7 +34,7 @@ The number of factors represents the amount of distinct variables that need to b
 In the case of P-LWE, the matrix dimension, $n$, is plotted against the number of factors. In contrast, for R-LWE, the polynomial degree, $d$, is plotted against the number of factors. Given that M-LWE relies on two variables, namely $n$ and $d$, it was decided that the best approach would be to plot $n$ against the number of factors, with multiple lines representing different values of $d$. This was done to simplify the visualization of the differences, as a three-dimensional plot is more challenging to comprehend, particularly when printed in two dimensions. Additionally, the value of $d$ is always linear in relation to the number of factors, indicating that it solely affects the slope of the change in $n$, as evidenced in the plot.
 
 
-\begin{figure}[ht!]
+\begin{figure}[htp]
   \centering
   \includegraphics[scale=0.52]{images/OutputFactors.png}
   \caption[Output Variable Factors by Scheme]{The graph illustrates the growth in the number of factors (y-axis) against the dimensions (x-axis). Each of the three columns of plots represents a distinct scheme, as indicated at the top of the figure. The rows represent the output variables, which are indicated on the right-hand side of the right plot. In Plain-LWE and M-LWE, the x-axis is represented by the variable $n$. In contrast, R-LWE employs the variable $d$. In the case of M-LWE, the diverse line types serve to differentiate between distinct values of $d$.}
@@ -53,7 +53,7 @@ In general, R-LWE requires the fewest number of factors and the smallest amount 
 
 A comparison of the physical space required for the various encryption schemes, with variables based on the regular/recommended security level of published encryption schemes that employ the underlying method, can be found in Table \ref{table:OutputVariableInKB}. It is important to note that the results should be interpreted with caution and that direct comparisons between the numbers are not possible. However, the data provides a general indication of the differences between the schemes. Notably, the variables for Plain-LWE are considerably larger than those for the other two, requiring more than$3$ gigabytes, solely for the RLK. Even tho the ciphertext $ct$ is the smallest for Plain-LWE, this amount of disk space is necessary for each bit, whereas R-LWE and M-LWE can store $512$ or $256$ bits, respectively, with a slightly larger $ct$. With the exception of the ciphertext, R-LWE has the smallest overall size for every variable. However, as it can store twice the information of M-LWE and, as previously mentioned, $512$ times more than Plain-LWE, it requires the smallest amount per bit stored.
 
-\begin{table}[h]
+\begin{table}[htp]
   \centering
   \caption[Theoretical LWE HE output variable sizes]{Theoretical LWE Output Variable size in Kilobyte (KB), based on variables for the regular/recommended security level of published encryption schemes. The modulus $p=q^3; p_b=q_b*3$ as used in \cite{bfv}}
   \begin{tabular}{|l|c||c|c|c|c||c|c|c|c|}
@@ -76,7 +76,7 @@ The objective of this section is to perform a comparative analysis of the runtim
 
 The initial comparison is that of processing time, based on the two size dimensions, namely, $n$ and $d$. The results of the comparative analysis of the algorithms' performance are presented in Figure \ref{fig:nd-performance}. 
 
-\begin{figure}[ht!]
+\begin{figure}[htp]
   \centering
   \includegraphics[scale=0.5]{images/nd-performance.png}
   \caption[Performance of the HE algorithms by $n$ and $d$]{Performance of the main algorithms in regard to dimensions $n$ and $d$ and the time in seconds. Each row is a different function, as stated always above the left plot. The left column plots the time against $n$ for some $d$ values. The right column plots the time against $d$ for some $n$ values.}
@@ -88,7 +88,7 @@ As the number of matrix multiplications increases, the algorithms become less ef
 
 In consideration of the overall performance, the impact of input parameters can result in a significant decline in performance, potentially by a factor of multiple and even orders of magnitude. Therefore, the input dimensions exert a considerable influence on the performance.
 
-\begin{figure}[ht!]
+\begin{figure}[htp]
   \centering
   \includegraphics[scale=0.48]{images/qp-performance.png}
   \caption[Performance of the HE algorithms by $q$ and $p$]{Performance of the main algorithms in regard to modulus with $q$ and the modulus factor $p$, which represents $q*p$ bit in regards to the time in seconds. Each row is a different function, as stated always above the left plot. The left column plots the time against $q$ for some $p$ values. The right column plots the time against $p$ for some $q$ values.}
@@ -105,7 +105,7 @@ Upon examination of the data, it becomes evident that there are two distinct gro
 In general, it can be observed that the variables $q$ and $p$ exert a relatively minor influence on performance, particularly in comparison to the dimension variables. As evidenced by the data, even a significant discrepancy in $q$ and $p$ only results in a $40\%$ increase in the time required for multiplication. However, when considering the range of $p$ values, from $4*10=40$ bits to $80*10=800$ bits, the observed increase is a factor of $20$.
 
 
-\begin{table}[h]
+\begin{table}[htp]
   \centering
   \caption{M-LWE and R-LWE Performance in seconds, based on variables for the regular/recommended security level of published encryption schemes}
   \begin{tabular}{|l|c||c|c|c|c|c|}
@@ -132,7 +132,7 @@ This process is then repeated until either the decrypted message does not match 
 
 First, the additive depth and error will be subjected to examination. The graphs illustrating this can be seen in Figure \ref{fig:AddErrorDev}. The addition is dependent on three variables: the two dimensional variables and the modulus, $q$. The modulus $p$ is not a required component of the addition process and therefore does not exert any influence on it. The figure illustrates the evolution of the error with depth for various configurations of the dimensions and for different modulus values. Once more, the value of $q$ represents the exponent, and the utilized modulus is defined as $q_{mod} = 2^q$. The error axis is logarithmic in order to facilitate the visualization of the comparative magnitude of the errors. A logarithmic curve is observed in nearly all of the graphs, indicating that the error grows in a linear fashion with depth. In the event that the value of $q$ is insufficient, the curve will be terminated prematurely, as the resulting error is too high for successful decryption. As the value of $q$ increases, the minimum error decreases, thereby enabling a greater number of operations. However, when $n$ or $d$ are increased, the minimum error rises due to the number of total factors and with that more error in the system. Accordingly, as the dimensions increase, a larger modulus must be selected to facilitate subsequent additions. The linear growth can be attributed to the fact that the errors resulting from the addition are simply added together, as outlined in algorithm \ref{alg:MlweAddition}. Therefore, the resulting error is equal to the sum of the two errors from the ciphertexts. In this experiment, only freshly encrypted data with a minimal error was added to one ciphertext. In practice, however, ciphertexts with larger errors will also be added, as they will have undergone previous operations. When the errors are combined, the growth rate will be faster than that shown in the graph. Nevertheless, the growth rate remains linear and thus manageable and with a sufficiently large modulus, which makes it possible to run more then $200$ additions easily, as can be seen by the error in the graphs. Also the maximum used modulus with $q_mod = 2^{32}$, is not that high and bigger ones could be used without any problem making it possible to run more than $1000$ additions in a row.
 
-\begin{figure}[ht!]
+\begin{figure}[htp]
   \centering
   \includegraphics[scale=0.38]{images/AddErrorDevelopment.png}
   \caption[Additive Error Development]{Additive Error Development}
@@ -144,7 +144,7 @@ A comparison of the various LWE schemes reveals that the difference in computati
 
 The next step is to analyse the multiplication process, which is illustrated in Figure \ref{fig:MulErrorDev}. The multiplication function makes use of the modulus $p$ for the modulus switching component. The impact of this variable is illustrated by the colored bands displayed alongside each graph. It displays the minimum to maximum error values for all values of $p$ at that depth. To obtain a comprehensive set of values, multiple runs were conducted with identical dimension variables and modulus, and varying $p$ values between $1$ and $15$. This resulted in the calculation of the modulus $p_{mod}=2^{q*p}$. The primary line represents the median values for a given depth across all $p$ values.
 
-\begin{figure}[ht!]
+\begin{figure}[htp]
   \centering
   \includegraphics[scale=0.38]{images/MulErrorDevelopment.png}
   \caption[Multiplicative Error Development]{Multiplicative Error Development}
@@ -157,7 +157,7 @@ The value of $p$ is utilized for the modulus switching process, with the objecti
 
 When comparing the influence of the variables $n$ and $d$ and, consequently, the various schemes, on the multiplication error and depth, it becomes evident that, as was the case with addition, both variables exert a roughly equivalent influence. Therefore, irrespective of the variable that is increased, the computational depth rate will decline to a similar extent. As observed in the case of multiplication and addition, by enhancing the modulus $q$, the minimum error can be lowered, consequently leading to an increase in the computational depth. This phenomenon occurs for all operations due to the intrinsic nature of the scheme itself, rather than the specific operation, and thus was to be expected.
 
-\begin{table}[h]
+\begin{table}[htp]
   \centering
   \caption[M-LWE and R-LWE computation depth comparison]{A comparison of the computation depth of M-LWE and R-LWE for variable modules, with $q_{mod} = 2^q$ and $p_{mod}=2^{q*3}$. The remaining parameters are based on variables corresponding to the regular or recommended security level of published encryption schemes. The resulting numbers are the median values when an error occurred and thus it no further calculations were possible.}
   

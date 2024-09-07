@@ -155,7 +155,7 @@ One notable shortcoming of Plain LWE is that only a single bit can be encoded at
 The security of Plain-LWE is dependent on the matrix dimension $n$, whereas R-LWE is reliant on the polynomial degree $d$. Conversely, M-LWE represents a combination of the matrix dimension $n$ and the polynomial degree $d$.  
 Furthermore, the security of all three schemes hinges on the modulus $q$. It can be inferred that the value of $n$ can be smaller in M-LWE than in Plain LWE, and that the value of $d$ can be smaller then that in R-LWE. This can be verified by examining three distinct LWE-based encryption schemes and their recommended security parameters, as illustrated in Table \ref{table:LweParameterComparison}. As can be observed in this table, the large value of $n$ for Plain-LWE results in matrices that are quite large. In contrast, the vectors used in R-LWE are significantly smaller, and the matrices in M-LWE are of a size somewhere between those of Plain-LWE and R-LWE. A more detailed analysis of the size cost implications of these schemes will be presented in Chapter \ref{sec:sizeCostComparison}.
 
-\begin{table}[h]
+\begin{table}[htp]
   \centering
   \caption{Variable size comparison of different LWE based encryption schemes}
   \begin{tabular}{|l|c|c|c|c|}
