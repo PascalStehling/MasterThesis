@@ -9,6 +9,7 @@
 \DeclareRobustCommand*\thesis[1]{\gdef\@thesis{#1}}                % type of thesis
 \DeclareRobustCommand*\bdate[1]{\gdef\@bdate{#1}}                  % date of birth
 \DeclareRobustCommand*\bcity[1]{\gdef\@bcity{#1}}                  % place of birth
+\DeclareRobustCommand*\email[1]{\gdef\@email{#1}}                % matriculation number
 \DeclareRobustCommand*\matrnr[1]{\gdef\@matrnr{#1}}                % matriculation number
 \DeclareRobustCommand*\supervisor[1]{\gdef\@supervisor{#1}}        % first supervisor
 \DeclareRobustCommand*\secsupervisor[1]{\gdef\@secsupervisor{#1}}  % second supervisor
@@ -315,18 +316,19 @@
 
 \newcommand*{\makeinfo}{%
   \begin{tabular}{rl}
-    Datum           & \@date          \\
-                    &                 \\
-    von:            & \@author        \\
+    Date:                 & \@date           \\
+                          &                  \\
+    Author:               & \@author         \\
     % & geboren am \@bdate \\
     % & in \@bcity         \\
-    Matrikelnummer: & \@matrnr        \\
-                    &                 \\
+    Matriculation Nr.:    & \@matrnr         \\
+    E-Mail:               & \@email          \\
+                          &                  \\
     \ifx\@supervisor\empty\else
-    Betreuer:       & \@supervisor    \\
+    Supervisor:           & \@supervisor     \\
     \fi
     \ifx\@secsupervisor\empty\else
-    Zweitbetreuer:  & \@secsupervisor
+    Secondary Supervisor: & \@secsupervisor
     \fi
   \end{tabular}
 }
@@ -578,7 +580,6 @@
 % wrapper for bibliography
 \newcommand{\listofreferences}[1][]{%
   \printbibliography[
-    title=Literaturverzeichnis\label{bib},
     #1  % insert other options here
   ]
 }
