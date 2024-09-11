@@ -319,8 +319,8 @@
     Date:                 & \@date           \\
                           &                  \\
     Author:               & \@author         \\
-    % & geboren am \@bdate \\
-    % & in \@bcity         \\
+    Date of birth:        & \@bdate          \\
+    in                    & \@bcity          \\
     Matriculation Nr.:    & \@matrnr         \\
     E-Mail:               & \@email          \\
                           &                  \\
