@@ -117,10 +117,6 @@ class BFV:
             min_val=0,
             max_val=conf.modulus)
 
-        # s = PolynomialTensor([[1, 0, 0, 1]], conf.modulus)
-        # e = PolynomialTensor([[0, 1, 1, 1]], conf.modulus)
-        # A = PolynomialTensor([[723, 177, 914, 847]], conf.modulus)
-
         b = (-1 * (A @ s + e)) % conf.modulus
         big_mod = conf.p * conf.modulus
         rs = PolynomialMatrix(s.poly_mat, big_mod)
@@ -159,9 +155,6 @@ class BFV:
         r = PolynomialMatrix.random_polynomial_matrix(conf.poly_len,
                                                       conf.modulus,
                                                       (conf.mat_size, 1), 0, 2)
-        # e1 = PolynomialTensor([[0, 1, 0, 0]], conf.modulus)
-        # e2 = PolynomialTensor([[1, 1, 0, 1]], conf.modulus)
-        # r = PolynomialTensor([[0, 2, 0, 1]], conf.modulus)
 
         dm = PolynomialMatrix(message, conf.modulus) * (conf.modulus // 2)
         v = (pk.b.T @ r + e1 + dm) % conf.modulus
