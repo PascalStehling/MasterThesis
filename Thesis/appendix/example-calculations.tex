@@ -29,7 +29,7 @@ $$
     1+x+x^2   \\
     2+2x+2x^2 \\
   \end{bmatrix}
-  }                      \\
+  }                 \mod 5    \\
                   & = {
   \begin{bmatrix}
     \begin{bmatrix}
@@ -66,7 +66,7 @@ $$
       2 \\
     \end{bmatrix} \\
   \end{bmatrix}
-  }                      \\
+  }                    \mod 5 \\
                   & = {
   \begin{bmatrix}
     1 & -3 & -2 & 2 & -4 & -3  \\
@@ -85,7 +85,7 @@ $$
     2 \\
     2 
   \end{bmatrix}
-  }                      \\
+  }               \mod 5      \\
                   & = {
   \begin{bmatrix}
     -14 \\
@@ -120,7 +120,7 @@ $$
       4
     \end{bmatrix} \\
   \end{bmatrix}
-  }                      \\
+  }                           \\
                   & = {
   \begin{bmatrix}
     1+2x+4x^2 \\
@@ -130,9 +130,9 @@ $$
 \end{align*}
 
 
-\section{Example encryption with Plain LWE}
+\section{Example encryption with Plain-LWE}
 \label{app:PlainLweCalc}
-The following calculations show the working of the Plain LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}_{100}$ and $n=2$ for the matrix dimension. Starting first with the key generation:
+The following calculations show the working of the Plain-LWE encryption for the algorithms \ref{alg: SampleLweKeyGen} to \ref{alg: SampleLweDecryption}. The ring used for this calculations is defined as $R=\mathbb{Z}_{100}$ and $n=2$ for the matrix dimension. Starting first with the key generation:
 
 
 \begin{align*}
@@ -409,13 +409,13 @@ Starting first with the key generation:
 
 Encryption of message $m=(1,1,0)$:
 \begin{align*}
-  \textbf{r}            & = \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}                                       \\
+  \textbf{r}   & = \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}                                       \\
   \textbf{e}_1 & = \begin{bmatrix}2+98x+3x^2 \\ 97+3x+3x^2 \end{bmatrix}                                     \\
   e_2          & = 2+97x+97x^2                                                                               \\
-  m            & =(1,1,0) = 1+1x+0x^2                                                                       \\
+  m            & =(1,1,0) = 1+1x+0x^2                                                                        \\
   \\
   % Calculating u
-  \textbf{u}            & = \textbf{A}^T \cdot \textbf{r} + \textbf{e}_1                                                       \\
+  \textbf{u}   & = \textbf{A}^T \cdot \textbf{r} + \textbf{e}_1                                              \\
   % Step 2
                & = \begin{bmatrix}27+2x+43x^2 & 30+10x+35x^2 \\ 91+34x+50x^2 & 82+21x+94x^2 \end{bmatrix}^T
   \cdot
@@ -438,7 +438,7 @@ Encryption of message $m=(1,1,0)$:
   \begin{bmatrix}75+18x+25x^2 \\ 64+23x+72x^2 \end{bmatrix}                                                  \\
   \\
   % Calculating V
-  v            & = \textbf{b}^T \cdot \textbf{r} + e_2 + (m\cdot\left\lfloor q/2\right\rfloor)                        \\
+  v            & = \textbf{b}^T \cdot \textbf{r} + e_2 + (m\cdot\left\lfloor q/2\right\rfloor)               \\
   % Step 2
                & =\begin{bmatrix}
                     57+57x+35x^2 \\
@@ -446,9 +446,9 @@ Encryption of message $m=(1,1,0)$:
                   \end{bmatrix} ^T
   \cdot
   \begin{bmatrix}1+1x+1x^2 \\ 1+0x+0x^2 \end{bmatrix}
-  + (2+97x+97x^2) + (1+1x+0x^2) \cdot \left\lfloor 100/2\right\rfloor                                       \\
+  + (2+97x+97x^2) + (1+1x+0x^2) \cdot \left\lfloor 100/2\right\rfloor                                        \\
   % Step 4
-               & = (25+92x+171x^2) + (2+97x+97x^2) + (50+50x+0x^2)                                          \\
+               & = (25+92x+171x^2) + (2+97x+97x^2) + (50+50x+0x^2)                                           \\
   % Step 5
                & = (77+239x+268x^2)_{100}                                                                    \\
   % Step 6
@@ -459,7 +459,7 @@ Encryption of message $m=(1,1,0)$:
 
 Decryption:
 \begin{align*}
-  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} \cdot\left[v-\textbf{s}^T \cdot \textbf{u}\right]_{q}\right\rceil _2           \\
+  m & = \left\lfloor \frac{1}{\left\lfloor q/2\right\rfloor} \cdot\left[v-\textbf{s}^T \cdot \textbf{u}\right]_{q}\right\rceil _2    \\
     & = \left\lfloor \frac{1}{\left\lfloor 100/2\right\rfloor} \cdot \left[77+39x+68x^2-
     \begin{bmatrix}2+ 1x + 0x^2 \\ 3+1x+1x^2 \end{bmatrix}^T
     \cdot

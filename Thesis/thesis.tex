@@ -120,19 +120,19 @@
 
 % Literaturverzeichnis
 \listofreferences
+\clearpage
 
-% Abbildungsverzeichnis einfügen
-\listoffigures
-
-% Tabellenverzeichnis einfügen
-\listoftables
-
+% Put List of Figures and Tables on one Page
+\let\LaTeXStandardClearpage\clearpage
+\let\clearpage\relax  % Do nothing when a \clearpage command appears 
+\listoffigures % Abbildungsverzeichnis einfügen
+\listoftables % Tabellenverzeichnis einfügen
+\let\clearpage\LaTeXStandardClearpage % Return to the old definition
 % Algorithmenverzeichnis einfügen
 \listofalgorithms
 
 % % Quelltextverzeichnis einfügen
 % \listoflistings
-
 % =========
 %  Appendix
 % =========
