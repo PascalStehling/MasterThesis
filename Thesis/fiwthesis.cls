@@ -530,7 +530,7 @@
   \chapter*{\doi}
   
   % add this chapter to the TOC
-  \addcontentsline{toc}{chapter}{\doi}
+  % \addcontentsline{toc}{chapter}{\doi}
   
   Hiermit erkläre ich, dass ich die vorliegende Arbeit selbständig verfasst und keine anderen als die angegebenen Hilfsmittel benutzt habe.
   Die Stellen der Arbeit, die anderen Quellen im Wortlaut oder dem Sinn nach entnommen wurden, sind durch Angaben der Herkunft kenntlich gemacht.
