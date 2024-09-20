@@ -3,7 +3,6 @@ from itertools import chain
 from operator import add, floordiv, mul, sub, truediv
 from random import randint
 from typing import Callable, Sized
-from xmlrpc.client import boolean
 import numpy as np
 
 
@@ -74,7 +73,7 @@ class RingPoly:
     def __floordiv__(self, other) -> "RingPoly":
         return self._calc(other, floordiv)
 
-    def __eq__(self, other) -> boolean:
+    def __eq__(self, other) -> bool:
         if isinstance(other, RingPoly):
             return self.poly == other.poly
         elif isinstance(other, list):
@@ -243,23 +242,6 @@ class PolynomialMatrix(object):
 
     def change_modulus(self, mod: int) -> "PolynomialMatrix":
         return PolynomialMatrix((self % mod).poly_mat, mod)
-
-    # def __pow__(self, other: int) -> "PolynomialMatrix":
-    #     original_shape = self.poly_mat.shape
-    #     polynomials = [
-    #         PolynomialMatrix([poly], self.modulus)
-    #         for poly in self.poly_mat.reshape((-1, original_shape[-1]))
-    #     ]
-
-    #     def _multi(poly: PolynomialMatrix, amount: int) -> PolynomialMatrix:
-    #         if amount == 1:
-    #             return poly
-    #         return poly @ _multi(poly, amount - 1)
-
-    #     return self._create(
-    #         np.asarray([(_multi(poly, other)).poly_mat[0]
-    #                     for poly in polynomials]).reshape(original_shape) %
-    #         self.modulus, self.modulus)
 
     def __eq__(self, other):
         if not isinstance(other, PolynomialMatrix):
