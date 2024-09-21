@@ -125,7 +125,7 @@ A polynomial with coefficients in a ring $R$ is expressed as
 $$f(x) = a_0+ a_1x+\cdots+ a_{n-1}x^{d-1}+a_dx^d | a_0, \cdots, a_d \in R$$
 
 The variable $d$ defines the degree $\deg(f(x))$ of the polynomial, which is the largest exponent in a polynomial.\\
-They can be added and multiplied like any other polynomial. Such a polynomial ring with one variable $x$ and its coefficients in $R$ is written as $R[x]$. This is a generalization of the rings we had before, because $R$ is a subset of $R[x]$ ($R \subset R[x]$), since $R$ is a polynomial with $\deg(0)$: $R = R[x] := a\cdot x^0 = a$.\\
+Such polynomials can be added and multiplied like any other polynomial. Such a polynomial ring with one variable $x$ and its coefficients in $R$ is written as $R[x]$. This is a generalization of the rings we had before, because $R$ is a subset of $R[x]$ ($R \subset R[x]$), since $R$ is a polynomial with $\deg(0)$: $R = R[x] := a\cdot x^0 = a$.\\
 Such a polynomial ring can also be defined over a finite ring, so that each coefficient is part of that finite ring. This is written as $R_q = \mathbb{Z}_q[x]$. The coefficients follow the same rules for addition and multiplication as described above. The following example takes place in the ring $R_5 = \mathbb{Z}_5[x]$ and $f, g \in R_5$ with $f(x)=1+2x+3x^2$ and $g(x)=4+2x$:
 
 \begin{align*}
@@ -162,7 +162,7 @@ In this thesis the modulus function $g(x)$ will be an polynomial with shape $x^d
 \section{Polynomial Ring arithmetic using Vectors \& Matrices}
 \label{sec:PolyMulMath}
 
-When calculating with polynomials, this can also be broken down into vector and matrix calculations. As we will see, this has advantages in performance, but also makes it easier to represent the polynomials when programming, as they can be handled as arrays of numbers. To create to generate vectors from polynomials, each polynomial is separated into two vectors, the coefficient vector and the variable vector.
+When calculating with polynomials, this can also be broken down into vector and matrix calculations. As we will see, this has advantages in performance, but also makes it easier to represent the polynomials when programming, as they can be handled as arrays of numbers. To create vectors from polynomials, each polynomial is separated into two vectors, the coefficient vector and the variable vector.
 $$
   f(x) = a_0+ a_1x+\cdots+ a_{d-1}x^{d-1}+a_dx^d =
   \begin{bmatrix}a_0\\a_1\\ \vdots \\a_{d-1}\\a_d \end{bmatrix}
@@ -223,8 +223,8 @@ $$
     b_1     \\
     b_2     \\
     \vdots  \\
-    b_{d-2} \\
-    b_{d-1}
+    b_{d-1} \\
+    b_{d}
   \end{bmatrix}
   = 
   \begin{bmatrix}
@@ -232,8 +232,8 @@ $$
     c_1     \\
     c_2     \\
     \vdots  \\
-    c_{d-2} \\
-    c_{d-1}
+    c_{d-1} \\
+    c_{d}
   \end{bmatrix}
 $$
 
